@@ -1,0 +1,25 @@
+{
+  "private": true,
+  "name": "ts-syntax-spec",
+  "version": "0.1.0",
+  "description": "Unofficial TypeScript Syntax and Runtime Semantics",
+  "scripts": {
+    "prebuild-only": "npm run clean && mkdir out  && cp -R img out",
+    "build-only": "npm run ecmarkup -- --verbose --load-biblio @tc39/ecma262-biblio spec.emu out/index.html",
+    "build-loose": "npm run build-only",
+    "build": "npm run build-only -- --lint-spec",
+    "clean": "rm -rf out",
+    "ecmarkup": "node ./scripts/ecmarkup.js",
+    "format": "emu-format --write spec.emu",
+    "test": "exit 0",
+    "watch": "npm run build-only -- --watch"
+  },
+  "repository": "qnighy/ts-syntax-spec",
+  "author": "Masaki Hara",
+  "license": "MIT",
+  "homepage": "https://qnighy.github.io/ts-syntax-spec/",
+  "devDependencies": {
+    "@tc39/ecma262-biblio": "^2.2.3029",
+    "ecmarkup": "^24.0.0"
+  }
+}

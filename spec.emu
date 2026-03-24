@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en-GB-oxendict">
+<meta charset="utf-8">
+<style>
+  #metadata-block {
+    margin: 4em 0;
+    padding: 10px;
+    border: 1px solid #ee8421;
+  }
+  #metadata-block h1 {
+    font-size: 1.5em;
+    margin-top: 0;
+  }
+  #metadata-block > ul {
+    list-style-type: none;
+    margin: 0; padding: 0;
+  }
+
+  /* TODO: Get proper Ecmarkup support for examples */
+  emu-note[example] {
+    --note-type: example;
+    --note-label: "Example";
+    --note-text-color: #574b0f;
+    --note-border-color: #e0cb52;
+    --note-background-color: #fcfaee;
+  }
+  emu-note[issue] {
+    --note-type: issue;
+    --note-label: "Issue";
+    --note-border-color: #e05252;
+    --note-background-color: #fbe9e9;
+  }
+
+  emu-note[issue], emu-note[example] {
+    color: black;
+    counter-increment: var(--note-type);
+    border-left-color: var(--note-border-color);
+    background-color: var(--note-background-color);
+    padding: 0.5em;
+
+    &::before {
+      content: var(--note-label) "\00A0" counter(var(--note-type));
+      color: var(--note-text-color, black);
+      text-transform: uppercase;
+    }
+
+    & .note {
+      display: none;
+    }
+  }
+
+  emu-clause[example][normative-optional] .attributes-tag emu-xref {
+    display: none;
+  }
+  emu-clause[example][normative-optional] .attributes-tag::before {
+    content: "Example";
+  }
+
+  dfn code {
+    font-style: normal;
+  }
+
+</style>
+<pre class="metadata">
+  title: Unofficial TypeScript Syntax and Runtime Semantics
+  status: draft
+  location: https://qnighy.github.io/ts-syntax-spec/
+  copyright: false
+</pre>
+<div id="metadata-block">
+  <h1>About this Specification</h1>
+  <p>The document at <a href="https://qnighy.github.io/ts-syntax-spec/">https://qnighy.github.io/ts-syntax-spec/</a> is the most accurate and up-to-date version of this specification. It contains the content of the most recently published snapshot plus any modifications that will be included in the next snapshot.</p>
+  <h1>Contributing to this Specification</h1>
+  <p>This specification is developed on GitHub. There are a number of ways to contribute to the development of this specification:</p>
+  <ul>
+    <li>GitHub Repository: <a href="https://github.com/qnighy/ts-syntax-spec">https://github.com/qnighy/ts-syntax-spec</a></li>
+    <li>Issues: <a href="https://github.com/qnighy/ts-syntax-spec/issues">All Issues</a>, <a href="https://github.com/qnighy/ts-syntax-spec/issues/new">File a New Issue</a></li>
+    <li>Pull Requests: <a href="https://github.com/qnighy/ts-syntax-spec/pulls">All Pull Requests</a>, <a href="https://github.com/qnighy/ts-syntax-spec/pulls/new">Create a New Pull Request</a></li>
+    <li>Test Suite: <a href="https://github.com/qnighy/ts-syntax-spec-tests/">qnighy/ts-syntax-spec-tests</a></li>
+    <li>
+      Editors:
+      <ul>
+        <li><a href="https://github.com/qnighy">Masaki Hara</a></li>
+      </ul>
+    </li>
+  </ul>
+  <p>Refer to the <emu-xref href="#sec-colophon">colophon</emu-xref> for more information on how this document is created.</p>
+  <h1>Copyright &amp; Software License</h1>
+  <p>Copyright &copy; 2026 Ecma International (for the parts of this specification derived from ECMA-262).</p>
+  <p>Copyright &copy; 2026 Masaki Hara and contributors.</p>
+  <p>This specification is licensed under the <a href="https://opensource.org/licenses/MIT">MIT License</a>.</p>
+</div>
+
+<emu-intro id="sec-intro">
+  <h1>Introduction</h1>
+  <p>This document provides an unofficial specification for the syntax and runtime semantics of TypeScript, describing TypeScript as a syntactic extension to ECMAScript as defined in ECMA-262.</p>
+  <p>TypeScript extends ECMAScript with type annotations, type declarations, and a small number of additional expression and statement forms. This specification aims to precisely define the syntax of these extensions and, where applicable, their runtime semantics (typically type erasure).</p>
+  <p>This is not an official specification endorsed by Microsoft or any standards body. It is a community effort to document TypeScript's syntax in a format compatible with ECMA-262's conventions.</p>
+</emu-intro>
+
+<emu-clause id="sec-scope">
+  <h1>Scope</h1>
+  <p>This specification defines the syntax and runtime semantics of TypeScript as an extension to ECMAScript, as defined by ECMA-262. It covers type annotation syntax, type declaration syntax, and additional expression and statement forms introduced by TypeScript.</p>
+</emu-clause>
+
+<emu-clause id="sec-conformance">
+  <h1>Conformance</h1>
+  <p>A conforming implementation of this specification is a TypeScript parser or compiler that accepts source code conforming to the grammar defined in this specification and implements the runtime semantics described herein.</p>
+  <p>A conforming implementation must support all syntax and semantics described in ECMA-262, as extended by this specification.</p>
+</emu-clause>
+
+<emu-clause id="sec-references">
+  <h1>References</h1>
+  <p>The following documents are referred to in the text in such a way that some or all of their content constitutes requirements of this document. For dated references, only the edition cited applies. For undated references, the latest edition of the referenced document (including any amendments) applies.</p>
+
+  <emu-clause id="sec-references-normative">
+    <h1>Normative References</h1>
+    <p>
+      ECMA-262, <i>ECMAScript® Language Specification</i>.<br>
+      <a href="https://tc39.es/ecma262/">https://tc39.es/ecma262/</a>
+    </p>
+  </emu-clause>
+
+  <emu-clause id="sec-references-informative">
+    <h1>Informative References</h1>
+    <p>
+      <i>TypeScript Documentation</i>.<br>
+      <a href="https://www.typescriptlang.org/docs/">https://www.typescriptlang.org/docs/</a>
+    </p>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-notational-conventions">
+  <h1>Notational Conventions</h1>
+  <p>This specification follows the same notational conventions as defined by <a href="https://tc39.es/ecma262/#sec-notational-conventions">ECMA-262 (Notational conventions)</a>.</p>
+
+  <emu-clause id="sec-grammar-notation">
+    <h1>Grammar Notation</h1>
+    <p>This specification follows the same grammar notation convention as defined by <a href="https://tc39.es/ecma262/#sec-grammar-notation">ECMA-262 (Grammar Notation)</a>, including <a href="https://tc39.es/ecma262/#sec-grammatical-parameters">grammatical parameters</a> and <a href="https://tc39.es/ecma262/#sec-lookahead-restrictions">lookahead restrictions</a>. Grammar productions in this specification extend those defined in ECMA-262.</p>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-terms-and-definitions">
+  <h1>Terms and Definitions</h1>
+  <p>For the purposes of this document, the following terms and definitions apply.</p>
+
+  <dl>
+    <dt><dfn id="sec-terms-and-definitions-type-erasure">type erasure</dfn></dt>
+    <dd>
+      <p>the process of removing type annotations and type-only declarations from TypeScript source code, producing valid ECMAScript source code.</p>
+    </dd>
+
+    <dt><dfn id="sec-terms-and-definitions-type-annotation">type annotation</dfn></dt>
+    <dd>
+      <p>a syntactic construct that specifies the type of a variable, parameter, return value, or other declaration, and which is removed during type erasure.</p>
+    </dd>
+  </dl>
+</emu-clause>
+
+<emu-clause id="sec-typescript-language-types">
+  <h1>TypeScript Language: Types</h1>
+  <emu-grammar type="definition">
+    Type :
+      PrimaryType
+  </emu-grammar>
+</emu-clause>
+
+<emu-clause id="sec-typescript-language-expressions">
+  <h1>TypeScript Language: Expressions</h1>
+  <p>This section extends <emu-xref href="#sec-ecmascript-language-expressions">ECMAScript Language: Expressions</emu-xref> to support TypeScript-specific expressions.</p>
+  <emu-clause id="sec-ts-left-hand-side-expressions">
+    <h1>Left-Hand-Side Expressions</h1>
+    <p>The following grammar extends <emu-xref href="#prod-MemberExpression">MemberExpression</emu-xref>:</p>
+    <emu-grammar type="definition">
+      MemberExpression[Yield, Await] :
+        PrimaryExpression[?Yield, ?Await]
+        MemberExpression[?Yield, ?Await] `[` Expression[+In, ?Yield, ?Await] `]`
+        MemberExpression[?Yield, ?Await] `.` IdentifierName
+        MemberExpression[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
+        SuperProperty[?Yield, ?Await]
+        MetaProperty
+        `new` MemberExpression[?Yield, ?Await] Arguments[?Yield, ?Await]
+        MemberExpression[?Yield, ?Await] `.` PrivateIdentifier
+        MemberExpression[?Yield, ?Await] [no LineTerminator here] `!`
+        MemberExpression[?Yield, ?Await] TypeArguments
+    </emu-grammar>
+    <p>The following grammar extends <emu-xref href="#prod-CallExpression">CallExpression</emu-xref>:</p>
+    <emu-grammar type="definition">
+      CallExpression[Yield, Await] :
+        CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await] #callcover
+        SuperCall[?Yield, ?Await]
+        ImportCall[?Yield, ?Await]
+        CallExpression[?Yield, ?Await] Arguments[?Yield, ?Await]
+        CallExpression[?Yield, ?Await] `[` Expression[+In, ?Yield, ?Await] `]`
+        CallExpression[?Yield, ?Await] `.` IdentifierName
+        CallExpression[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
+        CallExpression[?Yield, ?Await] `.` PrivateIdentifier
+        CallExpression[?Yield, ?Await] [no LineTerminator here] `!`
+        CallExpression[?Yield, ?Await] TypeArguments
+    </emu-grammar>
+    <p>The following grammar extends <emu-xref href="#prod-OptionalChain">OptionalChain</emu-xref>:</p>
+    <emu-grammar type="definition">
+      OptionalChain[Yield, Await] :
+        `?.` Arguments[?Yield, ?Await]
+        `?.` `[` Expression[+In, ?Yield, ?Await] `]`
+        `?.` IdentifierName
+        `?.` TemplateLiteral[?Yield, ?Await, +Tagged]
+        `?.` PrivateIdentifier
+        OptionalChain[?Yield, ?Await] Arguments[?Yield, ?Await]
+        OptionalChain[?Yield, ?Await] `[` Expression[+In, ?Yield, ?Await] `]`
+        OptionalChain[?Yield, ?Await] `.` IdentifierName
+        OptionalChain[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
+        OptionalChain[?Yield, ?Await] `.` PrivateIdentifier
+        `?.` TypeArguments Arguments[?Yield, ?Await]
+        `?.` TypeArguments TemplateLiteral[?Yield, ?Await, +Tagged]
+        OptionalChain[?Yield, ?Await] [no LineTerminator here] `!`
+        OptionalChain[?Yield, ?Await] TypeArguments
+    </emu-grammar>
+    <emu-note>
+      <p>|TypeArguments| that are not attached to a function call or a `new` expression are called Instantiation Expressions.</p>
+
+      <p>Before TypeScript 4.7, there is no Instantiation Expressions, and the grammer was instead:</p>
+      <emu-grammar>
+        MemberExpression[Yield, Await] :
+          MemberExpression[?Yield, ?Await] TypeArguments TemplateLiteral[?Yield, ?Await, +Tagged]
+          `new` MemberExpression[?Yield, ?Await] TypeArguments Arguments[?Yield, ?Await]
+
+        CallExpression[Yield, Await] :
+          MemberExpression[?Yield, ?Await] TypeArguments Arguments[?Yield, ?Await]
+          CallExpression[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
+          CallExpression[?Yield, ?Await] TypeArguments Arguments[?Yield, ?Await]
+
+        NewExpression[Yield, Await] :
+          `new` MemberExpression[?Yield, ?Await] TypeArguments
+
+        OptionalChain[Yield, Await] :
+          `?.` TypeArguments Arguments[?Yield, ?Await]
+          `?.` TypeArguments TemplateLiteral[?Yield, ?Await, +Tagged]
+          OptionalChain[?Yield, ?Await] TypeArguments Arguments[?Yield, ?Await]
+      </emu-grammar>
+
+      <p>Most TypeScript parsers represent these constructions differently from Instantiation Expressions.</p>
+    </emu-note>
+
+    <emu-clause id="sec-ts-left-hand-side-expressions-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>OptionalChain: `?.` TypeArguments TemplateLiteral</emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if any source text is matched by this production.
+        </li>
+      </ul>
+    </emu-clause>
+    <emu-clause id="sec-ts-left-hand-side-expressions-runtime-semantics-evaluation" type="sdo">
+      <h1>Runtime Semantics: Evaluation</h1>
+      <emu-grammar>MemberExpression: MemberExpression `!`</emu-grammar>
+      <emu-alg>
+        1. Return ? Evaluation of |MemberExpression|. This may be of type Reference.
+      </emu-alg>
+      <emu-grammar>MemberExpression: MemberExpression TypeArguments</emu-grammar>
+      <emu-alg>
+        1. Return ? Evaluation of |MemberExpression|. This may be of type Reference.
+      </emu-alg>
+      <emu-grammar>CallExpression: CallExpression `!`</emu-grammar>
+      <emu-alg>
+        1. Return ? Evaluation of |CallExpression|. This may be of type Reference.
+      </emu-alg>
+      <emu-grammar>CallExpression: CallExpression TypeArguments</emu-grammar>
+      <emu-alg>
+        1. Return ? Evaluation of |CallExpression|. This may be of type Reference.
+      </emu-alg>
+    </emu-clause>
+    <emu-clause id="sec-ts-optional-chaining-chain-evaluation" type="sdo">
+      <h1>
+        Runtime Semantics: ChainEvaluation (
+          _baseValue_: an ECMAScript language value,
+          _baseReference_: an ECMAScript language value or a Reference Record,
+        ): either a normal completion containing either an ECMAScript language value or a Reference Record, or an abrupt completion
+      </h1>
+      <dl class="header">
+      </dl>
+      <emu-grammar>OptionalChain: `?.` TypeArguments Arguments</emu-grammar>
+      <emu-alg>
+        1. Let _thisChain_ be this |OptionalChain|.
+        1. Let _tailCall_ be IsInTailPosition(_thisChain_).
+        1. Return ? EvaluateCall(baseValue, baseReference, |Arguments|, _tailCall_).
+      </emu-alg>
+      <emu-grammar>OptionalChain: OptionalChain `!`</emu-grammar>
+      <emu-alg>
+        1. Return ? ChainEvaluation of |OptionalChain| with arguments _baseValue_ and _baseReference_. This may be of type Reference.
+      </emu-alg>
+      <emu-grammar>OptionalChain: OptionalChain TypeArguments</emu-grammar>
+      <emu-alg>
+        1. Return ? ChainEvaluation of |OptionalChain| with arguments _baseValue_ and _baseReference_. This may be of type Reference.
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
+  <emu-clause id="sec-ts-unary-operators">
+    <h1>Unary Operators</h1>
+    <p>The following grammar extends <emu-xref href="#prod-UnaryExpression">UnaryExpression</emu-xref>:</p>
+    <emu-grammar type="definition">
+      UnaryExpression[Yield, Await] :
+        UpdateExpression[?Yield, ?Await]
+        `delete` UnaryExpression[?Yield, ?Await]
+        `void` UnaryExpression[?Yield, ?Await]
+        `typeof` UnaryExpression[?Yield, ?Await]
+        `+` UnaryExpression[?Yield, ?Await]
+        `-` UnaryExpression[?Yield, ?Await]
+        `~` UnaryExpression[?Yield, ?Await]
+        `!` UnaryExpression[?Yield, ?Await]
+        [+Await] AwaitExpression[?Yield]
+        `<` Type `>` UnaryExpression[?Yield, ?Await]
+    </emu-grammar>
+    <p>The production <emu-grammar>UnaryExpression: `<` Type `>` UnaryExpression</emu-grammar> is disabled when JSX is enabled.</p>
+    <emu-clause id="sec-ts-unary-operators-evaluation" type="sdo">
+      <h1>Runtime Semantics: Evaluation</h1>
+      <emu-grammar>UnaryExpression: `<` Type `>` UnaryExpression</emu-grammar>
+      <emu-alg>
+        1. Return ? Evaluation of |UnaryExpression|. This may be of type Reference.
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
+</emu-clause>
+
+<emu-annex id="sec-bibliography">
+  <h1>Bibliography</h1>
+  <ol>
+    <li>
+      ECMA-262, <i>ECMAScript® Language Specification</i>, available at &lt;<a href="https://tc39.es/ecma262/">https://tc39.es/ecma262/</a>>
+    </li>
+    <li>
+      <i>TypeScript Documentation</i>, available at &lt;<a href="https://www.typescriptlang.org/docs/">https://www.typescriptlang.org/docs/</a>>
+    </li>
+  </ol>
+</emu-annex>
+
+<emu-annex id="sec-colophon">
+  <h1>Colophon</h1>
+  <p>This specification is authored on <a href="https://github.com/qnighy/ts-syntax-spec">GitHub</a> in a plaintext source format called <a href="https://github.com/bterlson/ecmarkup">Ecmarkup</a>. Ecmarkup is an HTML and Markdown dialect that provides a framework and toolset for authoring ECMAScript specifications in plaintext and processing the specification into a full-featured HTML rendering that follows the editorial conventions for this document. Ecmarkup builds on and integrates a number of other formats and technologies including <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown</a> for defining syntax and <a href="https://github.com/domenic/ecmarkdown">Ecmarkdown</a> for authoring algorithm steps. PDF renderings of this specification are produced by printing the HTML rendering to a PDF.</p>
+</emu-annex>
