@@ -320,6 +320,37 @@
       </emu-alg>
     </emu-clause>
   </emu-clause>
+  <emu-clause id="sec-ts-relational-operators">
+    <h1>Relational Operators</h1>
+    <p>The following grammar extends <emu-xref href="#prod-RelationalExpression">RelationalExpression</emu-xref>:</p>
+    <emu-grammar type="definition">
+      RelationalExpression[In, Yield, Await] :
+        ShiftExpression[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] [lookahead != TypeArguments] `&lt;` ShiftExpression[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] `&gt;` ShiftExpression[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] `&lt;=` ShiftExpression[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] `&gt;=` ShiftExpression[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] `instanceof` ShiftExpression[?Yield, ?Await]
+        [+In] RelationalExpression[+In, ?Yield, ?Await] `in` ShiftExpression[?Yield, ?Await]
+        [+In] PrivateIdentifier `in` ShiftExpression[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] `as` Type
+        RelationalExpression[?In, ?Yield, ?Await] `satisfies` Type
+    </emu-grammar>
+    <emu-note>
+      <p>The production for `&lt;` is modified from the original ECMA-262 grammar to include a lookahead restriction that prevents ambiguity with |TypeArguments|.</p>
+    </emu-note>
+    <emu-clause id="sec-ts-relational-operators-runtime-semantics-evaluation" type="sdo">
+      <h1>Runtime Semantics: Evaluation</h1>
+      <emu-grammar>RelationalExpression: RelationalExpression `as` Type</emu-grammar>
+      <emu-alg>
+        1. Return ? Evaluation of |RelationalExpression|. This may be of type Reference.
+      </emu-alg>
+      <emu-grammar>RelationalExpression: RelationalExpression `satisfies` Type</emu-grammar>
+      <emu-alg>
+        1. Return ? Evaluation of |RelationalExpression|. This may be of type Reference.
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
 </emu-clause>
 
 <emu-annex id="sec-bibliography">
