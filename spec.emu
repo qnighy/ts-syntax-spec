@@ -186,11 +186,10 @@
     </emu-note>
 
     <emu-note>
-      <p>TypeScript parsers in the wild use varying degrees of relaxation when it comes to reserved words.</p>
-      <p>Examples include:</p>
+      <p>Actual parsers implement these rules in various ways.</p>
       <ul>
-        <li>Some parsers, including TypeScript, allow `eval` and `arguments` as binding type identifiers even in strict mode.</li>
-        <li>Some parsers, including Babel, allow escaped reserved words as type identifiers.</li>
+        <li>TypeScript permits eval and arguments as binding type identifiers even in strict mode.</li>
+        <li>Babel permits escaped reserved words as type identifiers.</li>
       </ul>
     </emu-note>
 
@@ -292,7 +291,10 @@
 
     <emu-note>
       <p>It implies that legacy octal/non-octal literals and legacy octal/non-octal escapes are not allowed in strict mode.</p>
-      <p>This validation may also vary between different parsers.</p>
+      <p>Actual parsers implement these rules in various ways.</p>
+      <ul>
+        <li>TypeScript disallows these legacy constructs even outside of strict mode.</li>
+      </ul>
     </emu-note>
 
     <emu-clause id="sec-ts-literal-types-static-semantics-early-errors">
@@ -304,7 +306,10 @@
         </li>
       </ul>
       <emu-note>
-        <p>Parsers may implement varying degrees of strictness for this validation. For example, TypeScript does not validate escapes.</p>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>TypeScript permits invalid escapes in template literal types.</li>
+        </ul>
       </emu-note>
     </emu-clause>
   </emu-clause>
@@ -313,6 +318,60 @@
     <emu-grammar type="definition">
       ThisType : `this`
     </emu-grammar>
+  </emu-clause>
+  <emu-clause id="sec-ts-tuple-types">
+    <h1>Tuple Types</h1>
+    <emu-grammar type="definition">
+      TupleType :
+        `[` `]`
+        `[` TupleTypeElements `]`
+        `[` TupleTypeElements `,` `]`
+
+      TupleTypeElements :
+        TupleTypeElement
+        TupleTypeElements `,` TupleTypeElement
+
+      TupleTypeElement :
+        RequiredTupleTypeElement
+        OptionalTupleTypeElement
+        TupleTypeRestElement
+
+      RequiredTupleTypeElement :
+        Type
+        IdentifierName `:` Type
+
+      OptionalTupleTypeElement :
+        Type `?`
+        IdentifierName `?` `:` Type
+
+      TupleTypeRestElement :
+        `...` Type
+        `...` IdentifierName `:` Type
+    </emu-grammar>
+    <emu-clause id="sec-ts-tuple-types-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>
+        TupleTypeElements : TupleTypeElements `,` TupleTypeElement
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if |TupleTypeElement| is a |TupleTypeRestElement| and |TupleTypeElements| contains any |TupleTypeElement| that is another |TupleTypeRestElement|.
+        </li>
+        <li>
+          It is a Syntax Error if |TupleTypeElement| is a |OptionalTupleTypeElement| and |TupleTypeElements| contains any |TupleTypeElement| that is a |TupleTypeRestElement|.
+        </li>
+        <li>
+          It is a Syntax Error if |TupleTypeElement| is a |RequiredTupleTypeElement| and |TupleTypeElements| contains any |TupleTypeElement| that is a |OptionalTupleTypeElement|.
+        </li>
+      </ul>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>Babel permits optional elements appearing after rest elements.</li>
+          <li>Babel permits rest elements appearing after other rest elements.</li>
+        </ul>
+      </emu-note>
+    </emu-clause>
   </emu-clause>
   <emu-clause id="sec-ts-conditional-types">
     <h1>TypeScript Language: Conditional Type</h1>
