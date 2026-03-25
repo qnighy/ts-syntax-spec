@@ -159,16 +159,9 @@
 
 <emu-clause id="sec-typescript-language-types">
   <h1>TypeScript Language: Types</h1>
-  <emu-clause id="sec-ts-primary-types">
-    <h1>Type Reference</h1>
+  <emu-clause id="sec-ts-type-identifiers">
+    <h1>Type Identifiers</h1>
     <emu-grammar type="definition">
-      TypeReference :
-        QualifiedTypeName TypeArguments?
-
-      QualifiedTypeName :
-        TypeIdentifierReference
-        QualifiedTypeName `.` IdentifierName
-
       TypeIdentifierReference :
         IdentifierReference but not TypeReservedWord or TypeOperator
 
@@ -198,15 +191,63 @@
     </emu-note>
 
     <emu-note>
-      <p>Type identifiers following `.` is |IdentifierName|, therefore exempt from the restrictions on reserved words.</p>
-    </emu-note>
-
-    <emu-note>
       <p>TypeScript parsers in the wild use varying degrees of relaxation when it comes to reserved words.</p>
       <p>Examples include:</p>
       <ul>
         <li>Some parsers, including TypeScript, allow `eval` and `arguments` as binding type identifiers even in strict mode.</li>
+        <li>Some parsers, including Babel, allow escaped reserved words as type identifiers.</li>
       </ul>
+    </emu-note>
+
+    <emu-clause id="sec-ts-type-identifiers-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>TypeIdentifierReference: IdentifierReference but not TypeReservedWord or TypeOperator</emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if the StringValue of |IdentifierReference| is one of the |TypeReservedWord| or |TypeOperator| tokens.
+        </li>
+      </ul>
+      <emu-grammar>BindingTypeIdentifier: BindingIdentifier but not TypeReservedWord</emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if the StringValue of |BindingIdentifier| is one of the |TypeReservedWord| tokens.
+        </li>
+      </ul>
+      <emu-note>
+        <p>These rules are here to disallow escaped reserved words.</p>
+      </emu-note>
+    </emu-clause>
+  </emu-clause>
+  <emu-clause id="sec-ts-primary-types">
+    <h1>Type Reference</h1>
+    <emu-grammar type="definition">
+      TypeReference :
+        QualifiedTypeName TypeArguments?
+
+      QualifiedTypeName :
+        TypeIdentifierReference
+        QualifiedTypeName `.` IdentifierName
+
+      TypeIdentifierReference :
+        IdentifierReference but not TypeReservedWord or TypeOperator
+
+      BindingTypeIdentifier :
+        BindingIdentifier but not TypeReservedWord
+
+      TypeReservedWord :: one of
+        `any`
+        `bigint` `boolean`
+        `never` `number`
+        `object`
+        `string` `symbol`
+        `undefined` `unknown`
+
+      TypeOperator :: one of
+        `keyof` `readonly` `unique`
+    </emu-grammar>
+
+    <emu-note>
+      <p>Type identifiers following `.` is |IdentifierName|, therefore exempt from the restrictions on reserved words.</p>
     </emu-note>
   </emu-clause>
   <emu-clause id="sec-ts-conditional-types">
