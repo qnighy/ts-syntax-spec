@@ -166,10 +166,10 @@
     <h1>Type Identifiers</h1>
     <emu-grammar type="definition">
       TypeIdentifierReference :
-        IdentifierReference but not KeywordType but not TypeOperator
+        IdentifierReference but not ExtraKeywordType but not TypeOperator
 
       BindingTypeIdentifier :
-        BindingIdentifier but not KeywordType
+        BindingIdentifier but not ExtraKeywordType
 
       TypeOperator :: one of
         `keyof` `readonly` `unique`
@@ -196,16 +196,16 @@
 
     <emu-clause id="sec-ts-type-identifiers-static-semantics-early-errors">
       <h1>Static Semantics: Early Errors</h1>
-      <emu-grammar>TypeIdentifierReference: IdentifierReference but not KeywordType but not TypeOperator</emu-grammar>
+      <emu-grammar>TypeIdentifierReference: IdentifierReference but not ExtraKeywordType but not TypeOperator</emu-grammar>
       <ul>
         <li>
-          It is a Syntax Error if the StringValue of |IdentifierReference| is one of the |KeywordType| or |TypeOperator| tokens.
+          It is a Syntax Error if the StringValue of |IdentifierReference| is one of the |ExtraKeywordType| or |TypeOperator| tokens.
         </li>
       </ul>
-      <emu-grammar>BindingTypeIdentifier: BindingIdentifier but not KeywordType</emu-grammar>
+      <emu-grammar>BindingTypeIdentifier: BindingIdentifier but not ExtraKeywordType</emu-grammar>
       <ul>
         <li>
-          It is a Syntax Error if the StringValue of |BindingIdentifier| is one of the |KeywordType| tokens.
+          It is a Syntax Error if the StringValue of |BindingIdentifier| is one of the |ExtraKeywordType| tokens.
         </li>
       </ul>
       <emu-note>
@@ -213,8 +213,8 @@
       </emu-note>
     </emu-clause>
   </emu-clause>
-  <emu-clause id="sec-ts-primary-types">
-    <h1>Type Reference</h1>
+  <emu-clause id="sec-ts-type-references">
+    <h1>Type References</h1>
     <emu-grammar type="definition">
       TypeReference :
         QualifiedTypeName
@@ -222,18 +222,54 @@
 
       QualifiedTypeName :
         TypeIdentifierReference
+        TypeImportCall
         QualifiedTypeName `.` IdentifierName
-        KeywordType `.` IdentifierName
+        ExtraKeywordType `.` IdentifierName
     </emu-grammar>
 
     <emu-note>
       <p>Type identifiers following `.` is |IdentifierName|, therefore exempt from the restrictions on reserved words.</p>
     </emu-note>
   </emu-clause>
+  <emu-clause id="sec-ts-import-types">
+    <h1>Type Imports</h1>
+    <emu-grammar type="definition">
+      TypeImportCall :
+        `import` `(` StringLiteral `)`
+        `import` `(` StringLiteral `,` `{` `with` `:` WithClauseBody `,`? `}` `)`
+
+      WithClauseBody :
+        `{` `}`
+        `{` WithEntries `,`? `}`
+    </emu-grammar>
+
+    <emu-note>
+      <p>|WithClauseBody| is |WithClause| but without preceding `with` keyword.</p>
+    </emu-note>
+    <emu-note>
+      <p>Before TypeScript 6.0, `assert` was allowed as an alternative to the `with` keyword.</p>
+    </emu-note>
+  </emu-clause>
+  <emu-clause id="sec-ts-type-queries">
+    <h1>Type Queries</h1>
+    <emu-grammar type="definition">
+      TypeQuery :
+        `typeof` ExpressionInTypeQuery
+
+      ExpressionInTypeQuery :
+        IdentifierReference
+        TypeImportCall
+        ExpressionInTypeQuery `.` IdentifierName
+    </emu-grammar>
+  </emu-clause>
   <emu-clause id="sec-ts-keyword-types">
     <h1>Keyword Types</h1>
     <emu-grammar type="definition">
-      KeywordType :: one of
+      KeywordType :
+        `void`
+        ExtraKeywordType
+
+      ExtraKeywordType :: one of
         `any`
         `bigint` `boolean`
         `never` `number`
@@ -251,6 +287,7 @@
         StringLiteral
         NoSubstitutionTemplate
         NumericLiteral
+        `-` NumericLiteral
     </emu-grammar>
 
     <emu-note>
@@ -270,6 +307,12 @@
         <p>Parsers may implement varying degrees of strictness for this validation. For example, TypeScript does not validate escapes.</p>
       </emu-note>
     </emu-clause>
+  </emu-clause>
+  <emu-clause id="sec-ts-this-type">
+    <h1>The `this` Type</h1>
+    <emu-grammar type="definition">
+      ThisType : `this`
+    </emu-grammar>
   </emu-clause>
   <emu-clause id="sec-ts-conditional-types">
     <h1>TypeScript Language: Conditional Type</h1>
