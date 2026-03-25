@@ -353,6 +353,36 @@
   </emu-clause>
 </emu-clause>
 
+<emu-clause id="sec-typescript-language-functions-and-classes">
+  <h1>TypeScript Language: Functions and Classes</h1>
+  <p>This section extends <emu-xref href="#sec-ecmascript-language-functions-and-classes">ECMAScript Language: Functions and Classes</emu-xref> to support TypeScript-specific syntax.</p>
+  <emu-clause id="sec-ts-arrow-function-definitions">
+    <h1>Arrow Function Definitions</h1>
+    <p>The following grammar extends <emu-xref href="#prod-ArrowParameters">ArrowParameters</emu-xref>:</p>
+    <emu-grammar type="definition">
+      ArrowFunction[In, Yield, Await, Else] :
+        ArrowBindingIdentifier[?Yield, ?Await] [no LineTerminator here] `=>` ConciseBody[?In]
+        ArrowHead[?Yield, ?Await, ?Else] [no LineTerminator here] `=>` ConciseBody[?In]
+
+      ArrowBindingIdentifier[Yield, Await] :
+        BindingIdentifier[?Yield, ?Await]
+
+      ArrowHead[Yield, Await, Else] :
+        CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await] ReturnType[Else]?
+        TypeArguments ArrowFormalParameters[?Yield, ?Await] ReturnType[Else]?
+    </emu-grammar>
+    <emu-note>
+      <p>If JSX is enabled, the |TypeArguments| in |ArrowHead| must match the following production to avoid ambiguity with JSX syntax.</p>
+      <emu-grammar type="definition">
+        TypeArgumentsLookahead:
+          `<` `const`? BindingIdentifier[+Yield, +Await] `extends` [lookahead &notin; { `=`, `>`, `/` }]
+          `<` `const`? BindingIdentifier[+Yield, +Await] `=`
+          `<` `const`? BindingIdentifier[+Yield, +Await] `,`
+      </emu-grammar>
+    </emu-note>
+  </emu-clause>
+</emu-clause>
+
 <emu-annex id="sec-bibliography">
   <h1>Bibliography</h1>
   <ol>
