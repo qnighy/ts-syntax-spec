@@ -163,7 +163,7 @@
     <h1>Type Identifiers</h1>
     <emu-grammar type="definition">
       TypeIdentifierReference :
-        IdentifierReference but not TypeReservedWord or TypeOperator
+        IdentifierReference but not TypeReservedWord but not TypeOperator
 
       BindingTypeIdentifier :
         BindingIdentifier but not TypeReservedWord
@@ -227,23 +227,6 @@
       QualifiedTypeName :
         TypeIdentifierReference
         QualifiedTypeName `.` IdentifierName
-
-      TypeIdentifierReference :
-        IdentifierReference but not TypeReservedWord or TypeOperator
-
-      BindingTypeIdentifier :
-        BindingIdentifier but not TypeReservedWord
-
-      TypeReservedWord :: one of
-        `any`
-        `bigint` `boolean`
-        `never` `number`
-        `object`
-        `string` `symbol`
-        `undefined` `unknown`
-
-      TypeOperator :: one of
-        `keyof` `readonly` `unique`
     </emu-grammar>
 
     <emu-note>
