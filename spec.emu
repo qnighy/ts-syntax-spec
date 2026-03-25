@@ -242,6 +242,35 @@
         `undefined` `unknown`
     </emu-grammar>
   </emu-clause>
+  <emu-clause id="sec-ts-literal-types">
+    <h1>Literal Types</h1>
+    <emu-grammar type="definition">
+      LiteralType :
+        NullLiteral
+        BooleanLiteral
+        StringLiteral
+        NoSubstitutionTemplate
+        NumericLiteral
+    </emu-grammar>
+
+    <emu-note>
+      <p>It implies that legacy octal/non-octal literals and legacy octal/non-octal escapes are not allowed in strict mode.</p>
+      <p>This validation may also vary between different parsers.</p>
+    </emu-note>
+
+    <emu-clause id="sec-ts-literal-types-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>LiteralType : NoSubstitutionTemplate</emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if |NoSubstitutionTemplate| <emu-xref href="#sec-static-semantics-contains">Contains</emu-xref> |NotEscapeSequence|.
+        </li>
+      </ul>
+      <emu-note>
+        <p>Parsers may implement varying degrees of strictness for this validation. For example, TypeScript does not validate escapes.</p>
+      </emu-note>
+    </emu-clause>
+  </emu-clause>
   <emu-clause id="sec-ts-conditional-types">
     <h1>TypeScript Language: Conditional Type</h1>
     <emu-grammar type="definition">
