@@ -373,6 +373,62 @@
       </emu-note>
     </emu-clause>
   </emu-clause>
+  <emu-clause id="sec-ts-object-types">
+    <h1>Object Types</h1>
+    <emu-grammar type="definition">
+      ObjectType :
+        `{` `}`
+        `{` ObjectTypeMembers `}`
+
+      ObjectTypeMembers :
+        ObjectTypeMember `,`
+        ObjectTypeMember `;`
+        ObjectTypeMembers `,` ObjectTypeMember
+        ObjectTypeMembers `;` ObjectTypeMember
+
+      ObjectTypeMember :
+        ObjectPropertySignature
+        ObjectMethodSignature
+        ObjectGetAccessorSignature
+        ObjectSetAccessorSignature
+        ObjectCallSignature
+        ObjectConstructSignature
+        ObjectIndexSignature
+
+      ObjectPropertySignature :
+        `readonly`? PropertyName `?`? TypeAnnotation?
+
+      ObjectMethodSignature :
+        `readonly`? PropertyName `?`? TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
+
+      ObjectGetAccessorSignature :
+        `get` PropertyName `(` `)` ReturnTypeAnnotation?
+
+      ObjectSetAccessorSignature :
+        `set` PropertyName `(` PropertySetParameterList `)` ReturnTypeAnnotation?
+
+      ObjectCallSignature :
+        TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
+
+      ObjectConstructSignature :
+        `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
+
+      ObjectIndexSignature :
+        `readonly`? `[` IdentifierName TypeAnnotation `]` TypeAnnotation?
+    </emu-grammar>
+    <emu-note>
+      <p>The index type in |IndexSignature| must resolve to a type that is a "valid index key type", but it's beyond parsers' capabilities to enforce this.</p>
+      <p>A valid index key type is</p>
+      <ul>
+        <li>the `string` type,</li>
+        <li>the `number` type,</li>
+        <li>the `symbol` type,</li>
+        <li>a template literal type satisfying a specific condition,</li>
+        <li>a non-generic intersection containing at least one valid index key type,</li>
+        <li>or a union of valid index key types.</li>
+      </ul>
+    </emu-note>
+  </emu-clause>
   <emu-clause id="sec-ts-conditional-types">
     <h1>TypeScript Language: Conditional Type</h1>
     <emu-grammar type="definition">
