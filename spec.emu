@@ -396,10 +396,10 @@
         ObjectIndexSignature
 
       ObjectPropertySignature :
-        `readonly`? PropertyName `?`? TypeAnnotation?
+        ReadonlyModifier? PropertyName `?`? TypeAnnotation?
 
       ObjectMethodSignature :
-        `readonly`? PropertyName `?`? TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
+        ReadonlyModifier? PropertyName `?`? TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
 
       ObjectGetAccessorSignature :
         `get` PropertyName `(` `)` ReturnTypeAnnotation?
@@ -414,7 +414,10 @@
         `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
 
       ObjectIndexSignature :
-        `readonly`? `[` IdentifierName TypeAnnotation `]` TypeAnnotation?
+        ReadonlyModifier? `[` IdentifierName TypeAnnotation `]` TypeAnnotation?
+
+      ReadonlyModifier :
+        `readonly` [no LineTerminator here]
     </emu-grammar>
     <emu-note>
       <p>The index type in |IndexSignature| must resolve to a type that is a "valid index key type", but it's beyond parsers' capabilities to enforce this.</p>
@@ -426,6 +429,35 @@
         <li>a template literal type satisfying a specific condition,</li>
         <li>a non-generic intersection containing at least one valid index key type,</li>
         <li>or a union of valid index key types.</li>
+      </ul>
+    </emu-note>
+  </emu-clause>
+  <emu-clause id="sec-ts-mapped-types">
+    <h1>Mapped Types</h1>
+    <emu-grammar type="definition">
+      MappedType :
+        `{` ReadonlyMapper? `[` IdentifierName `in` Type MappedAs? `]` OptionalMapper? TypeAnnotation `;` `}`
+
+        ReadonlyMapper :
+          `readonly`
+          `+` `readonly`
+          `-` `readonly`
+
+        OptionalMapper :
+          `?`
+          `+` `?`
+          `-` `?`
+
+        MappedAs :
+          `as` Type
+    </emu-grammar>
+    <emu-note>
+      <p>Unlike in most other occurrences, `readonly` in mapped types allows newlines after it.</p>
+    </emu-note>
+    <emu-note>
+      <p>Actual parsers implement these rules in various ways.</p>
+      <ul>
+        <li>Babel allows mixing object literal members and mapped type members.</li>
       </ul>
     </emu-note>
   </emu-clause>
