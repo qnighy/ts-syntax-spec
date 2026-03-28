@@ -154,6 +154,11 @@
     <dd>
       <p>a syntactic construct that specifies the type of a variable, parameter, return value, or other declaration, and which is removed during type erasure.</p>
     </dd>
+
+    <dt><dfn id="sec-terms-and-definitions-type-annotation">TSC</dfn></dt>
+    <dd>
+      <p>The TypeScript Compiler, the official TypeScript implementation developed by Microsoft.</p>
+    </dd>
   </dl>
   <emu-clause id="sec-definition-of-typescript">
     <h1>Definition of "TypeScript"</h1>
@@ -227,7 +232,7 @@
       <emu-note>
         <p>Actual parsers implement these rules in various ways.</p>
         <ul>
-          <li>TypeScript permits eval and arguments as binding type identifiers even in strict mode.</li>
+          <li>TSC permits eval and arguments as binding type identifiers even in strict mode.</li>
           <li>Babel permits escaped reserved words as type identifiers.</li>
         </ul>
       </emu-note>
@@ -297,6 +302,28 @@
       <emu-note>
         <p>Before TypeScript 6.0, `assert` was allowed as an alternative to the `with` keyword.</p>
       </emu-note>
+      <emu-note>
+        <p>TSC parses |TypeImportCall| permissively using the following productions and validates it later. </p>
+        <emu-grammar>
+          TypeImportCall[Yield, Await] :
+            `import` PermissiveOpenParen Type[?Yield, ?Await] PermissiveCloseParen
+            `import` PermissiveOpenParen Type[?Yield, ?Await] `,` PermissiveOpenBrace PermissiveWithOrAsserts PermissiveColon WithClauseBody `,`? PermissiveCloseBrace PermissiveCloseParen
+
+          PermissiveWithOrAsserts :
+            `with`
+            `asserts`
+            [lookahead &notin; { `with`, `asserts` }]
+
+          WithClauseBody :
+            `{` WithEntries `,`? PermissiveCloseBrace
+            [lookahead != `{`]
+        </emu-grammar>
+        <p>It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
+        <ul>
+          <li>`f &lt; import(x) &gt; (x)`</li>
+          <li>`f &lt; import.meta &gt; (x)`</li>
+        </ul>
+      </emu-note>
     </emu-clause>
     <emu-clause id="sec-ts-type-queries">
       <h1>Type Queries</h1>
@@ -345,7 +372,7 @@
         <p>It implies that legacy octal/non-octal literals and legacy octal/non-octal escapes are not allowed in strict mode.</p>
         <p>Actual parsers implement these rules in various ways.</p>
         <ul>
-          <li>TypeScript disallows these legacy constructs even outside of strict mode.</li>
+          <li>TSC disallows these legacy constructs even outside of strict mode.</li>
         </ul>
       </emu-note>
 
@@ -360,7 +387,7 @@
         <emu-note>
           <p>Actual parsers implement these rules in various ways.</p>
           <ul>
-            <li>TypeScript permits invalid escapes in template literal types.</li>
+            <li>TSC permits invalid escapes in template literal types.</li>
           </ul>
         </emu-note>
       </emu-clause>
@@ -552,7 +579,7 @@
         <emu-note>
           <p>Actual parsers implement these rules in various ways.</p>
           <ul>
-            <li>TypeScript permits invalid escapes in template literal types.</li>
+            <li>TSC permits invalid escapes in template literal types.</li>
           </ul>
         </emu-note>
       </emu-clause>
@@ -684,9 +711,9 @@
     <emu-note>
       <p>Actual parsers implement these rules in various ways.</p>
       <ul>
-        <li>TypeScript parses `asserts` and `this is` as types of higher precedence, and then reports non-grammatical errors later.</li>
-        <li>TypeScript parses `is` type predicates in accessors and constructors as well, and then reports non-grammatical errors later.</li>
-        <li>TypeScript allows newlines between `asserts x` / `asserts this` and `is`.</li>
+        <li>TSC parses `asserts` and `this is` as types of higher precedence, and then reports non-grammatical errors later.</li>
+        <li>TSC parses `is` type predicates in accessors and constructors as well, and then reports non-grammatical errors later.</li>
+        <li>TSC allows newlines between `asserts x` / `asserts this` and `is`.</li>
       </ul>
     </emu-note>
   </emu-clause>
@@ -706,7 +733,7 @@
     <emu-note>
       <p>Actual parsers implement these rules in various ways.</p>
       <ul>
-        <li>TypeScript parses `unique symbol` as types of higher precedence, and then reports non-grammatical errors later.</li>
+        <li>TSC parses `unique symbol` as types of higher precedence, and then reports non-grammatical errors later.</li>
       </ul>
     </emu-note>
   </emu-clause>
@@ -776,6 +803,27 @@
     <emu-note>
       <p>Type argument list cannot be empty.</p>
     </emu-note>
+  </emu-clause>
+  <emu-clause id="sec-ts-relaxed-tokens">
+    <h1>Relaxed Tokens</h1>
+    <p>The following nonterminals are used to describe TSC's permissive parsing behavior for certain tokens.</p>
+    <emu-grammar type="definition">
+      PermissiveOpenParen :
+        `(`
+        [lookahead != `(`]
+
+      PermissiveCloseParen :
+        `)`
+        [lookahead != `)`]
+
+      PermissiveOpenBrace :
+        `{`
+        [lookahead != `{`]
+
+      PermissiveCloseBrace :
+        `}`
+        [lookahead != `}`]
+    </emu-grammar>
   </emu-clause>
 </emu-clause>
 
