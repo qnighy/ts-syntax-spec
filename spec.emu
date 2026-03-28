@@ -619,6 +619,23 @@
     </emu-clause>
     <!-- TODO: parse `extends` conditionally -->
   </emu-clause>
+  <emu-clause id="sec-ts-conditional-and-function-types">
+    <h1>TypeScript Language: Type Annotations</h1>
+    <emu-grammar type="definition">
+      TypeAnnotation :
+        `:` Type
+
+      VariableTypeAnnotation :
+        `:` Type
+        `:` `unique` `symbol`
+
+      ReturnTypeAnnotation :
+        `:` Type
+        `:` IdentifierName `is` Type
+        `:` `asserts` IdentifierName
+        `:` `asserts` IdentifierName `is` Type
+    </emu-grammar>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="sec-typescript-language-expressions">
