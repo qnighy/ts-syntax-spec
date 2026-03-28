@@ -175,6 +175,7 @@
         ObjectType
         MappedType
         TemplateLiteralType
+        `(` Type `)`
     </emu-grammar>
     <emu-clause id="sec-ts-type-identifiers">
       <h1>Type Identifiers</h1>
