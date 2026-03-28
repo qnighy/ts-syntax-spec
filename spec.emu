@@ -450,7 +450,7 @@
           ReadonlyModifier? PropertyName[?Yield, ?Await] `?`? TypeAnnotation[?Yield, ?Await]?
 
         ObjectMethodSignature[Yield, Await] :
-          ReadonlyModifier? PropertyName[?Yield, ?Await] `?`? TypeParameters[?Yield, ?Await]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
+          ReadonlyModifier? PropertyName[?Yield, ?Await] `?`? TypeParameters[?Yield, ?Await, +Const, -InOut]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
 
         ObjectGetAccessorSignature[Yield, Await] :
           `get` PropertyName[?Yield, ?Await] `(` `)` ReturnTypeAnnotation[?Yield, ?Await, ~Predicate]?
@@ -459,10 +459,10 @@
           `set` PropertyName[?Yield, ?Await] `(` PropertySetParameterList `)` ReturnTypeAnnotation[?Yield, ?Await, ~Predicate]?
 
         ObjectCallSignature[Yield, Await] :
-          TypeParameters[?Yield, ?Await]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
+          TypeParameters[?Yield, ?Await, +Const, -InOut]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
 
         ObjectConstructSignature[Yield, Await] :
-          `new` TypeParameters[?Yield, ?Await]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, ~Predicate]?
+          `new` TypeParameters[?Yield, ?Await, +Const, -InOut]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, ~Predicate]?
 
         ObjectIndexSignature[Yield, Await] :
           ReadonlyModifier? `[` BindingIdentifier[?Yield, ?Await] TypeAnnotation[?Yield, ?Await] `]` TypeAnnotation[?Yield, ?Await]?
@@ -633,10 +633,10 @@
       <h1>Function and Constructor Types</h1>
       <emu-grammar type="definition">
         FunctionType[Yield, Await] :
-          TypeParameters[?Yield, ?Await]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, +Predicate]
+          TypeParameters[?Yield, ?Await, +Const, -InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, +Predicate]
 
         ConstructorType[Yield, Await] :
-          `abstract`? `new` TypeParameters[?Yield, ?Await]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, ~Predicate]
+          `abstract`? `new` TypeParameters[?Yield, ?Await, +Const, -InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, ~Predicate]
       </emu-grammar>
       <emu-note>
         <p>Newlines are allowed between `abstract` and `new`.</p>
