@@ -404,6 +404,8 @@
         ObjectType :
           `{` `}`
           `{` ObjectTypeMembers `}`
+          `{` ObjectTypeMembers `,` `}`
+          `{` ObjectTypeMembers `;` `}`
 
         ObjectTypeMembers :
           ObjectTypeMember `,`
@@ -609,6 +611,12 @@
         ConstructorType :
           `abstract`? `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` `=>` Type
       </emu-grammar>
+      <emu-note>
+        <p>|FunctionType| and |ConstructorType| are equivalent to |ObjectType| with a unique |CallSignature| or |ConstructSignature|, respectively, but note the difference in return type delimiters.</p>
+      </emu-note>
+      <emu-note>
+        <p>Parsers may need unbounded lookahead to disambiguate |FunctionType| from the type grouping operator `()`.</p>
+      </emu-note>
     </emu-clause>
     <emu-clause id="sec-ts-conditional-types">
       <h1>Conditional Types</h1>
