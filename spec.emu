@@ -238,18 +238,21 @@
         <ul>
           <li>
             It is a Syntax Error if the StringValue of |IdentifierReference| is one of the |ExtraKeywordType| or |TypeOperator| tokens.
+            This error may cause rollback of |ExpressionTypeArguments| lookahead.
           </li>
         </ul>
         <emu-grammar>TypeNamespaceReference: IdentifierReference but not TypeOperator</emu-grammar>
         <ul>
           <li>
             It is a Syntax Error if the StringValue of |IdentifierReference| is one of the |TypeOperator| tokens.
+            This error may cause rollback of |ExpressionTypeArguments| lookahead.
           </li>
         </ul>
         <emu-grammar>BindingTypeIdentifier: BindingIdentifier but not ExtraKeywordType</emu-grammar>
         <ul>
           <li>
             It is a Syntax Error if the StringValue of |BindingIdentifier| is one of the |ExtraKeywordType| tokens.
+            This error may cause rollback of |ExpressionTypeArguments| lookahead.
           </li>
         </ul>
         <emu-note>
@@ -763,6 +766,9 @@
         `<` TypeArgumentList[?Yield, ?Await] `>`
         `<` TypeArgumentList[?Yield, ?Await] `,` `>`
 
+      ExpressionTypeArguments[Yield, Await] :
+        TypeArguments[?Yield, ?Await]
+
       TypeArgumentList[Yield, Await] :
         Type[?Yield, ?Await]
         TypeArgumentList[?Yield, ?Await] `,` Type[?Yield, ?Await]
@@ -790,7 +796,7 @@
         `new` MemberExpression[?Yield, ?Await] Arguments[?Yield, ?Await]
         MemberExpression[?Yield, ?Await] `.` PrivateIdentifier
         MemberExpression[?Yield, ?Await] [no LineTerminator here] `!`
-        MemberExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await]
+        MemberExpression[?Yield, ?Await] ExpressionTypeArguments[?Yield, ?Await]
     </emu-grammar>
     <p>The following grammar extends <emu-xref href="#prod-CallExpression">CallExpression</emu-xref>:</p>
     <emu-grammar type="definition">
@@ -804,7 +810,7 @@
         CallExpression[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
         CallExpression[?Yield, ?Await] `.` PrivateIdentifier
         CallExpression[?Yield, ?Await] [no LineTerminator here] `!`
-        CallExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await]
+        CallExpression[?Yield, ?Await] ExpressionTypeArguments[?Yield, ?Await]
     </emu-grammar>
     <p>The following grammar extends <emu-xref href="#prod-OptionalChain">OptionalChain</emu-xref>:</p>
     <emu-grammar type="definition">
@@ -819,32 +825,32 @@
         OptionalChain[?Yield, ?Await] `.` IdentifierName
         OptionalChain[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
         OptionalChain[?Yield, ?Await] `.` PrivateIdentifier
-        `?.` TypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
-        `?.` TypeArguments[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
+        `?.` ExpressionTypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
+        `?.` ExpressionTypeArguments[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
         OptionalChain[?Yield, ?Await] [no LineTerminator here] `!`
-        OptionalChain[?Yield, ?Await] TypeArguments[?Yield, ?Await]
+        OptionalChain[?Yield, ?Await] ExpressionTypeArguments[?Yield, ?Await]
     </emu-grammar>
     <emu-note>
-      <p>|TypeArguments| that are not attached to a function call or a `new` expression are called Instantiation Expressions.</p>
+      <p>|ExpressionTypeArguments| that are not attached to a function call or a `new` expression are called Instantiation Expressions.</p>
 
       <p>Before TypeScript 4.7, there is no Instantiation Expressions, and the grammer was instead:</p>
       <emu-grammar>
         MemberExpression[Yield, Await] :
-          MemberExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
-          `new` MemberExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
+          MemberExpression[?Yield, ?Await] ExpressionTypeArguments[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
+          `new` MemberExpression[?Yield, ?Await] ExpressionTypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
 
         CallExpression[Yield, Await] :
-          MemberExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
+          MemberExpression[?Yield, ?Await] ExpressionTypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
           CallExpression[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
-          CallExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
+          CallExpression[?Yield, ?Await] ExpressionTypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
 
         NewExpression[Yield, Await] :
-          `new` MemberExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await]
+          `new` MemberExpression[?Yield, ?Await] ExpressionTypeArguments[?Yield, ?Await]
 
         OptionalChain[Yield, Await] :
-          `?.` TypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
-          `?.` TypeArguments[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
-          OptionalChain[?Yield, ?Await] TypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
+          `?.` ExpressionTypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
+          `?.` ExpressionTypeArguments[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
+          OptionalChain[?Yield, ?Await] ExpressionTypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
       </emu-grammar>
 
       <p>Most TypeScript parsers represent these constructions differently from Instantiation Expressions.</p>
@@ -852,7 +858,7 @@
 
     <emu-clause id="sec-ts-left-hand-side-expressions-static-semantics-early-errors">
       <h1>Static Semantics: Early Errors</h1>
-      <emu-grammar>OptionalChain: `?.` TypeArguments TemplateLiteral</emu-grammar>
+      <emu-grammar>OptionalChain: `?.` ExpressionTypeArguments TemplateLiteral</emu-grammar>
       <ul>
         <li>
           It is a Syntax Error if any source text is matched by this production.
@@ -865,7 +871,7 @@
       <emu-alg>
         1. Return ? Evaluation of |MemberExpression|. This may be of type Reference.
       </emu-alg>
-      <emu-grammar>MemberExpression: MemberExpression TypeArguments</emu-grammar>
+      <emu-grammar>MemberExpression: MemberExpression ExpressionTypeArguments</emu-grammar>
       <emu-alg>
         1. Return ? Evaluation of |MemberExpression|. This may be of type Reference.
       </emu-alg>
@@ -873,7 +879,7 @@
       <emu-alg>
         1. Return ? Evaluation of |CallExpression|. This may be of type Reference.
       </emu-alg>
-      <emu-grammar>CallExpression: CallExpression TypeArguments</emu-grammar>
+      <emu-grammar>CallExpression: CallExpression ExpressionTypeArguments</emu-grammar>
       <emu-alg>
         1. Return ? Evaluation of |CallExpression|. This may be of type Reference.
       </emu-alg>
@@ -887,7 +893,7 @@
       </h1>
       <dl class="header">
       </dl>
-      <emu-grammar>OptionalChain: `?.` TypeArguments Arguments</emu-grammar>
+      <emu-grammar>OptionalChain: `?.` ExpressionTypeArguments Arguments</emu-grammar>
       <emu-alg>
         1. Let _thisChain_ be this |OptionalChain|.
         1. Let _tailCall_ be IsInTailPosition(_thisChain_).
@@ -897,7 +903,7 @@
       <emu-alg>
         1. Return ? ChainEvaluation of |OptionalChain| with arguments _baseValue_ and _baseReference_. This may be of type Reference.
       </emu-alg>
-      <emu-grammar>OptionalChain: OptionalChain TypeArguments</emu-grammar>
+      <emu-grammar>OptionalChain: OptionalChain ExpressionTypeArguments</emu-grammar>
       <emu-alg>
         1. Return ? ChainEvaluation of |OptionalChain| with arguments _baseValue_ and _baseReference_. This may be of type Reference.
       </emu-alg>
@@ -934,7 +940,7 @@
     <emu-grammar type="definition">
       RelationalExpression[In, Yield, Await] :
         ShiftExpression[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] [lookahead != TypeArguments[?Yield, ?Await]] `&lt;` ShiftExpression[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] [lookahead != ExpressionTypeArguments[?Yield, ?Await]] `&lt;` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `&gt;` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `&lt;=` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `&gt;=` ShiftExpression[?Yield, ?Await]
@@ -945,7 +951,7 @@
         RelationalExpression[?In, ?Yield, ?Await] `satisfies` Type
     </emu-grammar>
     <emu-note>
-      <p>The production for `&lt;` is modified from the original ECMA-262 grammar to include a lookahead restriction that prevents ambiguity with |TypeArguments|.</p>
+      <p>The production for `&lt;` is modified from the original ECMA-262 grammar to include a lookahead restriction that prevents ambiguity with |ExpressionTypeArguments|.</p>
     </emu-note>
     <emu-clause id="sec-ts-relational-operators-runtime-semantics-evaluation" type="sdo">
       <h1>Runtime Semantics: Evaluation</h1>
@@ -977,10 +983,10 @@
 
       ArrowHead[Yield, Await, Else] :
         CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await] ReturnType[Else]?
-        TypeArguments[?Yield, ?Await] ArrowFormalParameters[?Yield, ?Await] ReturnType[Else]?
+        ExpressionTypeArguments[?Yield, ?Await] ArrowFormalParameters[?Yield, ?Await] ReturnType[Else]?
     </emu-grammar>
     <emu-note>
-      <p>If JSX is enabled, the |TypeArguments| in |ArrowHead| must match the following production to avoid ambiguity with JSX syntax.</p>
+      <p>If JSX is enabled, the |ExpressionTypeArguments| in |ArrowHead| must match the following production to avoid ambiguity with JSX syntax.</p>
       <emu-grammar type="definition">
         TypeArgumentsLookahead:
           `<` `const`? BindingIdentifier[+Yield, +Await] `extends` [lookahead &notin; { `=`, `>`, `/` }]
