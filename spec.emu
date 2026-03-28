@@ -423,25 +423,25 @@
           ObjectIndexSignature
 
         ObjectPropertySignature :
-          ReadonlyModifier? PropertyName `?`? TypeAnnotation[~Unique, ~Predicate]?
+          ReadonlyModifier? PropertyName `?`? TypeAnnotation[~Unique]?
 
         ObjectMethodSignature :
-          ReadonlyModifier? PropertyName `?`? TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` TypeAnnotation[~Unique, +Predicate]?
+          ReadonlyModifier? PropertyName `?`? TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, +Predicate]?
 
         ObjectGetAccessorSignature :
-          `get` PropertyName `(` `)` TypeAnnotation[~Unique, ~Predicate]?
+          `get` PropertyName `(` `)` ReturnTypeAnnotation[~Yield, ~Await, ~Predicate]?
 
         ObjectSetAccessorSignature :
-          `set` PropertyName `(` PropertySetParameterList `)` TypeAnnotation[~Unique, ~Predicate]?
+          `set` PropertyName `(` PropertySetParameterList `)` ReturnTypeAnnotation[~Yield, ~Await, ~Predicate]?
 
         ObjectCallSignature :
-          TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` TypeAnnotation[~Unique, +Predicate]?
+          TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, +Predicate]?
 
         ObjectConstructSignature :
-          `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` TypeAnnotation[~Unique, ~Predicate]?
+          `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, ~Predicate]?
 
         ObjectIndexSignature :
-          ReadonlyModifier? `[` IdentifierName TypeAnnotation[~Unique, ~Predicate] `]` TypeAnnotation[~Unique, ~Predicate]?
+          ReadonlyModifier? `[` IdentifierName TypeAnnotation[~Unique] `]` TypeAnnotation[~Unique]?
 
         ReadonlyModifier :
           `readonly` [no LineTerminator here]
@@ -463,7 +463,7 @@
       <h1>Mapped Types</h1>
       <emu-grammar type="definition">
         MappedType :
-          `{` ReadonlyMapper? `[` IdentifierName `in` Type MappedAs? `]` OptionalMapper? TypeAnnotation[~Unique, ~Predicate] `;` `}`
+          `{` ReadonlyMapper? `[` IdentifierName `in` Type MappedAs? `]` OptionalMapper? TypeAnnotation[~Unique] `;` `}`
 
           ReadonlyMapper :
             `readonly`
@@ -627,25 +627,48 @@
     </emu-clause>
     <!-- TODO: parse `extends` conditionally -->
   </emu-clause>
-  <emu-clause id="sec-ts-conditional-and-function-types">
+  <emu-clause id="sec-ts-type-annotations">
     <h1>TypeScript Language: Type Annotations</h1>
     <emu-grammar type="definition">
-      TypeAnnotation[Unique, Predicate] :
-        `:` TopLevelType[?Unique, ?Predicate]
+      TypeAnnotation[Unique] :
+        `:` TopLevelType[?Unique]
 
-      TopLevelType[Unique, Predicate] :
+      ReturnTypeAnnotation[Yield, Await, Predicate] :
+        `:` [lookahead != IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is`] Type
+        `:` IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` Type
+        `:` `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await]
+        `:` `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` Type
+        `:` `asserts` [no LineTerminator here] `this`
+        `:` `asserts` [no LineTerminator here] `this` [no LineTerminator here] `is` Type
+
+      TopLevelType[Unique] :
         Type
         [+Unique] `unique` `symbol`
-        [+Predicate] IdentifierName `is` Type
-        [+Predicate] `asserts` IdentifierName
-        [+Predicate] `asserts` IdentifierName `is` Type
+
     </emu-grammar>
     <emu-note>
       <p>Actual parsers implement these rules in various ways.</p>
       <ul>
-        <li>TypeScript parses `unique symbol` and type predicates as types of higher precedence, and then reports non-grammatical errors later.</li>
+        <li>TypeScript parses `unique symbol` and `asserts` as types of higher precedence, and then reports non-grammatical errors later.</li>
+        <li>TypeScript allows newlines between `asserts x` / `asserts this` and `is`.</li>
       </ul>
     </emu-note>
+    <emu-clause id="sec-ts-type-annotations-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar type="definition">
+        ReturnTypeAnnotation :
+          `:` IdentifierReference `is` Type
+          `:` `asserts` IdentifierReference
+          `:` `asserts` IdentifierReference `is` Type
+          `:` `asserts` `this`
+          `:` `asserts` `this` `is` Type
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if this production has a <sub>[Predicate]</sub> parameter.
+        </li>
+      </ul>
+    </emu-clause>
   </emu-clause>
 </emu-clause>
 
