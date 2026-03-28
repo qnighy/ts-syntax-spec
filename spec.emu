@@ -591,12 +591,33 @@
         UnionType `|` IntersectionType
     </emu-grammar>
   </emu-clause>
-  <emu-clause id="sec-ts-conditional-types">
-    <h1>TypeScript Language: Conditional Type</h1>
+  <emu-clause id="sec-ts-conditional-and-function-types">
+    <h1>TypeScript Language: Conditional and Function Types</h1>
     <emu-grammar type="definition">
       Type :
         UnionType
+        FunctionType
+        ConstructorType
+        ConditionalType
     </emu-grammar>
+    <emu-clause id="sec-ts-function-and-constructor-types">
+      <h1>Function and Constructor Types</h1>
+      <emu-grammar type="definition">
+        FunctionType :
+          TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
+
+        ConstructorType :
+          `abstract`? `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
+      </emu-grammar>
+    </emu-clause>
+    <emu-clause id="sec-ts-conditional-types">
+      <h1>Conditional Types</h1>
+      <emu-grammar type="definition">
+        ConditionalType :
+          UnionType `extends` Type `?` Type `:` Type
+      </emu-grammar>
+    </emu-clause>
+    <!-- TODO: parse `extends` conditionally -->
   </emu-clause>
 </emu-clause>
 
