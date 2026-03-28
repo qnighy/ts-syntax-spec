@@ -162,342 +162,357 @@
   <emu-note>
     <p>Type semantics is out of scope for this specification.</p>
   </emu-note>
-  <emu-clause id="sec-ts-type-identifiers">
-    <h1>Type Identifiers</h1>
+  <emu-clause id="sec-ts-primary-types">
+    <h1>Primary Types</h1>
     <emu-grammar type="definition">
-      TypeIdentifierReference :
-        IdentifierReference but not ExtraKeywordType but not TypeOperator
-
-      BindingTypeIdentifier :
-        BindingIdentifier but not ExtraKeywordType
-
-      TypeOperator :: one of
-        `keyof` `readonly` `unique`
+      PrimaryType :
+        TypeReference
+        TypeQuery
+        KeywordType
+        LiteralType
+        ThisType
+        TupleType
+        ObjectType
+        MappedType
+        TemplateLiteralType
     </emu-grammar>
+    <emu-clause id="sec-ts-type-identifiers">
+      <h1>Type Identifiers</h1>
+      <emu-grammar type="definition">
+        TypeIdentifierReference :
+          IdentifierReference but not ExtraKeywordType but not TypeOperator
 
-    <emu-note>
-      <p>|TypeIdentifierReference| derives from |IdentifierReference|, and |BindingTypeIdentifier| derives from |BindingIdentifier|. This means that ECMAScript's usual rules apply for the following keywords:</p>
-      <ul>
-        <li>Reserved words as defined in |ReservedWord|</li>
-        <li>Strict-mode reserved words as defined in <emu-xref href="#sec-identifiers-static-semantics-early-errors">the Early Error rules</emu-xref></li>
-        <li>`await` and `yield` contextual keywords</li>
-        <li>`eval` and `arguments`</li>
-      </ul>
-    </emu-note>
+        BindingTypeIdentifier :
+          BindingIdentifier but not ExtraKeywordType
 
-    <emu-note>
-      <p>Actual parsers implement these rules in various ways.</p>
-      <ul>
-        <li>TypeScript permits eval and arguments as binding type identifiers even in strict mode.</li>
-        <li>Babel permits escaped reserved words as type identifiers.</li>
-      </ul>
-    </emu-note>
-
-    <emu-clause id="sec-ts-type-identifiers-static-semantics-early-errors">
-      <h1>Static Semantics: Early Errors</h1>
-      <emu-grammar>TypeIdentifierReference: IdentifierReference but not ExtraKeywordType but not TypeOperator</emu-grammar>
-      <ul>
-        <li>
-          It is a Syntax Error if the StringValue of |IdentifierReference| is one of the |ExtraKeywordType| or |TypeOperator| tokens.
-        </li>
-      </ul>
-      <emu-grammar>BindingTypeIdentifier: BindingIdentifier but not ExtraKeywordType</emu-grammar>
-      <ul>
-        <li>
-          It is a Syntax Error if the StringValue of |BindingIdentifier| is one of the |ExtraKeywordType| tokens.
-        </li>
-      </ul>
-      <emu-note>
-        <p>These rules are here to disallow escaped reserved words.</p>
-      </emu-note>
-    </emu-clause>
-  </emu-clause>
-  <emu-clause id="sec-ts-type-references">
-    <h1>Type References</h1>
-    <emu-grammar type="definition">
-      TypeReference :
-        QualifiedTypeName
-        QualifiedTypeName [no LineTerminator here] TypeArguments
-
-      QualifiedTypeName :
-        TypeIdentifierReference
-        TypeImportCall
-        QualifiedTypeName `.` IdentifierName
-        ExtraKeywordType `.` IdentifierName
-    </emu-grammar>
-
-    <emu-note>
-      <p>Type identifiers following `.` is |IdentifierName|, therefore exempt from the restrictions on reserved words.</p>
-    </emu-note>
-  </emu-clause>
-  <emu-clause id="sec-ts-import-types">
-    <h1>Type Imports</h1>
-    <emu-grammar type="definition">
-      TypeImportCall :
-        `import` `(` StringLiteral `)`
-        `import` `(` StringLiteral `,` `{` `with` `:` WithClauseBody `,`? `}` `)`
-
-      WithClauseBody :
-        `{` `}`
-        `{` WithEntries `,`? `}`
-    </emu-grammar>
-
-    <emu-note>
-      <p>|WithClauseBody| is |WithClause| but without preceding `with` keyword.</p>
-    </emu-note>
-    <emu-note>
-      <p>Before TypeScript 6.0, `assert` was allowed as an alternative to the `with` keyword.</p>
-    </emu-note>
-  </emu-clause>
-  <emu-clause id="sec-ts-type-queries">
-    <h1>Type Queries</h1>
-    <emu-grammar type="definition">
-      TypeQuery :
-        `typeof` ExpressionInTypeQuery
-
-      ExpressionInTypeQuery :
-        IdentifierReference
-        TypeImportCall
-        ExpressionInTypeQuery `.` IdentifierName
-    </emu-grammar>
-  </emu-clause>
-  <emu-clause id="sec-ts-keyword-types">
-    <h1>Keyword Types</h1>
-    <emu-grammar type="definition">
-      KeywordType :
-        `void`
-        ExtraKeywordType
-
-      ExtraKeywordType :: one of
-        `any`
-        `bigint` `boolean`
-        `never` `number`
-        `object`
-        `string` `symbol`
-        `undefined` `unknown`
-    </emu-grammar>
-  </emu-clause>
-  <emu-clause id="sec-ts-literal-types">
-    <h1>Literal Types</h1>
-    <emu-grammar type="definition">
-      LiteralType :
-        NullLiteral
-        BooleanLiteral
-        StringLiteral
-        NoSubstitutionTemplate
-        NumericLiteral
-        `-` NumericLiteral
-    </emu-grammar>
-
-    <emu-note>
-      <p>It implies that legacy octal/non-octal literals and legacy octal/non-octal escapes are not allowed in strict mode.</p>
-      <p>Actual parsers implement these rules in various ways.</p>
-      <ul>
-        <li>TypeScript disallows these legacy constructs even outside of strict mode.</li>
-      </ul>
-    </emu-note>
-
-    <emu-clause id="sec-ts-literal-types-static-semantics-early-errors">
-      <h1>Static Semantics: Early Errors</h1>
-      <emu-grammar>LiteralType : NoSubstitutionTemplate</emu-grammar>
-      <ul>
-        <li>
-          It is a Syntax Error if |NoSubstitutionTemplate| <emu-xref href="#sec-static-semantics-contains">Contains</emu-xref> |NotEscapeSequence|.
-        </li>
-      </ul>
-      <emu-note>
-        <p>Actual parsers implement these rules in various ways.</p>
-        <ul>
-          <li>TypeScript permits invalid escapes in template literal types.</li>
-        </ul>
-      </emu-note>
-    </emu-clause>
-  </emu-clause>
-  <emu-clause id="sec-ts-this-type">
-    <h1>The `this` Type</h1>
-    <emu-grammar type="definition">
-      ThisType : `this`
-    </emu-grammar>
-  </emu-clause>
-  <emu-clause id="sec-ts-tuple-types">
-    <h1>Tuple Types</h1>
-    <emu-grammar type="definition">
-      TupleType :
-        `[` `]`
-        `[` TupleTypeElements `]`
-        `[` TupleTypeElements `,` `]`
-
-      TupleTypeElements :
-        TupleTypeElement
-        TupleTypeElements `,` TupleTypeElement
-
-      TupleTypeElement :
-        RequiredTupleTypeElement
-        OptionalTupleTypeElement
-        TupleTypeRestElement
-
-      RequiredTupleTypeElement :
-        Type
-        IdentifierName `:` Type
-
-      OptionalTupleTypeElement :
-        Type `?`
-        IdentifierName `?` `:` Type
-
-      TupleTypeRestElement :
-        `...` Type
-        `...` IdentifierName `:` Type
-    </emu-grammar>
-    <emu-clause id="sec-ts-tuple-types-static-semantics-early-errors">
-      <h1>Static Semantics: Early Errors</h1>
-      <emu-grammar>
-        TupleTypeElements : TupleTypeElements `,` TupleTypeElement
+        TypeOperator :: one of
+          `keyof` `readonly` `unique`
       </emu-grammar>
-      <ul>
-        <li>
-          It is a Syntax Error if |TupleTypeElement| is a |TupleTypeRestElement| and |TupleTypeElements| contains any |TupleTypeElement| that is another |TupleTypeRestElement|.
-        </li>
-        <li>
-          It is a Syntax Error if |TupleTypeElement| is a |OptionalTupleTypeElement| and |TupleTypeElements| contains any |TupleTypeElement| that is a |TupleTypeRestElement|.
-        </li>
-        <li>
-          It is a Syntax Error if |TupleTypeElement| is a |RequiredTupleTypeElement| and |TupleTypeElements| contains any |TupleTypeElement| that is a |OptionalTupleTypeElement|.
-        </li>
-      </ul>
+
+      <emu-note>
+        <p>|TypeIdentifierReference| derives from |IdentifierReference|, and |BindingTypeIdentifier| derives from |BindingIdentifier|. This means that ECMAScript's usual rules apply for the following keywords:</p>
+        <ul>
+          <li>Reserved words as defined in |ReservedWord|</li>
+          <li>Strict-mode reserved words as defined in <emu-xref href="#sec-identifiers-static-semantics-early-errors">the Early Error rules</emu-xref></li>
+          <li>`await` and `yield` contextual keywords</li>
+          <li>`eval` and `arguments`</li>
+        </ul>
+      </emu-note>
+
       <emu-note>
         <p>Actual parsers implement these rules in various ways.</p>
         <ul>
-          <li>Babel permits optional elements appearing after rest elements.</li>
-          <li>Babel permits rest elements appearing after other rest elements.</li>
+          <li>TypeScript permits eval and arguments as binding type identifiers even in strict mode.</li>
+          <li>Babel permits escaped reserved words as type identifiers.</li>
+        </ul>
+      </emu-note>
+
+      <emu-clause id="sec-ts-type-identifiers-static-semantics-early-errors">
+        <h1>Static Semantics: Early Errors</h1>
+        <emu-grammar>TypeIdentifierReference: IdentifierReference but not ExtraKeywordType but not TypeOperator</emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if the StringValue of |IdentifierReference| is one of the |ExtraKeywordType| or |TypeOperator| tokens.
+          </li>
+        </ul>
+        <emu-grammar>BindingTypeIdentifier: BindingIdentifier but not ExtraKeywordType</emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if the StringValue of |BindingIdentifier| is one of the |ExtraKeywordType| tokens.
+          </li>
+        </ul>
+        <emu-note>
+          <p>These rules are here to disallow escaped reserved words.</p>
+        </emu-note>
+      </emu-clause>
+    </emu-clause>
+    <emu-clause id="sec-ts-type-references">
+      <h1>Type References</h1>
+      <emu-grammar type="definition">
+        TypeReference :
+          QualifiedTypeName
+          QualifiedTypeName [no LineTerminator here] TypeArguments
+
+        QualifiedTypeName :
+          TypeIdentifierReference
+          TypeImportCall
+          QualifiedTypeName `.` IdentifierName
+          ExtraKeywordType `.` IdentifierName
+      </emu-grammar>
+
+      <emu-note>
+        <p>Type identifiers following `.` is |IdentifierName|, therefore exempt from the restrictions on reserved words.</p>
+      </emu-note>
+    </emu-clause>
+    <emu-clause id="sec-ts-import-types">
+      <h1>Type Imports</h1>
+      <emu-grammar type="definition">
+        TypeImportCall :
+          `import` `(` StringLiteral `)`
+          `import` `(` StringLiteral `,` `{` `with` `:` WithClauseBody `,`? `}` `)`
+
+        WithClauseBody :
+          `{` `}`
+          `{` WithEntries `,`? `}`
+      </emu-grammar>
+
+      <emu-note>
+        <p>|WithClauseBody| is |WithClause| but without preceding `with` keyword.</p>
+      </emu-note>
+      <emu-note>
+        <p>Before TypeScript 6.0, `assert` was allowed as an alternative to the `with` keyword.</p>
+      </emu-note>
+    </emu-clause>
+    <emu-clause id="sec-ts-type-queries">
+      <h1>Type Queries</h1>
+      <emu-grammar type="definition">
+        TypeQuery :
+          `typeof` ExpressionInTypeQuery
+
+        ExpressionInTypeQuery :
+          IdentifierReference
+          TypeImportCall
+          ExpressionInTypeQuery `.` IdentifierName
+      </emu-grammar>
+    </emu-clause>
+    <emu-clause id="sec-ts-keyword-types">
+      <h1>Keyword Types</h1>
+      <emu-grammar type="definition">
+        KeywordType :
+          `void`
+          ExtraKeywordType
+
+        ExtraKeywordType :: one of
+          `any`
+          `bigint` `boolean`
+          `never` `number`
+          `object`
+          `string` `symbol`
+          `undefined` `unknown`
+      </emu-grammar>
+    </emu-clause>
+    <emu-clause id="sec-ts-literal-types">
+      <h1>Literal Types</h1>
+      <emu-grammar type="definition">
+        LiteralType :
+          NullLiteral
+          BooleanLiteral
+          StringLiteral
+          NoSubstitutionTemplate
+          NumericLiteral
+          `-` NumericLiteral
+      </emu-grammar>
+
+      <emu-note>
+        <p>It implies that legacy octal/non-octal literals and legacy octal/non-octal escapes are not allowed in strict mode.</p>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>TypeScript disallows these legacy constructs even outside of strict mode.</li>
+        </ul>
+      </emu-note>
+
+      <emu-clause id="sec-ts-literal-types-static-semantics-early-errors">
+        <h1>Static Semantics: Early Errors</h1>
+        <emu-grammar>LiteralType : NoSubstitutionTemplate</emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if |NoSubstitutionTemplate| <emu-xref href="#sec-static-semantics-contains">Contains</emu-xref> |NotEscapeSequence|.
+          </li>
+        </ul>
+        <emu-note>
+          <p>Actual parsers implement these rules in various ways.</p>
+          <ul>
+            <li>TypeScript permits invalid escapes in template literal types.</li>
+          </ul>
+        </emu-note>
+      </emu-clause>
+    </emu-clause>
+    <emu-clause id="sec-ts-this-type">
+      <h1>The `this` Type</h1>
+      <emu-grammar type="definition">
+        ThisType : `this`
+      </emu-grammar>
+    </emu-clause>
+    <emu-clause id="sec-ts-tuple-types">
+      <h1>Tuple Types</h1>
+      <emu-grammar type="definition">
+        TupleType :
+          `[` `]`
+          `[` TupleTypeElements `]`
+          `[` TupleTypeElements `,` `]`
+
+        TupleTypeElements :
+          TupleTypeElement
+          TupleTypeElements `,` TupleTypeElement
+
+        TupleTypeElement :
+          RequiredTupleTypeElement
+          OptionalTupleTypeElement
+          TupleTypeRestElement
+
+        RequiredTupleTypeElement :
+          Type
+          IdentifierName `:` Type
+
+        OptionalTupleTypeElement :
+          Type `?`
+          IdentifierName `?` `:` Type
+
+        TupleTypeRestElement :
+          `...` Type
+          `...` IdentifierName `:` Type
+      </emu-grammar>
+      <emu-clause id="sec-ts-tuple-types-static-semantics-early-errors">
+        <h1>Static Semantics: Early Errors</h1>
+        <emu-grammar>
+          TupleTypeElements : TupleTypeElements `,` TupleTypeElement
+        </emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if |TupleTypeElement| is a |TupleTypeRestElement| and |TupleTypeElements| contains any |TupleTypeElement| that is another |TupleTypeRestElement|.
+          </li>
+          <li>
+            It is a Syntax Error if |TupleTypeElement| is a |OptionalTupleTypeElement| and |TupleTypeElements| contains any |TupleTypeElement| that is a |TupleTypeRestElement|.
+          </li>
+          <li>
+            It is a Syntax Error if |TupleTypeElement| is a |RequiredTupleTypeElement| and |TupleTypeElements| contains any |TupleTypeElement| that is a |OptionalTupleTypeElement|.
+          </li>
+        </ul>
+        <emu-note>
+          <p>Actual parsers implement these rules in various ways.</p>
+          <ul>
+            <li>Babel permits optional elements appearing after rest elements.</li>
+            <li>Babel permits rest elements appearing after other rest elements.</li>
+          </ul>
+        </emu-note>
+      </emu-clause>
+    </emu-clause>
+    <emu-clause id="sec-ts-object-types">
+      <h1>Object Types</h1>
+      <emu-grammar type="definition">
+        ObjectType :
+          `{` `}`
+          `{` ObjectTypeMembers `}`
+
+        ObjectTypeMembers :
+          ObjectTypeMember `,`
+          ObjectTypeMember `;`
+          ObjectTypeMembers `,` ObjectTypeMember
+          ObjectTypeMembers `;` ObjectTypeMember
+
+        ObjectTypeMember :
+          ObjectPropertySignature
+          ObjectMethodSignature
+          ObjectGetAccessorSignature
+          ObjectSetAccessorSignature
+          ObjectCallSignature
+          ObjectConstructSignature
+          ObjectIndexSignature
+
+        ObjectPropertySignature :
+          ReadonlyModifier? PropertyName `?`? TypeAnnotation?
+
+        ObjectMethodSignature :
+          ReadonlyModifier? PropertyName `?`? TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
+
+        ObjectGetAccessorSignature :
+          `get` PropertyName `(` `)` ReturnTypeAnnotation?
+
+        ObjectSetAccessorSignature :
+          `set` PropertyName `(` PropertySetParameterList `)` ReturnTypeAnnotation?
+
+        ObjectCallSignature :
+          TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
+
+        ObjectConstructSignature :
+          `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
+
+        ObjectIndexSignature :
+          ReadonlyModifier? `[` IdentifierName TypeAnnotation `]` TypeAnnotation?
+
+        ReadonlyModifier :
+          `readonly` [no LineTerminator here]
+      </emu-grammar>
+      <emu-note>
+        <p>The index type in |IndexSignature| must resolve to a type that is a "valid index key type", but it's beyond parsers' capabilities to enforce this.</p>
+        <p>A valid index key type is</p>
+        <ul>
+          <li>the `string` type,</li>
+          <li>the `number` type,</li>
+          <li>the `symbol` type,</li>
+          <li>a template literal type satisfying a specific condition,</li>
+          <li>a non-generic intersection containing at least one valid index key type,</li>
+          <li>or a union of valid index key types.</li>
         </ul>
       </emu-note>
     </emu-clause>
-  </emu-clause>
-  <emu-clause id="sec-ts-object-types">
-    <h1>Object Types</h1>
-    <emu-grammar type="definition">
-      ObjectType :
-        `{` `}`
-        `{` ObjectTypeMembers `}`
+    <emu-clause id="sec-ts-mapped-types">
+      <h1>Mapped Types</h1>
+      <emu-grammar type="definition">
+        MappedType :
+          `{` ReadonlyMapper? `[` IdentifierName `in` Type MappedAs? `]` OptionalMapper? TypeAnnotation `;` `}`
 
-      ObjectTypeMembers :
-        ObjectTypeMember `,`
-        ObjectTypeMember `;`
-        ObjectTypeMembers `,` ObjectTypeMember
-        ObjectTypeMembers `;` ObjectTypeMember
+          ReadonlyMapper :
+            `readonly`
+            `+` `readonly`
+            `-` `readonly`
 
-      ObjectTypeMember :
-        ObjectPropertySignature
-        ObjectMethodSignature
-        ObjectGetAccessorSignature
-        ObjectSetAccessorSignature
-        ObjectCallSignature
-        ObjectConstructSignature
-        ObjectIndexSignature
+          OptionalMapper :
+            `?`
+            `+` `?`
+            `-` `?`
 
-      ObjectPropertySignature :
-        ReadonlyModifier? PropertyName `?`? TypeAnnotation?
-
-      ObjectMethodSignature :
-        ReadonlyModifier? PropertyName `?`? TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
-
-      ObjectGetAccessorSignature :
-        `get` PropertyName `(` `)` ReturnTypeAnnotation?
-
-      ObjectSetAccessorSignature :
-        `set` PropertyName `(` PropertySetParameterList `)` ReturnTypeAnnotation?
-
-      ObjectCallSignature :
-        TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
-
-      ObjectConstructSignature :
-        `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation?
-
-      ObjectIndexSignature :
-        ReadonlyModifier? `[` IdentifierName TypeAnnotation `]` TypeAnnotation?
-
-      ReadonlyModifier :
-        `readonly` [no LineTerminator here]
-    </emu-grammar>
-    <emu-note>
-      <p>The index type in |IndexSignature| must resolve to a type that is a "valid index key type", but it's beyond parsers' capabilities to enforce this.</p>
-      <p>A valid index key type is</p>
-      <ul>
-        <li>the `string` type,</li>
-        <li>the `number` type,</li>
-        <li>the `symbol` type,</li>
-        <li>a template literal type satisfying a specific condition,</li>
-        <li>a non-generic intersection containing at least one valid index key type,</li>
-        <li>or a union of valid index key types.</li>
-      </ul>
-    </emu-note>
-  </emu-clause>
-  <emu-clause id="sec-ts-mapped-types">
-    <h1>Mapped Types</h1>
-    <emu-grammar type="definition">
-      MappedType :
-        `{` ReadonlyMapper? `[` IdentifierName `in` Type MappedAs? `]` OptionalMapper? TypeAnnotation `;` `}`
-
-        ReadonlyMapper :
-          `readonly`
-          `+` `readonly`
-          `-` `readonly`
-
-        OptionalMapper :
-          `?`
-          `+` `?`
-          `-` `?`
-
-        MappedAs :
-          `as` Type
-    </emu-grammar>
-    <emu-note>
-      <p>Unlike in most other occurrences, `readonly` in mapped types allows newlines after it.</p>
-    </emu-note>
-    <emu-note>
-      <p>Actual parsers implement these rules in various ways.</p>
-      <ul>
-        <li>Babel allows mixing object literal members and mapped type members.</li>
-      </ul>
-    </emu-note>
-  </emu-clause>
-  <emu-clause id="sec-ts-template-literal-types">
-    <h1>Template Literal Types</h1>
-    <emu-grammar type="definition">
-      TemplateLiteralType :
-        TemplateHead TemplateTypeSpans
-
-      TemplateTypeSpans :
-        Type TemplateTail
-        Type TemplateMiddle TemplateTypeSpans
-    </emu-grammar>
-
-    <emu-clause id="sec-ts-template-literal-types-static-semantics-early-errors">
-      <h1>Static Semantics: Early Errors</h1>
-      <emu-grammar>TemplateLiteralType : TemplateHead TemplateTypeSpans</emu-grammar>
-      <ul>
-        <li>
-          It is a Syntax Error if |TemplateHead| <emu-xref href="#sec-static-semantics-contains">Contains</emu-xref> |NotEscapeSequence|.
-        </li>
-      </ul>
-      <emu-grammar>TemplateTypeSpans: Type TemplateTail</emu-grammar>
-      <ul>
-        <li>
-          It is a Syntax Error if |TemplateTail| <emu-xref href="#sec-static-semantics-contains">Contains</emu-xref> |NotEscapeSequence|.
-        </li>
-      </ul>
-      <emu-grammar>TemplateTypeSpans: Type TemplateMiddle TemplateTypeSpans</emu-grammar>
-      <ul>
-        <li>
-          It is a Syntax Error if |TemplateMiddle| <emu-xref href="#sec-static-semantics-contains">Contains</emu-xref> |NotEscapeSequence|.
-        </li>
-      </ul>
+          MappedAs :
+            `as` Type
+      </emu-grammar>
+      <emu-note>
+        <p>Unlike in most other occurrences, `readonly` in mapped types allows newlines after it.</p>
+      </emu-note>
       <emu-note>
         <p>Actual parsers implement these rules in various ways.</p>
         <ul>
-          <li>TypeScript permits invalid escapes in template literal types.</li>
+          <li>Babel allows mixing object literal members and mapped type members.</li>
         </ul>
       </emu-note>
+    </emu-clause>
+    <emu-clause id="sec-ts-template-literal-types">
+      <h1>Template Literal Types</h1>
+      <emu-grammar type="definition">
+        TemplateLiteralType :
+          TemplateHead TemplateTypeSpans
+
+        TemplateTypeSpans :
+          Type TemplateTail
+          Type TemplateMiddle TemplateTypeSpans
+      </emu-grammar>
+
+      <emu-clause id="sec-ts-template-literal-types-static-semantics-early-errors">
+        <h1>Static Semantics: Early Errors</h1>
+        <emu-grammar>TemplateLiteralType : TemplateHead TemplateTypeSpans</emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if |TemplateHead| <emu-xref href="#sec-static-semantics-contains">Contains</emu-xref> |NotEscapeSequence|.
+          </li>
+        </ul>
+        <emu-grammar>TemplateTypeSpans: Type TemplateTail</emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if |TemplateTail| <emu-xref href="#sec-static-semantics-contains">Contains</emu-xref> |NotEscapeSequence|.
+          </li>
+        </ul>
+        <emu-grammar>TemplateTypeSpans: Type TemplateMiddle TemplateTypeSpans</emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if |TemplateMiddle| <emu-xref href="#sec-static-semantics-contains">Contains</emu-xref> |NotEscapeSequence|.
+          </li>
+        </ul>
+        <emu-note>
+          <p>Actual parsers implement these rules in various ways.</p>
+          <ul>
+            <li>TypeScript permits invalid escapes in template literal types.</li>
+          </ul>
+        </emu-note>
+      </emu-clause>
     </emu-clause>
   </emu-clause>
   <emu-clause id="sec-ts-conditional-types">
