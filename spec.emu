@@ -541,11 +541,42 @@
         PostfixType `[` Type `]`
     </emu-grammar>
   </emu-clause>
+  <emu-clause id="sec-ts-prefix-types">
+    <h1>Prefix Types</h1>
+    <emu-grammar type="definition">
+      PrefixType :
+        PostfixType
+        KeyofType
+        ReadonlyType
+
+      KeyofType :
+        `keyof` PrefixType
+    </emu-grammar>
+    <emu-note>
+      <p>`unique` and `asserts` are not listed here.</p>
+    </emu-note>
+    <emu-clause id="sec-ts-readonly-types">
+      <h1>Readonly Types</h1>
+      <emu-grammar type="definition">
+        ReadonlyType :
+          `readonly` PrefixType
+      </emu-grammar>
+      <emu-clause id="sec-ts-readonly-types-static-semantics-early-errors">
+        <h1>Static Semantics: Early Errors</h1>
+        <emu-grammar>ReadonlyType : `readonly` PrefixType</emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if |PrefixType| is not a |TupleType| or an |ArrayType|.
+          </li>
+        </ul>
+      </emu-clause>
+    </emu-clause>
+  </emu-clause>
   <emu-clause id="sec-ts-conditional-types">
     <h1>TypeScript Language: Conditional Type</h1>
     <emu-grammar type="definition">
       Type :
-        PostfixType
+        PrefixType
     </emu-grammar>
   </emu-clause>
 </emu-clause>
