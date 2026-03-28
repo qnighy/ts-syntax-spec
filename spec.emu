@@ -423,7 +423,7 @@
           ObjectIndexSignature
 
         ObjectPropertySignature :
-          ReadonlyModifier? PropertyName `?`? TypeAnnotation[~Unique]?
+          ReadonlyModifier? PropertyName `?`? TypeAnnotation?
 
         ObjectMethodSignature :
           ReadonlyModifier? PropertyName `?`? TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, +Predicate]?
@@ -441,7 +441,7 @@
           `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, ~Predicate]?
 
         ObjectIndexSignature :
-          ReadonlyModifier? `[` IdentifierName TypeAnnotation[~Unique] `]` TypeAnnotation[~Unique]?
+          ReadonlyModifier? `[` IdentifierName TypeAnnotation `]` TypeAnnotation?
 
         ReadonlyModifier :
           `readonly` [no LineTerminator here]
@@ -463,7 +463,7 @@
       <h1>Mapped Types</h1>
       <emu-grammar type="definition">
         MappedType :
-          `{` ReadonlyMapper? `[` IdentifierName `in` Type MappedAs? `]` OptionalMapper? TypeAnnotation[~Unique] `;` `}`
+          `{` ReadonlyMapper? `[` IdentifierName `in` Type MappedAs? `]` OptionalMapper? TypeAnnotation `;` `}`
 
           ReadonlyMapper :
             `readonly`
@@ -606,10 +606,10 @@
       <h1>Function and Constructor Types</h1>
       <emu-grammar type="definition">
         FunctionType :
-          TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` `=>` TopLevelType[~Unique, +Predicate]
+          TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` `=>` TypeOrTypePredicate[~Yield, ~Await, +Predicate]
 
         ConstructorType :
-          `abstract`? `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` `=>` Type
+          `abstract`? `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` `=>` TypeOrTypePredicate[~Yield, ~Await, ~Predicate]
       </emu-grammar>
       <emu-note>
         <p>|FunctionType| and |ConstructorType| are equivalent to |ObjectType| with a unique |CallSignature| or |ConstructSignature|, respectively, but note the difference in return type delimiters.</p>
@@ -627,48 +627,51 @@
     </emu-clause>
     <!-- TODO: parse `extends` conditionally -->
   </emu-clause>
+  <emu-clause id="sec-ts-type-predicates">
+    <h1>TypeScript Language: Type Predicates</h1>
+    <emu-grammar type="definition">
+      TypeOrTypePredicate[Yield, Await, Predicate] :
+        [lookahead != IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is`] Type
+        [+Predicate] TypePredicate[?Yield, ?Await]
+
+      TypePredicate[Yield, Await] :
+        IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` Type
+        `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await]
+        `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` Type
+        `asserts` [no LineTerminator here] `this`
+        `asserts` [no LineTerminator here] `this` [no LineTerminator here] `is` Type
+    </emu-grammar>
+    <emu-note>
+      <p>The lookahead rule means that `function f(): keyof is {}` is understood as a function signature that asserts the type of the variable `keyof`, rather than a function that returns a key of type `is`.</p>
+    </emu-note>
+    <emu-note>
+      <p>Actual parsers implement these rules in various ways.</p>
+      <ul>
+        <li>TypeScript parses `asserts` as types of higher precedence, and then reports non-grammatical errors later.</li>
+        <li>TypeScript parses `is` type predicates in accessors and constructors as well, and then reports non-grammatical errors later.</li>
+        <li>TypeScript allows newlines between `asserts x` / `asserts this` and `is`.</li>
+      </ul>
+    </emu-note>
+  </emu-clause>
   <emu-clause id="sec-ts-type-annotations">
     <h1>TypeScript Language: Type Annotations</h1>
     <emu-grammar type="definition">
-      TypeAnnotation[Unique] :
-        `:` TopLevelType[?Unique]
+      TypeAnnotation :
+        `:` Type
+
+      VariableTypeAnnotation :
+        `:` Type
+        `:` `unique` `symbol`
 
       ReturnTypeAnnotation[Yield, Await, Predicate] :
-        `:` [lookahead != IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is`] Type
-        `:` IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` Type
-        `:` `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await]
-        `:` `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` Type
-        `:` `asserts` [no LineTerminator here] `this`
-        `:` `asserts` [no LineTerminator here] `this` [no LineTerminator here] `is` Type
-
-      TopLevelType[Unique] :
-        Type
-        [+Unique] `unique` `symbol`
-
+        `:` TypeOrTypePredicate[?Yield, ?Await, ?Predicate]
     </emu-grammar>
     <emu-note>
       <p>Actual parsers implement these rules in various ways.</p>
       <ul>
-        <li>TypeScript parses `unique symbol` and `asserts` as types of higher precedence, and then reports non-grammatical errors later.</li>
-        <li>TypeScript allows newlines between `asserts x` / `asserts this` and `is`.</li>
+        <li>TypeScript parses `unique symbol` as types of higher precedence, and then reports non-grammatical errors later.</li>
       </ul>
     </emu-note>
-    <emu-clause id="sec-ts-type-annotations-static-semantics-early-errors">
-      <h1>Static Semantics: Early Errors</h1>
-      <emu-grammar type="definition">
-        ReturnTypeAnnotation :
-          `:` IdentifierReference `is` Type
-          `:` `asserts` IdentifierReference
-          `:` `asserts` IdentifierReference `is` Type
-          `:` `asserts` `this`
-          `:` `asserts` `this` `is` Type
-      </emu-grammar>
-      <ul>
-        <li>
-          It is a Syntax Error if this production has a <sub>[Predicate]</sub> parameter.
-        </li>
-      </ul>
-    </emu-clause>
   </emu-clause>
 </emu-clause>
 
