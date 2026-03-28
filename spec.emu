@@ -526,11 +526,26 @@
       </emu-clause>
     </emu-clause>
   </emu-clause>
+  <emu-clause id="sec-ts-postfix-types">
+    <h1>Postfix Types</h1>
+    <emu-grammar type="definition">
+      PostfixType :
+        PrimaryType
+        ArrayType
+        IndexedAccessType
+
+      ArrayType:
+        PostfixType `[` `]`
+
+      IndexedAccessType:
+        PostfixType `[` Type `]`
+    </emu-grammar>
+  </emu-clause>
   <emu-clause id="sec-ts-conditional-types">
     <h1>TypeScript Language: Conditional Type</h1>
     <emu-grammar type="definition">
       Type :
-        PrimaryType
+        PostfixType
     </emu-grammar>
   </emu-clause>
 </emu-clause>
