@@ -182,6 +182,9 @@
         TypeIdentifierReference :
           IdentifierReference but not ExtraKeywordType but not TypeOperator
 
+        TypeNamespaceReference :
+          IdentifierReference but not TypeOperator
+
         BindingTypeIdentifier :
           BindingIdentifier but not ExtraKeywordType
 
@@ -215,6 +218,12 @@
             It is a Syntax Error if the StringValue of |IdentifierReference| is one of the |ExtraKeywordType| or |TypeOperator| tokens.
           </li>
         </ul>
+        <emu-grammar>TypeNamespaceReference: IdentifierReference but not TypeOperator</emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if the StringValue of |IdentifierReference| is one of the |TypeOperator| tokens.
+          </li>
+        </ul>
         <emu-grammar>BindingTypeIdentifier: BindingIdentifier but not ExtraKeywordType</emu-grammar>
         <ul>
           <li>
@@ -230,14 +239,15 @@
       <h1>Type References</h1>
       <emu-grammar type="definition">
         TypeReference :
+          TypeIdentifierReference
+          TypeIdentifierReference [no LineTerminator here] TypeArguments
           QualifiedTypeName
           QualifiedTypeName [no LineTerminator here] TypeArguments
 
         QualifiedTypeName :
-          TypeIdentifierReference
           TypeImportCall
           QualifiedTypeName `.` IdentifierName
-          ExtraKeywordType `.` IdentifierName
+          TypeNamespaceReference `.` IdentifierName
       </emu-grammar>
 
       <emu-note>
