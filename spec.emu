@@ -604,10 +604,10 @@
       <h1>Function and Constructor Types</h1>
       <emu-grammar type="definition">
         FunctionType :
-          TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` TypeAnnotation[~Unique, +Predicate]?
+          TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` `=>` TopLevelType[~Unique, +Predicate]
 
         ConstructorType :
-          `abstract`? `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` TypeAnnotation[~Unique, ~Predicate]?
+          `abstract`? `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` `=>` Type
       </emu-grammar>
     </emu-clause>
     <emu-clause id="sec-ts-conditional-types">
