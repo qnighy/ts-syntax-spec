@@ -600,7 +600,7 @@
     </emu-grammar>
   </emu-clause>
   <emu-clause id="sec-ts-conditional-and-function-types">
-    <h1>TypeScript Language: Conditional and Function Types</h1>
+    <h1>Conditional and Function Types</h1>
     <emu-grammar type="definition">
       Type[Yield, Await] :
         UnionType[?Yield, ?Await]
@@ -637,7 +637,7 @@
     <!-- TODO: parse `extends` conditionally -->
   </emu-clause>
   <emu-clause id="sec-ts-type-predicates">
-    <h1>TypeScript Language: Type Predicates</h1>
+    <h1>Type Predicates</h1>
     <emu-grammar type="definition">
       TypeOrTypePredicate[Yield, Await, Predicate] :
         [lookahead != IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is`] Type[?Yield, ?Await]
@@ -667,7 +667,7 @@
     </emu-note>
   </emu-clause>
   <emu-clause id="sec-ts-type-annotations">
-    <h1>TypeScript Language: Type Annotations</h1>
+    <h1>Type Annotations</h1>
     <emu-grammar type="definition">
       TypeAnnotation[Yield, Await] :
         `:` Type[?Yield, ?Await]
@@ -685,6 +685,55 @@
         <li>TypeScript parses `unique symbol` as types of higher precedence, and then reports non-grammatical errors later.</li>
       </ul>
     </emu-note>
+  </emu-clause>
+  <emu-clause id="sec-ts-type-parameters">
+    <h1>Type Parameters</h1>
+    <emu-grammar type="definition">
+      TypeParameters[Yield, Await, Const, InOut] :
+        `<` TypeParameterList[?Yield, ?Await, ?Const, ?InOut] `>`
+        `<` TypeParameterList[?Yield, ?Await, ?Const, ?InOut] `,` `>`
+
+      TypeParameterList[Yield, Await, Const, InOut] :
+        TypeParameter[?Yield, ?Await, ?Const, ?InOut]
+        TypeParameterList[?Yield, ?Await, ?Const, ?InOut] `,` TypeParameter[?Yield, ?Await, ?Const, ?InOut]
+
+      TypeParameter[Yield, Await, Const, InOut] :
+        RequiredTypeParameter[?Yield, ?Await, ?Const, ?InOut]
+        OptionalTypeParameter[?Yield, ?Await, ?Const, ?InOut]
+
+      RequiredTypeParameter[Yield, Await, Const, InOut] :
+        BindingTypeIdentifier[?Yield, ?Await] TypeParameterConstraint[?Yield, ?Await]?
+        [+Const] `const` [no LineTerminator here] BindingTypeIdentifier[?Yield, ?Await] TypeParameterConstraint[?Yield, ?Await]?
+        [+InOut] InOutModifier BindingTypeIdentifier[?Yield, ?Await] TypeParameterConstraint[?Yield, ?Await]?
+
+      OptionalTypeParameter[Yield, Await, Const, InOut] :
+        BindingTypeIdentifier[?Yield, ?Await] `?` TypeParameterConstraint[?Yield, ?Await]? `=` Type[?Yield, ?Await]
+        [+Const] `const` [no LineTerminator here] BindingTypeIdentifier[?Yield, ?Await] `?` TypeParameterConstraint[?Yield, ?Await]? `=` Type[?Yield, ?Await]
+        [+InOut] InOutModifier BindingTypeIdentifier[?Yield, ?Await] `?` TypeParameterConstraint[?Yield, ?Await]? `=` Type[?Yield, ?Await]
+
+      InOutModifier :
+        `in` [no LineTerminator here]
+        `in` [no LineTerminator here] `out` [no LineTerminator here]
+        `out` [no LineTerminator here]
+
+      TypeParameterConstraint[Yield, Await] :
+        `extends` Type[?Yield, ?Await]
+    </emu-grammar>
+    <emu-note>
+      <p>Type parameter list cannot be empty.</p>
+    </emu-note>
+    <emu-clause id="sec-ts-type-parameters-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>
+        TypeParameterList : TypeParameterList `,` TypeParameter
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if |TypeParameter| is a |RequiredTypeParameter| and |TypeParameterList| contains any |OptionalTypeParameter|.
+        </li>
+      </ul>
+      <!-- TODO: uniqueness of bindings -->
+    </emu-clause>
   </emu-clause>
 </emu-clause>
 
