@@ -155,6 +155,27 @@
       <p>a syntactic construct that specifies the type of a variable, parameter, return value, or other declaration, and which is removed during type erasure.</p>
     </dd>
   </dl>
+  <emu-clause id="sec-definition-of-typescript">
+    <h1>Definition of "TypeScript"</h1>
+    <p>The term "TypeScript" is a trademark of Microsoft Corporation and is primarily used in the following two senses:</p>
+    <ol>
+      <li>The compiler and associated toolchain developed by Microsoft.</li>
+      <li>The programming language understood by said compiler.</li>
+    </ol>
+    <p>This community specification aims to clarify the syntax and runtime semantics of the programming language mentioned in 2. However, this entails the following two challenges:</p>
+    <ul>
+      <li>The TypeScript compiler itself does not clearly define the scope of syntactically correct TypeScript. The TypeScript compiler's parser is designed to be highly permissive, and many errors generally considered syntactic are deferred until type checking. Furthermore, the type checker does not clearly distinguish between syntax errors and type errors.</li>
+      <li>Parsers that understand TypeScript other than the TypeScript compiler do clarify the scope of syntax errors, but they often behave inconsistently with the TypeScript compiler in edge cases.</li>
+      <li>The TypeScript type checker contains numerous ad-hoc behaviors. Therefore, it is not realistic to write down a specification that is properly separated from the implementation.</li>
+    </ul>
+    <p>This specification aims to overcome these difficulties and propose a provisional specification suitable as a starting point for discussions within the TypeScript community. It defines the language specification based on the following criteria:</p>
+    <ul>
+      <li>It does not define specifications that depend on type checking, focusing only on syntax and runtime semantics.</li>
+      <li>Among the errors output by the TypeScript type checker, those recognized as syntactic are classified as syntax errors. As a criterion for this, definitions with a level of complexity equivalent to ECMAScript syntax or Early Errors are considered syntactic.</li>
+      <li>It also refers to the behavior of third-party TypeScript parsers. In cases where there are discrepancies with the TypeScript compiler, it selects the more rational specification and provides supplements regarding known differences.</li>
+    </ul>
+    <p>It should be noted that the TypeScript language defined in this specification is unofficial and arbitrary, and possesses no binding force or authority.</p>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="sec-typescript-language-types">
