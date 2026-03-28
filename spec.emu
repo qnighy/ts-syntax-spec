@@ -552,6 +552,7 @@
       KeyofType :
         `keyof` PrefixType
     </emu-grammar>
+    <!-- TODO: infer types with `extends` ambiguity resolution -->
     <emu-note>
       <p>`unique` and `asserts` are not listed here.</p>
     </emu-note>
@@ -572,11 +573,29 @@
       </emu-clause>
     </emu-clause>
   </emu-clause>
+  <emu-clause id="sec-ts-intersection-types">
+    <h1>Intersection Types</h1>
+    <emu-grammar type="definition">
+      IntersectionType :
+        PrefixType
+        `&` PrefixType
+        IntersectionType `&` PrefixType
+    </emu-grammar>
+  </emu-clause>
+  <emu-clause id="sec-ts-union-types">
+    <h1>Union Types</h1>
+    <emu-grammar type="definition">
+      UnionType :
+        IntersectionType
+        `|` IntersectionType
+        UnionType `|` IntersectionType
+    </emu-grammar>
+  </emu-clause>
   <emu-clause id="sec-ts-conditional-types">
     <h1>TypeScript Language: Conditional Type</h1>
     <emu-grammar type="definition">
       Type :
-        PrefixType
+        UnionType
     </emu-grammar>
   </emu-clause>
 </emu-clause>
