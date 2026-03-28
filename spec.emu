@@ -756,6 +756,21 @@
       <!-- TODO: uniqueness of bindings -->
     </emu-clause>
   </emu-clause>
+  <emu-clause id="sec-ts-type-arguments">
+    <h1>Type Arguments</h1>
+    <emu-grammar type="definition">
+      TypeArguments[Yield, Await] :
+        `<` TypeArgumentList[?Yield, ?Await] `>`
+        `<` TypeArgumentList[?Yield, ?Await] `,` `>`
+
+      TypeArgumentList[Yield, Await] :
+        Type[?Yield, ?Await]
+        TypeArgumentList[?Yield, ?Await] `,` Type[?Yield, ?Await]
+    </emu-grammar>
+    <emu-note>
+      <p>Type argument list cannot be empty.</p>
+    </emu-note>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="sec-typescript-language-expressions">
@@ -775,7 +790,7 @@
         `new` MemberExpression[?Yield, ?Await] Arguments[?Yield, ?Await]
         MemberExpression[?Yield, ?Await] `.` PrivateIdentifier
         MemberExpression[?Yield, ?Await] [no LineTerminator here] `!`
-        MemberExpression[?Yield, ?Await] TypeArguments
+        MemberExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await]
     </emu-grammar>
     <p>The following grammar extends <emu-xref href="#prod-CallExpression">CallExpression</emu-xref>:</p>
     <emu-grammar type="definition">
@@ -789,7 +804,7 @@
         CallExpression[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
         CallExpression[?Yield, ?Await] `.` PrivateIdentifier
         CallExpression[?Yield, ?Await] [no LineTerminator here] `!`
-        CallExpression[?Yield, ?Await] TypeArguments
+        CallExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await]
     </emu-grammar>
     <p>The following grammar extends <emu-xref href="#prod-OptionalChain">OptionalChain</emu-xref>:</p>
     <emu-grammar type="definition">
@@ -804,10 +819,10 @@
         OptionalChain[?Yield, ?Await] `.` IdentifierName
         OptionalChain[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
         OptionalChain[?Yield, ?Await] `.` PrivateIdentifier
-        `?.` TypeArguments Arguments[?Yield, ?Await]
-        `?.` TypeArguments TemplateLiteral[?Yield, ?Await, +Tagged]
+        `?.` TypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
+        `?.` TypeArguments[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
         OptionalChain[?Yield, ?Await] [no LineTerminator here] `!`
-        OptionalChain[?Yield, ?Await] TypeArguments
+        OptionalChain[?Yield, ?Await] TypeArguments[?Yield, ?Await]
     </emu-grammar>
     <emu-note>
       <p>|TypeArguments| that are not attached to a function call or a `new` expression are called Instantiation Expressions.</p>
@@ -815,21 +830,21 @@
       <p>Before TypeScript 4.7, there is no Instantiation Expressions, and the grammer was instead:</p>
       <emu-grammar>
         MemberExpression[Yield, Await] :
-          MemberExpression[?Yield, ?Await] TypeArguments TemplateLiteral[?Yield, ?Await, +Tagged]
-          `new` MemberExpression[?Yield, ?Await] TypeArguments Arguments[?Yield, ?Await]
+          MemberExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
+          `new` MemberExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
 
         CallExpression[Yield, Await] :
-          MemberExpression[?Yield, ?Await] TypeArguments Arguments[?Yield, ?Await]
+          MemberExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
           CallExpression[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
-          CallExpression[?Yield, ?Await] TypeArguments Arguments[?Yield, ?Await]
+          CallExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
 
         NewExpression[Yield, Await] :
-          `new` MemberExpression[?Yield, ?Await] TypeArguments
+          `new` MemberExpression[?Yield, ?Await] TypeArguments[?Yield, ?Await]
 
         OptionalChain[Yield, Await] :
-          `?.` TypeArguments Arguments[?Yield, ?Await]
-          `?.` TypeArguments TemplateLiteral[?Yield, ?Await, +Tagged]
-          OptionalChain[?Yield, ?Await] TypeArguments Arguments[?Yield, ?Await]
+          `?.` TypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
+          `?.` TypeArguments[?Yield, ?Await] TemplateLiteral[?Yield, ?Await, +Tagged]
+          OptionalChain[?Yield, ?Await] TypeArguments[?Yield, ?Await] Arguments[?Yield, ?Await]
       </emu-grammar>
 
       <p>Most TypeScript parsers represent these constructions differently from Instantiation Expressions.</p>
@@ -919,7 +934,7 @@
     <emu-grammar type="definition">
       RelationalExpression[In, Yield, Await] :
         ShiftExpression[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] [lookahead != TypeArguments] `&lt;` ShiftExpression[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] [lookahead != TypeArguments[?Yield, ?Await]] `&lt;` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `&gt;` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `&lt;=` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `&gt;=` ShiftExpression[?Yield, ?Await]
@@ -962,7 +977,7 @@
 
       ArrowHead[Yield, Await, Else] :
         CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await] ReturnType[Else]?
-        TypeArguments ArrowFormalParameters[?Yield, ?Await] ReturnType[Else]?
+        TypeArguments[?Yield, ?Await] ArrowFormalParameters[?Yield, ?Await] ReturnType[Else]?
     </emu-grammar>
     <emu-note>
       <p>If JSX is enabled, the |TypeArguments| in |ArrowHead| must match the following production to avoid ambiguity with JSX syntax.</p>
