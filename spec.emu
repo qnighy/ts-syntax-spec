@@ -165,29 +165,29 @@
   <emu-clause id="sec-ts-primary-types">
     <h1>Primary Types</h1>
     <emu-grammar type="definition">
-      PrimaryType :
-        TypeReference
-        TypeQuery
+      PrimaryType[Yield, Await] :
+        TypeReference[?Yield, ?Await]
+        TypeQuery[?Yield, ?Await]
         KeywordType
         LiteralType
         ThisType
-        TupleType
-        ObjectType
-        MappedType
-        TemplateLiteralType
-        `(` Type `)`
+        TupleType[?Yield, ?Await]
+        ObjectType[?Yield, ?Await]
+        MappedType[?Yield, ?Await]
+        TemplateLiteralType[?Yield, ?Await]
+        `(` Type[?Yield, ?Await] `)`
     </emu-grammar>
     <emu-clause id="sec-ts-type-identifiers">
       <h1>Type Identifiers</h1>
       <emu-grammar type="definition">
-        TypeIdentifierReference :
-          IdentifierReference but not ExtraKeywordType but not TypeOperator
+        TypeIdentifierReference[Yield, Await] :
+          IdentifierReference[?Yield, ?Await] but not ExtraKeywordType but not TypeOperator
 
-        TypeNamespaceReference :
-          IdentifierReference but not TypeOperator
+        TypeNamespaceReference[Yield, Await] :
+          IdentifierReference[?Yield, ?Await] but not TypeOperator
 
-        BindingTypeIdentifier :
-          BindingIdentifier but not ExtraKeywordType
+        BindingTypeIdentifier[Yield, Await] :
+          BindingIdentifier[?Yield, ?Await] but not ExtraKeywordType
 
         TypeOperator :: one of
           `keyof` `readonly` `unique`
@@ -239,16 +239,16 @@
     <emu-clause id="sec-ts-type-references">
       <h1>Type References</h1>
       <emu-grammar type="definition">
-        TypeReference :
-          TypeIdentifierReference
-          TypeIdentifierReference [no LineTerminator here] TypeArguments
-          QualifiedTypeName
-          QualifiedTypeName [no LineTerminator here] TypeArguments
+        TypeReference[Yield, Await] :
+          TypeIdentifierReference[?Yield, ?Await]
+          TypeIdentifierReference[?Yield, ?Await] [no LineTerminator here] TypeArguments[?Yield, ?Await]
+          QualifiedTypeName[?Yield, ?Await]
+          QualifiedTypeName[?Yield, ?Await] [no LineTerminator here] TypeArguments[?Yield, ?Await]
 
-        QualifiedTypeName :
+        QualifiedTypeName[Yield, Await] :
           TypeImportCall
-          QualifiedTypeName `.` IdentifierName
-          TypeNamespaceReference `.` IdentifierName
+          QualifiedTypeName[?Yield, ?Await] `.` IdentifierName
+          TypeNamespaceReference[?Yield, ?Await] `.` IdentifierName
       </emu-grammar>
 
       <emu-note>
@@ -277,13 +277,13 @@
     <emu-clause id="sec-ts-type-queries">
       <h1>Type Queries</h1>
       <emu-grammar type="definition">
-        TypeQuery :
-          `typeof` ExpressionInTypeQuery
+        TypeQuery[Yield, Await] :
+          `typeof` ExpressionInTypeQuery[?Yield, ?Await]
 
-        ExpressionInTypeQuery :
-          IdentifierReference
+        ExpressionInTypeQuery[Yield, Await] :
+          IdentifierReference[?Yield, ?Await]
           TypeImportCall
-          ExpressionInTypeQuery `.` IdentifierName
+          ExpressionInTypeQuery[?Yield, ?Await] `.` IdentifierName
       </emu-grammar>
     </emu-clause>
     <emu-clause id="sec-ts-keyword-types">
@@ -301,6 +301,9 @@
           `string` `symbol`
           `undefined` `unknown`
       </emu-grammar>
+      <emu-note>
+        <p>Parsers may need one-token lookahead to disambiguate |ExtraKeywordType| from |TypeNamespaceReference|.</p>
+      </emu-note>
     </emu-clause>
     <emu-clause id="sec-ts-literal-types">
       <h1>Literal Types</h1>
@@ -347,31 +350,31 @@
     <emu-clause id="sec-ts-tuple-types">
       <h1>Tuple Types</h1>
       <emu-grammar type="definition">
-        TupleType :
+        TupleType[Yield, Await] :
           `[` `]`
-          `[` TupleTypeElements `]`
-          `[` TupleTypeElements `,` `]`
+          `[` TupleTypeElements[?Yield, ?Await] `]`
+          `[` TupleTypeElements[?Yield, ?Await] `,` `]`
 
-        TupleTypeElements :
-          TupleTypeElement
-          TupleTypeElements `,` TupleTypeElement
+        TupleTypeElements[Yield, Await] :
+          TupleTypeElement[?Yield, ?Await]
+          TupleTypeElements[?Yield, ?Await] `,` TupleTypeElement[?Yield, ?Await]
 
-        TupleTypeElement :
-          RequiredTupleTypeElement
-          OptionalTupleTypeElement
-          TupleTypeRestElement
+        TupleTypeElement[Yield, Await] :
+          RequiredTupleTypeElement[?Yield, ?Await]
+          OptionalTupleTypeElement[?Yield, ?Await]
+          TupleTypeRestElement[?Yield, ?Await]
 
-        RequiredTupleTypeElement :
-          Type
-          IdentifierName `:` Type
+        RequiredTupleTypeElement[Yield, Await] :
+          Type[?Yield, ?Await]
+          BindingIdentifier[?Yield, ?Await] `:` Type[?Yield, ?Await]
 
-        OptionalTupleTypeElement :
-          Type `?`
-          IdentifierName `?` `:` Type
+        OptionalTupleTypeElement[Yield, Await] :
+          Type[?Yield, ?Await] `?`
+          BindingIdentifier[?Yield, ?Await] `?` `:` Type[?Yield, ?Await]
 
-        TupleTypeRestElement :
-          `...` Type
-          `...` IdentifierName `:` Type
+        TupleTypeRestElement[Yield, Await] :
+          `...` Type[?Yield, ?Await]
+          `...` BindingIdentifier[?Yield, ?Await] `:` Type[?Yield, ?Await]
       </emu-grammar>
       <emu-clause id="sec-ts-tuple-types-static-semantics-early-errors">
         <h1>Static Semantics: Early Errors</h1>
@@ -401,47 +404,47 @@
     <emu-clause id="sec-ts-object-types">
       <h1>Object Types</h1>
       <emu-grammar type="definition">
-        ObjectType :
+        ObjectType[Yield, Await] :
           `{` `}`
-          `{` ObjectTypeMembers `}`
-          `{` ObjectTypeMembers `,` `}`
-          `{` ObjectTypeMembers `;` `}`
+          `{` ObjectTypeMembers[?Yield, ?Await] `}`
+          `{` ObjectTypeMembers[?Yield, ?Await] `,` `}`
+          `{` ObjectTypeMembers[?Yield, ?Await] `;` `}`
 
-        ObjectTypeMembers :
-          ObjectTypeMember `,`
-          ObjectTypeMember `;`
-          ObjectTypeMembers `,` ObjectTypeMember
-          ObjectTypeMembers `;` ObjectTypeMember
+        ObjectTypeMembers[Yield, Await] :
+          ObjectTypeMember[?Yield, ?Await] `,`
+          ObjectTypeMember[?Yield, ?Await] `;`
+          ObjectTypeMembers[?Yield, ?Await] `,` ObjectTypeMember[?Yield, ?Await]
+          ObjectTypeMembers[?Yield, ?Await] `;` ObjectTypeMember[?Yield, ?Await]
 
-        ObjectTypeMember :
-          ObjectPropertySignature
-          ObjectMethodSignature
-          ObjectGetAccessorSignature
-          ObjectSetAccessorSignature
-          ObjectCallSignature
-          ObjectConstructSignature
-          ObjectIndexSignature
+        ObjectTypeMember[Yield, Await] :
+          ObjectPropertySignature[?Yield, ?Await]
+          ObjectMethodSignature[?Yield, ?Await]
+          ObjectGetAccessorSignature[?Yield, ?Await]
+          ObjectSetAccessorSignature[?Yield, ?Await]
+          ObjectCallSignature[?Yield, ?Await]
+          ObjectConstructSignature[?Yield, ?Await]
+          ObjectIndexSignature[?Yield, ?Await]
 
-        ObjectPropertySignature :
-          ReadonlyModifier? PropertyName `?`? TypeAnnotation?
+        ObjectPropertySignature[Yield, Await] :
+          ReadonlyModifier? PropertyName[?Yield, ?Await] `?`? TypeAnnotation[?Yield, ?Await]?
 
-        ObjectMethodSignature :
-          ReadonlyModifier? PropertyName `?`? TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, +Predicate]?
+        ObjectMethodSignature[Yield, Await] :
+          ReadonlyModifier? PropertyName[?Yield, ?Await] `?`? TypeParameters[?Yield, ?Await]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
 
-        ObjectGetAccessorSignature :
-          `get` PropertyName `(` `)` ReturnTypeAnnotation[~Yield, ~Await, ~Predicate]?
+        ObjectGetAccessorSignature[Yield, Await] :
+          `get` PropertyName[?Yield, ?Await] `(` `)` ReturnTypeAnnotation[?Yield, ?Await, ~Predicate]?
 
-        ObjectSetAccessorSignature :
-          `set` PropertyName `(` PropertySetParameterList `)` ReturnTypeAnnotation[~Yield, ~Await, ~Predicate]?
+        ObjectSetAccessorSignature[Yield, Await] :
+          `set` PropertyName[?Yield, ?Await] `(` PropertySetParameterList `)` ReturnTypeAnnotation[?Yield, ?Await, ~Predicate]?
 
-        ObjectCallSignature :
-          TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, +Predicate]?
+        ObjectCallSignature[Yield, Await] :
+          TypeParameters[?Yield, ?Await]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
 
-        ObjectConstructSignature :
-          `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, ~Predicate]?
+        ObjectConstructSignature[Yield, Await] :
+          `new` TypeParameters[?Yield, ?Await]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, ~Predicate]?
 
-        ObjectIndexSignature :
-          ReadonlyModifier? `[` IdentifierName TypeAnnotation `]` TypeAnnotation?
+        ObjectIndexSignature[Yield, Await] :
+          ReadonlyModifier? `[` BindingIdentifier[?Yield, ?Await] TypeAnnotation[?Yield, ?Await] `]` TypeAnnotation[?Yield, ?Await]?
 
         ReadonlyModifier :
           `readonly` [no LineTerminator here]
@@ -462,24 +465,27 @@
     <emu-clause id="sec-ts-mapped-types">
       <h1>Mapped Types</h1>
       <emu-grammar type="definition">
-        MappedType :
-          `{` ReadonlyMapper? `[` IdentifierName `in` Type MappedAs? `]` OptionalMapper? TypeAnnotation `;` `}`
+        MappedType[Yield, Await] :
+          `{` ReadonlyMapper? `[` BindingTypeIdentifier[?Yield, ?Await] `in` Type[?Yield, ?Await] MappedAs[?Yield, ?Await]? `]` OptionalMapper? TypeAnnotation[?Yield, ?Await] `;` `}`
 
-          ReadonlyMapper :
-            `readonly`
-            `+` `readonly`
-            `-` `readonly`
+        ReadonlyMapper :
+          `readonly`
+          `+` `readonly`
+          `-` `readonly`
 
-          OptionalMapper :
-            `?`
-            `+` `?`
-            `-` `?`
+        OptionalMapper :
+          `?`
+          `+` `?`
+          `-` `?`
 
-          MappedAs :
-            `as` Type
+        MappedAs[Yield, Await] :
+          `as` Type[?Yield, ?Await]
       </emu-grammar>
       <emu-note>
         <p>Unlike in most other occurrences, `readonly` in mapped types allows newlines after it.</p>
+      </emu-note>
+      <emu-note>
+        <p>Parsers may need three-token lookahead to disambiguate |MappedType| from |ObjectType|.</p>
       </emu-note>
       <emu-note>
         <p>Actual parsers implement these rules in various ways.</p>
@@ -491,12 +497,12 @@
     <emu-clause id="sec-ts-template-literal-types">
       <h1>Template Literal Types</h1>
       <emu-grammar type="definition">
-        TemplateLiteralType :
-          TemplateHead TemplateTypeSpans
+        TemplateLiteralType[Yield, Await] :
+          TemplateHead TemplateTypeSpans[?Yield, ?Await]
 
-        TemplateTypeSpans :
-          Type TemplateTail
-          Type TemplateMiddle TemplateTypeSpans
+        TemplateTypeSpans[Yield, Await] :
+          Type[?Yield, ?Await] TemplateTail
+          Type[?Yield, ?Await] TemplateMiddle TemplateTypeSpans[?Yield, ?Await]
       </emu-grammar>
 
       <emu-clause id="sec-ts-template-literal-types-static-semantics-early-errors">
@@ -531,27 +537,27 @@
   <emu-clause id="sec-ts-postfix-types">
     <h1>Postfix Types</h1>
     <emu-grammar type="definition">
-      PostfixType :
-        PrimaryType
-        ArrayType
-        IndexedAccessType
+      PostfixType[Yield, Await] :
+        PrimaryType[?Yield, ?Await]
+        ArrayType[?Yield, ?Await]
+        IndexedAccessType[?Yield, ?Await]
 
-      ArrayType:
-        PostfixType `[` `]`
+      ArrayType[Yield, Await]:
+        PostfixType[?Yield, ?Await] `[` `]`
 
-      IndexedAccessType:
-        PostfixType `[` Type `]`
+      IndexedAccessType[Yield, Await]:
+        PostfixType[?Yield, ?Await] `[` Type[?Yield, ?Await] `]`
     </emu-grammar>
   </emu-clause>
   <emu-clause id="sec-ts-prefix-types">
     <h1>Prefix Types</h1>
     <emu-grammar type="definition">
-      PrefixType :
-        PostfixType
-        KeyofType
-        ReadonlyType
+      PrefixType[Yield, Await] :
+        PostfixType[?Yield, ?Await]
+        KeyofType[?Yield, ?Await]
+        ReadonlyType[?Yield, ?Await]
 
-      KeyofType :
+      KeyofType[Yield, Await] :
         `keyof` PrefixType
     </emu-grammar>
     <!-- TODO: infer types with `extends` ambiguity resolution -->
@@ -561,8 +567,8 @@
     <emu-clause id="sec-ts-readonly-types">
       <h1>Readonly Types</h1>
       <emu-grammar type="definition">
-        ReadonlyType :
-          `readonly` PrefixType
+        ReadonlyType[Yield, Await] :
+          `readonly` PrefixType[?Yield, ?Await]
       </emu-grammar>
       <emu-clause id="sec-ts-readonly-types-static-semantics-early-errors">
         <h1>Static Semantics: Early Errors</h1>
@@ -578,39 +584,42 @@
   <emu-clause id="sec-ts-intersection-types">
     <h1>Intersection Types</h1>
     <emu-grammar type="definition">
-      IntersectionType :
-        PrefixType
-        `&` PrefixType
-        IntersectionType `&` PrefixType
+      IntersectionType[Yield, Await] :
+        PrefixType[?Yield, ?Await]
+        `&` PrefixType[?Yield, ?Await]
+        IntersectionType[?Yield, ?Await] `&` PrefixType[?Yield, ?Await]
     </emu-grammar>
   </emu-clause>
   <emu-clause id="sec-ts-union-types">
     <h1>Union Types</h1>
     <emu-grammar type="definition">
-      UnionType :
-        IntersectionType
-        `|` IntersectionType
-        UnionType `|` IntersectionType
+      UnionType[Yield, Await] :
+        IntersectionType[?Yield, ?Await]
+        `|` IntersectionType[?Yield, ?Await]
+        UnionType[?Yield, ?Await] `|` IntersectionType[?Yield, ?Await]
     </emu-grammar>
   </emu-clause>
   <emu-clause id="sec-ts-conditional-and-function-types">
     <h1>TypeScript Language: Conditional and Function Types</h1>
     <emu-grammar type="definition">
-      Type :
-        UnionType
-        FunctionType
-        ConstructorType
-        ConditionalType
+      Type[Yield, Await] :
+        UnionType[?Yield, ?Await]
+        FunctionType[?Yield, ?Await]
+        ConstructorType[?Yield, ?Await]
+        ConditionalType[?Yield, ?Await]
     </emu-grammar>
     <emu-clause id="sec-ts-function-and-constructor-types">
       <h1>Function and Constructor Types</h1>
       <emu-grammar type="definition">
-        FunctionType :
-          TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` `=>` TypeOrTypePredicate[~Yield, ~Await, +Predicate]
+        FunctionType[Yield, Await] :
+          TypeParameters[?Yield, ?Await]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, +Predicate]
 
-        ConstructorType :
-          `abstract`? `new` TypeParameters? `(` FormalParameters[~Yield, ~Await] `)` `=>` TypeOrTypePredicate[~Yield, ~Await, ~Predicate]
+        ConstructorType[Yield, Await] :
+          `abstract`? `new` TypeParameters[?Yield, ?Await]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, ~Predicate]
       </emu-grammar>
+      <emu-note>
+        <p>Newlines are allowed between `abstract` and `new`.</p>
+      </emu-note>
       <emu-note>
         <p>|FunctionType| and |ConstructorType| are equivalent to |ObjectType| with a unique |CallSignature| or |ConstructSignature|, respectively, but note the difference in return type delimiters.</p>
       </emu-note>
@@ -621,8 +630,8 @@
     <emu-clause id="sec-ts-conditional-types">
       <h1>Conditional Types</h1>
       <emu-grammar type="definition">
-        ConditionalType :
-          UnionType `extends` Type `?` Type `:` Type
+        ConditionalType[Yield, Await] :
+          UnionType[?Yield, ?Await] `extends` Type[?Yield, ?Await] `?` Type[?Yield, ?Await] `:` Type[?Yield, ?Await]
       </emu-grammar>
     </emu-clause>
     <!-- TODO: parse `extends` conditionally -->
@@ -631,23 +640,27 @@
     <h1>TypeScript Language: Type Predicates</h1>
     <emu-grammar type="definition">
       TypeOrTypePredicate[Yield, Await, Predicate] :
-        [lookahead != IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is`] Type
+        [lookahead != IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is`] Type[?Yield, ?Await]
         [+Predicate] TypePredicate[?Yield, ?Await]
 
       TypePredicate[Yield, Await] :
-        IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` Type
+        IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` Type[?Yield, ?Await]
+        `this` [no LineTerminator here] `is` Type[?Yield, ?Await]
         `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await]
-        `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` Type
+        `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` Type[?Yield, ?Await]
         `asserts` [no LineTerminator here] `this`
-        `asserts` [no LineTerminator here] `this` [no LineTerminator here] `is` Type
+        `asserts` [no LineTerminator here] `this` [no LineTerminator here] `is` Type[?Yield, ?Await]
     </emu-grammar>
     <emu-note>
       <p>The lookahead rule means that `function f(): keyof is {}` is understood as a function signature that asserts the type of the variable `keyof`, rather than a function that returns a key of type `is`.</p>
     </emu-note>
     <emu-note>
+      <p>Parsers may need one-token lookahead to disambiguate `asserts` from |TypeIdentifierReference| or |TypeNamespaceReference|, and `this` from |ThisType|.</p>
+    </emu-note>
+    <emu-note>
       <p>Actual parsers implement these rules in various ways.</p>
       <ul>
-        <li>TypeScript parses `asserts` as types of higher precedence, and then reports non-grammatical errors later.</li>
+        <li>TypeScript parses `asserts` and `this is` as types of higher precedence, and then reports non-grammatical errors later.</li>
         <li>TypeScript parses `is` type predicates in accessors and constructors as well, and then reports non-grammatical errors later.</li>
         <li>TypeScript allows newlines between `asserts x` / `asserts this` and `is`.</li>
       </ul>
@@ -656,11 +669,11 @@
   <emu-clause id="sec-ts-type-annotations">
     <h1>TypeScript Language: Type Annotations</h1>
     <emu-grammar type="definition">
-      TypeAnnotation :
-        `:` Type
+      TypeAnnotation[Yield, Await] :
+        `:` Type[?Yield, ?Await]
 
-      VariableTypeAnnotation :
-        `:` Type
+      VariableTypeAnnotation[Yield, Await] :
+        `:` Type[?Yield, ?Await]
         `:` `unique` `symbol`
 
       ReturnTypeAnnotation[Yield, Await, Predicate] :
