@@ -394,7 +394,7 @@
           ExpressionInTypeQuery[Yield, Await] :
             TypeNamespaceReference[?Yield, ?Await]
             TypeImportCall
-            QualifiedTypeName[?Yield, ?Await] `.` PermissiveIdentifierName
+            ExpressionInTypeQuery[?Yield, ?Await] `.` PermissiveIdentifierName
 
           PermissiveIdentifierName :
             IdentifierName
@@ -1151,7 +1151,136 @@
   </emu-clause>
 </emu-clause>
 
-<emu-annex id="sec-bibliography">
+<emu-annex id="sec-ts-permissive-grammars">
+  <h1>TypeScript Permissive Grammars</h1>
+  <p>TSC parser is permissive so that it always consumes all input, even if it contains syntax errors.</p>
+  <p>It affects the way TypeScript handles |ExpressionTypeArguments| because permissive parsing inhibits backtracking in some cases.</p>
+  <emu-clause id="sec-ts-permissive-tokens">
+    <h1>Tokens</h1>
+    <emu-grammar type="definition">
+      PermColon :
+        `:`
+        [lookahead != `:`]
+
+      PermOpenParen :
+        `(`
+        [lookahead != `(`]
+
+      PermCloseParen :
+        `)`
+        [lookahead != `)`]
+
+      PermOpenBrace :
+        `{`
+        [lookahead != `{`]
+
+      PermCloseBrace :
+        `}`
+        [lookahead != `}`]
+    </emu-grammar>
+  </emu-clause>
+  <emu-clause id="sec-ts-permissive-primary-types">
+    <h1>Primary Types</h1>
+    <emu-grammar type="definition">
+      PermPrimaryType[Yield, Await] :
+        [lookahead &notin; PermPrimaryTypeStartSymbol] PermTypeReference
+        PermTypeQuery
+        PermKeywordType
+        PermLiteralType
+        `this`
+        PermTupleType[?Yield, ?Await]
+        PermObjectType[?Yield, ?Await]
+        PermMappedType[?Yield, ?Await]
+        PermTemplateLiteralType[?Yield, ?Await]
+        `(` PermType[?Yield, ?Await] `)`
+        PermJSDocAnyType
+        PermJSDocPrefixNullableType
+        PermJSDocFunctionType
+
+      PermPrimaryTypeStartSymbol :
+        StringLiteral
+        NoSubstitutionTemplate
+        TemplateHead
+        NumericLiteral
+        `-` NumericLiteral
+        `[`
+        `{`
+        `(`
+        `*`
+        `?`
+        `!`
+
+      PermTypeReference[Yield, Await] :
+        [lookahead != PermTypeReferenceExcl] PermIdentifierName [lookahead &notin; {`.`,  ` ` [no LineTerminator here] `<`}]
+        [lookahead != PermTypeReferenceExcl] PermIdentifierName [no LineTerminator here] PermTypeArguments[?Yield, ?Await]
+        [lookahead != PermTypeReferenceExcl2] PermQualifiedTypeName [lookahead &notin; {`.`, ` ` [no LineTerminator here] `<`}]
+        [lookahead != PermTypeReferenceExcl2] PermQualifiedTypeName [no LineTerminator here] PermTypeArguments[?Yield, ?Await]
+
+      PermQualifiedTypeName[Yield, Await] :
+        PermTypeImportCall
+        PermQualifiedTypeName[?Yield, ?Await] `.` PermPropIdentifierName
+        PermIdentifierName `.` PermPropIdentifierName
+
+      PermTypeReferenceExcl :: one of
+          `any`
+          `bigint` `boolean`
+          `function` `keyof`
+          `never` `number`
+          `object` `readonly`
+          `string` `symbol`
+          `typeof`
+          `void`
+          `undefined` `unique` `unknown`
+
+      PermTypeReferenceExcl2 :: one of
+          `function` `keyof` `readonly` `typeof` `void` `unique`
+
+      PermPropIdentifierName :
+        IdentifierName
+        [lookahead &notin; { IdentifierName, `<` }]
+
+      PermIdentifierName :
+        IdentifierName
+        PrivateIdentifier
+        [lookahead &notin; { IdentifierName, PrivateIdentifier }]
+
+      PermTypeQuery :
+        `typeof` PermExpressionInTypeQuery
+
+      PermExpressionInTypeQuery :
+        [lookahead != `import`] PermIdentifierName
+        PermTypeImportCall
+        PermExpressionInTypeQuery `.` PermPropIdentifierName
+        [lookahead != IdentifierName]
+
+      PermTypeImportCall[Yield, Await] :
+        `import` PermOpenParen Type[?Yield, ?Await] PermCloseParen
+        `import` PermOpenParen Type[?Yield, ?Await] `,` PermOpenBrace PermWithOrAsserts PermColon WithClauseBody `,`? PermCloseBrace PermCloseParen
+
+      PermWithOrAsserts :
+        `with`
+        `asserts`
+        [lookahead &notin; { `with`, `asserts` }]
+
+      WithClauseBody :
+        `{` WithEntries `,`? PermCloseBrace
+        [lookahead != `{`]
+
+      PermJSDocAnyType :
+        `*`
+        `?` [lookahead &isin; {`,`, `}`, `)`, `>`, `=`, `|`}]
+
+      PermJSDocPrefixNullableType :
+        `?` [lookahead &notin; {`,`, `}`, `)`, `>`, `=`, `|`}] PermType[?Yield, ?Await]
+
+      PermJSDocFunctionType :
+        `function` [lookahead != `(`]
+        `function` `(` PermJSDocFunctionParameters `)` PermReturnTypeAnnotation[?Yield, ?Await]
+    </emu-grammar>
+  </emu-clause>
+</emu-annex>
+
+<emu-annex id="sec-bibliography" back-matter>
   <h1>Bibliography</h1>
   <ol>
     <li>
@@ -1163,7 +1292,7 @@
   </ol>
 </emu-annex>
 
-<emu-annex id="sec-colophon">
+<emu-annex id="sec-colophon" back-matter>
   <h1>Colophon</h1>
   <p>This specification is authored on <a href="https://github.com/qnighy/ts-syntax-spec">GitHub</a> in a plaintext source format called <a href="https://github.com/bterlson/ecmarkup">Ecmarkup</a>. Ecmarkup is an HTML and Markdown dialect that provides a framework and toolset for authoring ECMAScript specifications in plaintext and processing the specification into a full-featured HTML rendering that follows the editorial conventions for this document. Ecmarkup builds on and integrates a number of other formats and technologies including <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown</a> for defining syntax and <a href="https://github.com/domenic/ecmarkdown">Ecmarkdown</a> for authoring algorithm steps. PDF renderings of this specification are produced by printing the HTML rendering to a PDF.</p>
 </emu-annex>
