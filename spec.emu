@@ -203,6 +203,40 @@
         TemplateLiteralType[?Yield, ?Await]
         `(` Type[?Yield, ?Await] `)`
     </emu-grammar>
+    <emu-note>
+      <p>TSC parses |PrimaryType| permissively using the following productions and validates it later. </p>
+      <emu-grammar>
+        PrimaryType[Yield, Await] :
+          TypeReference[?Yield, ?Await]
+          TypeQuery[?Yield, ?Await]
+          KeywordType
+          LiteralType
+          ThisType
+          TupleType[?Yield, ?Await]
+          ObjectType[?Yield, ?Await]
+          MappedType[?Yield, ?Await]
+          TemplateLiteralType[?Yield, ?Await]
+          JSDocAnyType
+          JSDocPrefixNullableType
+          JSDocFunctionType
+          `(` Type[?Yield, ?Await] `)`
+
+        JSDocAnyType :
+          `*`
+          `?` [lookahead &isin; {`,`, `}`, `)`, `>`, `=`, `|`}]
+
+        JSDocPrefixNullableType :
+          `?` [lookahead &notin; {`,`, `}`, `)`, `>`, `=`, `|`}] Type[?Yield, ?Await]
+
+        JSDocFunctionType :
+          `function` [lookahead != `(`]
+          `function` `(` JSDocFunctionParameters `)` ReturnTypeAnnotation[?Yield, ?Await]
+      </emu-grammar>
+      <p>It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
+      <ul>
+        <li>`f &lt; x.#y &gt; (z)`, where `#y` is defined in the enclosing class</li>
+      </ul>
+    </emu-note>
     <emu-clause id="sec-ts-type-identifiers">
       <h1>Type Identifiers</h1>
       <emu-grammar type="definition">
