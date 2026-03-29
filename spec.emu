@@ -283,6 +283,24 @@
       <emu-note>
         <p>Type identifiers following `.` is |IdentifierName|, therefore exempt from the restrictions on reserved words.</p>
       </emu-note>
+      <emu-note>
+        <p>TSC parses |TypeReference| permissively using the following productions and validates it later. </p>
+        <emu-grammar>
+          QualifiedTypeName[Yield, Await] :
+            TypeImportCall
+            QualifiedTypeName[?Yield, ?Await] `.` PermissiveIdentifierName
+            TypeNamespaceReference[?Yield, ?Await] `.` PermissiveIdentifierName
+
+          PermissiveIdentifierName :
+            IdentifierName
+            PrivateIdentifier
+            [lookahead &notin; { IdentifierName, PrivateIdentifier }]
+        </emu-grammar>
+        <p>It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
+        <ul>
+          <li>`f &lt; x.#y &gt; (z)`, where `#y` is defined in the enclosing class</li>
+        </ul>
+      </emu-note>
     </emu-clause>
     <emu-clause id="sec-ts-import-types">
       <h1>Type Imports</h1>
@@ -336,6 +354,24 @@
           TypeImportCall
           ExpressionInTypeQuery[?Yield, ?Await] `.` IdentifierName
       </emu-grammar>
+      <emu-note>
+        <p>TSC parses |TypeQuery| permissively using the following productions and validates it later. </p>
+        <emu-grammar>
+          ExpressionInTypeQuery[Yield, Await] :
+            TypeNamespaceReference[?Yield, ?Await]
+            TypeImportCall
+            QualifiedTypeName[?Yield, ?Await] `.` PermissiveIdentifierName
+
+          PermissiveIdentifierName :
+            IdentifierName
+            PrivateIdentifier
+            [lookahead &notin; { IdentifierName, PrivateIdentifier }]
+        </emu-grammar>
+        <p>It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
+        <ul>
+          <li>`f &lt; typeof x.#y &gt; (z)`, where `#y` is defined in the enclosing class</li>
+        </ul>
+      </emu-note>
     </emu-clause>
     <emu-clause id="sec-ts-keyword-types">
       <h1>Keyword Types</h1>
@@ -427,6 +463,38 @@
           `...` Type[?Yield, ?Await]
           `...` BindingIdentifier[?Yield, ?Await] `:` Type[?Yield, ?Await]
       </emu-grammar>
+      <emu-note>
+        <p>TSC parses |TupleType| permissively using the following productions and validates it later. </p>
+        <emu-grammar>
+          TupleType[Yield, Await] :
+            `[` PermissiveCloseTupleType[?Yield, ?Await]
+            `[` TupleTypeElements[?Yield, ?Await] PermissiveCloseTupleType2[?Yield, ?Await]
+            `[` TupleTypeElements[?Yield, ?Await] `,` PermissiveCloseTupleType[?Yield, ?Await]
+
+          PermissiveCloseTupleType[Yield, Await] :
+            `]`
+            [lookahead &notin; { `]`, `,`, TupleTypeElements }]
+
+          PermissiveCloseTupleType2[Yield, Await] :
+            `]`
+            [lookahead &notin; { `]`, `,` }]
+
+          TupleTypeElement[Yield, Await] :
+            [lookahead &notin; { IdentifierName `?`, IdentifierName `:`, `...` }] Type[?Yield, ?Await]
+            IdentifierName `:` Type[?Yield, ?Await]
+            IdentifierName `?` PermissiveColon Type[?Yield, ?Await]
+            `...` [lookahead &notin; { IdentifierName `?`, IdentifierName `:` }] Type[?Yield, ?Await]
+            `...` IdentifierName `:` Type[?Yield, ?Await]
+            `...` IdentifierName `?` PermissiveColon Type[?Yield, ?Await]
+            [lookahead = `,`]
+
+        </emu-grammar>
+        <p>Here we don't account for `?` after |Type| because in the permissive grammar, `?` would first be interpreted as part of a permissive optional type.</p>
+        <p>It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
+        <ul>
+          <li>`f < [,] > (x)`</li>
+        </ul>
+      </emu-note>
       <emu-clause id="sec-ts-tuple-types-static-semantics-early-errors">
         <h1>Static Semantics: Early Errors</h1>
         <emu-grammar>
@@ -808,6 +876,10 @@
     <h1>Relaxed Tokens</h1>
     <p>The following nonterminals are used to describe TSC's permissive parsing behavior for certain tokens.</p>
     <emu-grammar type="definition">
+      PermissiveColon :
+        `:`
+        [lookahead != `:`]
+
       PermissiveOpenParen :
         `(`
         [lookahead != `(`]
