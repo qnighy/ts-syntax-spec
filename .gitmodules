@@ -7,3 +7,6 @@
 [submodule "references/babel"]
 	path = references/babel
 	url = https://github.com/babel/babel.git
+[submodule "references/TypeScript-go"]
+	path = references/TypeScript-go
+	url = https://github.com/microsoft/TypeScript-go.git
