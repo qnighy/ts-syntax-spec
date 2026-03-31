@@ -623,10 +623,31 @@
 
       InferType[Yield, Await, Cond] :
         `infer` BindingTypeIdentifier[?Yield, ?Await]
+        `infer` BindingTypeIdentifier[?Yield, ?Await] `extends` Type[?Yield, ?Await, +Cond]
     </emu-grammar>
-    <!-- TODO: infer types with `extends` constraint -->
     <emu-note>
       <p>`unique` and `asserts` are not listed here.</p>
+    </emu-note>
+    <emu-note>
+      <p>Newlines before `extends` are allowed in |InferType|, but not in |ConditionalType|.</p>
+    </emu-note>
+    <emu-note>
+      <p>There is ambiguity in how to interpret `extends`. Recursive conditional types are banned in the enclosing conditional type's constraint to help resolve this ambiguity.</p>
+      <p>Examples:</p>
+      <ul>
+        <li>`0 extends infer T extends 0 ? 0 : 0` is equivalent to `0 extends (infer T extends 0) ? 0 : 0`</li>
+        <li>`0 extends infer T extends 0 ? 0 : 0 ? 0 : 0` looks like `0 extends (infer T extends 0 ? 0 : 0) ? 0 : 0`, but it's actually syntax error to resolve ambiguity.</li>
+        <li>`0 extends (infer T extends 0) ? 0 : 0` reads as it is.</li>
+        <li>`0 extends (infer T extends 0 ? 0 : 0) ? 0 : 0` is equivalent to `0 extends ((infer T) extends 0 ? 0 : 0) ? 0 : 0`.</li>
+      </ul>
+      <p>However, there is one caveat: some parsers including TSC allow conditional types to appear in return type positions of a function type in a conditional type's constraint part.</p>
+      <p>For example, `0 extends () => infer T extends 0 ? 0 : 0 ? 0 : 0` is allowed. In this case, it prefers interpretation as conditional types if `?` follows the constraint type.</p>
+      <p>The resulting disambiguation algorithm is as follows:</p>
+      <ul>
+        <li>If conditional types are disallowed in the context, interpret `extends` as part of the |InferType|.</li>
+        <li>Otherwise, if `?` follows the constraint type, interpret `extends` as part of a conditional type.</li>
+        <li>Otherwise, interpret `extends` as part of the |InferType|.</li>
+      </ul>
     </emu-note>
     <emu-clause id="sec-ts-readonly-types">
       <h1>Readonly Types</h1>
@@ -679,10 +700,10 @@
       <h1>Function and Constructor Types</h1>
       <emu-grammar type="definition">
         FunctionType[Yield, Await, Cond] :
-          TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, +Predicate]
+          TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, ?Cond, +Predicate]
 
         ConstructorType[Yield, Await, Cond] :
-          `abstract`? `new` TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, ~Predicate]
+          `abstract`? `new` TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, ?Cond, ~Predicate]
       </emu-grammar>
       <emu-note>
         <p>Newlines are allowed between `abstract` and `new`.</p>
@@ -697,6 +718,7 @@
         <p>Actual parsers implement these rules in various ways.</p>
         <ul>
           <li>TSC inherits <sub>[Cond]</sub> parameter in |FormalParameters|.</li>
+          <li>TSC and Babel do not inherit <sub>[Cond]</sub> parameter in |TypeOrTypePredicate|.</li>
         </ul>
       </emu-note>
     </emu-clause>
@@ -712,17 +734,17 @@
   <emu-clause id="sec-ts-type-predicates">
     <h1>Type Predicates</h1>
     <emu-grammar type="definition">
-      TypeOrTypePredicate[Yield, Await, Predicate] :
-        [lookahead != IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is`] Type[?Yield, ?Await]
-        [+Predicate] TypePredicate[?Yield, ?Await]
+      TypeOrTypePredicate[Yield, Await, Cond, Predicate] :
+        [lookahead != IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is`] CondLevelType[?Yield, ?Await, ?Cond]
+        [+Predicate] TypePredicate[?Yield, ?Await, ?Cond]
 
-      TypePredicate[Yield, Await] :
-        IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` Type[?Yield, ?Await]
-        `this` [no LineTerminator here] `is` Type[?Yield, ?Await]
+      TypePredicate[Yield, Await, Cond] :
+        IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` CondLevelType[?Yield, ?Await, ?Cond]
+        `this` [no LineTerminator here] `is` CondLevelType[?Yield, ?Await, ?Cond]
         `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await]
-        `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` Type[?Yield, ?Await]
+        `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await] [no LineTerminator here] `is` CondLevelType[?Yield, ?Await, ?Cond]
         `asserts` [no LineTerminator here] `this`
-        `asserts` [no LineTerminator here] `this` [no LineTerminator here] `is` Type[?Yield, ?Await]
+        `asserts` [no LineTerminator here] `this` [no LineTerminator here] `is` CondLevelType[?Yield, ?Await, ?Cond]
     </emu-grammar>
     <emu-note>
       <p>The lookahead rule means that `function f(): keyof is {}` is understood as a function signature that asserts the type of the variable `keyof`, rather than a function that returns a key of type `is`.</p>
@@ -750,7 +772,7 @@
         `:` `unique` `symbol`
 
       ReturnTypeAnnotation[Yield, Await, Predicate] :
-        `:` TypeOrTypePredicate[?Yield, ?Await, ?Predicate]
+        `:` TypeOrTypePredicate[?Yield, ?Await, +Cond, ?Predicate]
     </emu-grammar>
     <emu-note>
       <p>Actual parsers implement these rules in various ways.</p>
@@ -1243,13 +1265,29 @@
     <emu-grammar type="definition">
       PermPrefixType[Yield, Await, Cond] :
         PermPostfixType[?Yield, ?Await]
-        `infer` PermIdentifier[?Yield, ?Await]
+        `infer` PermIdentifier[?Yield, ?Await] [lookahead != `extends`]
+        [~Cond] `infer` PermIdentifier[?Yield, ?Await] `extends` PermType[?Yield, ?Await]
+        [+Cond] `infer` PermIdentifier[?Yield, ?Await] [lookahead = `extends` PermType[?Yield, ?Await] [lookahead = `?`]]
+        [+Cond] `infer` PermIdentifier[?Yield, ?Await] `extends` PermType[?Yield, ?Await] [lookahead != `?`]
         `keyof` PermPrefixType[?Yield, ?Await, ?Cond]
         `readonly` PermPrefixType[?Yield, ?Await, ?Cond]
         `unique` PermPrefixType[?Yield, ?Await, ?Cond]
     </emu-grammar>
     <emu-note>
       <p>In the main grammar, `unique` is restricted to `unique symbol` in |VariableTypeAnnotation|, but TSC parses it as a general prefix type operator at higher precedence and validates later.</p>
+    </emu-note>
+    <emu-note>
+      <p>The `infer ... extends` constraint uses |PermType|, which always enables conditional types internally. This matches the main grammar where |InferType| uses `Type[+Cond]` for the constraint.</p>
+      <p>TSC disambiguates `infer T extends Constraint` from conditional types as follows: it greedily parses the constraint (with `disallowConditionalTypesAnd`), then checks whether `?` follows. If conditional types are enabled in the outer context and `?` follows, TSC backtracks and discards the constraint, so the `extends` belongs to the enclosing conditional type instead. If conditional types are disabled (<sub>[~Cond]</sub>), the constraint is always kept.</p>
+      <p>The four `infer` alternatives each represent a distinct case:</p>
+      <ul>
+        <li>`infer T [lookahead != extends]` — bare infer when `extends` does not follow. Available in both <sub>[+Cond]</sub> and <sub>[~Cond]</sub>.</li>
+        <li><sub>[~Cond]</sub> `infer T extends Constraint` — constrained infer. TSC always keeps the constraint when conditional types are disabled.</li>
+        <li><sub>[+Cond]</sub> `infer T [lookahead = extends Constraint ?]` — bare infer when `extends Constraint ?` follows. This models TSC's backtrack: TSC greedily parses the constraint, finds `?` after it, and discards the constraint. The bare `infer T` then becomes part of the check type of the enclosing |PermConditionalType|. This alternative is not available in <sub>[~Cond]</sub> because TSC never backtracks when conditional types are disabled.</li>
+        <li><sub>[+Cond]</sub> `infer T extends Constraint [lookahead != ?]` — constrained infer when `?` does not follow the constraint. TSC keeps the constraint in this case.</li>
+      </ul>
+      <p>In <sub>[~Cond]</sub> context, `[lookahead != extends]` and `extends` make the two alternatives mutually exclusive.</p>
+      <p>In <sub>[+Cond]</sub> context, the complex lookahead on the bare alternative and `[lookahead != ?]` on the constrained alternative partition the `extends`-follows cases by whether `?` follows the constraint, making all three <sub>[+Cond]</sub> alternatives mutually exclusive.</p>
     </emu-note>
   </emu-annex>
   <emu-annex id="sec-ts-permissive-intersection-types">
