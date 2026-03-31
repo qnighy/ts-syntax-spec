@@ -27,6 +27,10 @@ Unofficial specification for TypeScript syntax, written as an extension to ECMA-
 ## Conventions
 
 - Grammar parameters `[Yield, Await]` must be threaded through all production references consistently
+- Represent indefinite lookaheads using `[lookahead ...]` syntax with nonterminals. It is forbidden in ECMAScript, but we need it because TypeScript syntax works differently; it is highly influenced by TSC's design philosophy (or lack thereof regarding syntactic sanity) and we want to be able to express it precisely.
+- For Annex A permissive grammar, the following conditions must be met:
+  - All productions must have a unique match to the prefix of any input stream satisfying a certain lookahead condition (e.g. `PermTypeImportCall` assumes ``[lookahead = `import`]``).
+  - The `PermType` production must have a unique match to the prefix of any input stream (i.e. `PermType` has the vacant lookahead condition).
 
 ## Known Grammarkdown lint warnings
 
