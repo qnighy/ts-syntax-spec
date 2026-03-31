@@ -612,16 +612,16 @@
   <emu-clause id="sec-ts-prefix-types">
     <h1>Prefix Types</h1>
     <emu-grammar type="definition">
-      PrefixType[Yield, Await] :
+      PrefixType[Yield, Await, Cond] :
         PostfixType[?Yield, ?Await]
-        KeyofType[?Yield, ?Await]
-        InferType[?Yield, ?Await]
-        ReadonlyType[?Yield, ?Await]
+        KeyofType[?Yield, ?Await, ?Cond]
+        InferType[?Yield, ?Await, ?Cond]
+        ReadonlyType[?Yield, ?Await, ?Cond]
 
-      KeyofType[Yield, Await] :
-        `keyof` PrefixType[?Yield, ?Await]
+      KeyofType[Yield, Await, Cond] :
+        `keyof` PrefixType[?Yield, ?Await, ?Cond]
 
-      InferType[Yield, Await] :
+      InferType[Yield, Await, Cond] :
         `infer` BindingTypeIdentifier[?Yield, ?Await]
     </emu-grammar>
     <!-- TODO: infer types with `extends` constraint -->
@@ -631,8 +631,8 @@
     <emu-clause id="sec-ts-readonly-types">
       <h1>Readonly Types</h1>
       <emu-grammar type="definition">
-        ReadonlyType[Yield, Await] :
-          `readonly` PrefixType[?Yield, ?Await]
+        ReadonlyType[Yield, Await, Cond] :
+          `readonly` PrefixType[?Yield, ?Await, ?Cond]
       </emu-grammar>
       <emu-clause id="sec-ts-readonly-types-static-semantics-early-errors">
         <h1>Static Semantics: Early Errors</h1>
@@ -648,37 +648,40 @@
   <emu-clause id="sec-ts-intersection-types">
     <h1>Intersection Types</h1>
     <emu-grammar type="definition">
-      IntersectionType[Yield, Await] :
-        PrefixType[?Yield, ?Await]
-        `&` PrefixType[?Yield, ?Await]
-        IntersectionType[?Yield, ?Await] `&` PrefixType[?Yield, ?Await]
+      IntersectionType[Yield, Await, Cond] :
+        PrefixType[?Yield, ?Await, ?Cond]
+        `&` PrefixType[?Yield, ?Await, ?Cond]
+        IntersectionType[?Yield, ?Await, ?Cond] `&` PrefixType[?Yield, ?Await, ?Cond]
     </emu-grammar>
   </emu-clause>
   <emu-clause id="sec-ts-union-types">
     <h1>Union Types</h1>
     <emu-grammar type="definition">
-      UnionType[Yield, Await] :
-        IntersectionType[?Yield, ?Await]
-        `|` IntersectionType[?Yield, ?Await]
-        UnionType[?Yield, ?Await] `|` IntersectionType[?Yield, ?Await]
+      UnionType[Yield, Await, Cond] :
+        IntersectionType[?Yield, ?Await, ?Cond]
+        `|` IntersectionType[?Yield, ?Await, ?Cond]
+        UnionType[?Yield, ?Await, ?Cond] `|` IntersectionType[?Yield, ?Await, ?Cond]
     </emu-grammar>
   </emu-clause>
   <emu-clause id="sec-ts-conditional-and-function-types">
     <h1>Conditional and Function Types</h1>
     <emu-grammar type="definition">
       Type[Yield, Await] :
-        UnionType[?Yield, ?Await]
-        FunctionType[?Yield, ?Await]
-        ConstructorType[?Yield, ?Await]
-        ConditionalType[?Yield, ?Await]
+        CondLevelType[?Yield, ?Await, +Cond]
+
+      CondLevelType[Yield, Await, Cond] :
+        UnionType[?Yield, ?Await, ?Cond]
+        FunctionType[?Yield, ?Await, ?Cond]
+        ConstructorType[?Yield, ?Await, ?Cond]
+        [+Cond] ConditionalType[?Yield, ?Await, ?Cond]
     </emu-grammar>
     <emu-clause id="sec-ts-function-and-constructor-types">
       <h1>Function and Constructor Types</h1>
       <emu-grammar type="definition">
-        FunctionType[Yield, Await] :
+        FunctionType[Yield, Await, Cond] :
           TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, +Predicate]
 
-        ConstructorType[Yield, Await] :
+        ConstructorType[Yield, Await, Cond] :
           `abstract`? `new` TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, ~Predicate]
       </emu-grammar>
       <emu-note>
@@ -690,12 +693,18 @@
       <emu-note>
         <p>Parsers may need unbounded lookahead to disambiguate |FunctionType| from the type grouping operator `()`.</p>
       </emu-note>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>TSC inherits <sub>[Cond]</sub> parameter in |FormalParameters|.</li>
+        </ul>
+      </emu-note>
     </emu-clause>
     <emu-clause id="sec-ts-conditional-types">
       <h1>Conditional Types</h1>
       <emu-grammar type="definition">
-        ConditionalType[Yield, Await] :
-          UnionType[?Yield, ?Await] `extends` Type[?Yield, ?Await] `?` Type[?Yield, ?Await] `:` Type[?Yield, ?Await]
+        ConditionalType[Yield, Await, Cond] :
+          UnionType[?Yield, ?Await, ?Cond] `extends` CondLevelType[?Yield, ?Await, ?Cond] `?` CondLevelType[?Yield, ?Await, ?Cond] `:` CondLevelType[?Yield, ?Await, ?Cond]
       </emu-grammar>
     </emu-clause>
     <!-- TODO: parse `extends` conditionally -->
@@ -1232,12 +1241,12 @@
   <emu-annex id="sec-ts-permissive-prefix-types">
     <h1>Prefix Types</h1>
     <emu-grammar type="definition">
-      PermPrefixType[Yield, Await] :
+      PermPrefixType[Yield, Await, Cond] :
         PermPostfixType[?Yield, ?Await]
         `infer` PermIdentifier[?Yield, ?Await]
-        `keyof` PermPrefixType[?Yield, ?Await]
-        `readonly` PermPrefixType[?Yield, ?Await]
-        `unique` PermPrefixType[?Yield, ?Await]
+        `keyof` PermPrefixType[?Yield, ?Await, ?Cond]
+        `readonly` PermPrefixType[?Yield, ?Await, ?Cond]
+        `unique` PermPrefixType[?Yield, ?Await, ?Cond]
     </emu-grammar>
     <emu-note>
       <p>In the main grammar, `unique` is restricted to `unique symbol` in |VariableTypeAnnotation|, but TSC parses it as a general prefix type operator at higher precedence and validates later.</p>
@@ -1246,37 +1255,40 @@
   <emu-annex id="sec-ts-permissive-intersection-types">
     <h1>Intersection Types</h1>
     <emu-grammar type="definition">
-      PermIntersectionType[Yield, Await] :
-        PermPrefixType[?Yield, ?Await]
-        `&` PermPrefixType[?Yield, ?Await]
-        PermIntersectionType[?Yield, ?Await] `&` PermPrefixType[?Yield, ?Await]
+      PermIntersectionType[Yield, Await, Cond] :
+        PermPrefixType[?Yield, ?Await, ?Cond]
+        `&` PermPrefixType[?Yield, ?Await, ?Cond]
+        PermIntersectionType[?Yield, ?Await, ?Cond] `&` PermPrefixType[?Yield, ?Await, ?Cond]
     </emu-grammar>
   </emu-annex>
   <emu-annex id="sec-ts-permissive-union-types">
     <h1>Union Types</h1>
     <emu-grammar type="definition">
-      PermUnionType[Yield, Await] :
-        PermIntersectionType[?Yield, ?Await]
-        `|` PermIntersectionType[?Yield, ?Await]
-        PermUnionType[?Yield, ?Await] `|` PermIntersectionType[?Yield, ?Await]
+      PermUnionType[Yield, Await, Cond] :
+        PermIntersectionType[?Yield, ?Await, ?Cond]
+        `|` PermIntersectionType[?Yield, ?Await, ?Cond]
+        PermUnionType[?Yield, ?Await, ?Cond] `|` PermIntersectionType[?Yield, ?Await, ?Cond]
     </emu-grammar>
   </emu-annex>
   <emu-annex id="sec-ts-permissive-conditional-and-function-types">
     <h1>Conditional and Function Types</h1>
     <emu-grammar type="definition">
       PermType[Yield, Await] :
-        [lookahead &notin; {`<`, `new`, `abstract` `new`}] PermUnionType[?Yield, ?Await] [lookahead &notin; {` ` [no LineTerminator here] `extends`, ` ` [no LineTerminator here] `is`}]
-        PermUnionType[?Yield, ?Await] [no LineTerminator here] `is` PermType[?Yield, ?Await]
-        PermConditionalType[?Yield, ?Await]
-        PermFunctionType[?Yield, ?Await]
-        PermConstructorType[?Yield, ?Await]
+        PermCondLevelType[?Yield, ?Await, +Cond]
 
-      PermFunctionType[Yield, Await] :
+      PermCondLevelType[Yield, Await, Cond] :
+        [lookahead &notin; {`<`, `new`, `abstract` `new`}] PermUnionType[?Yield, ?Await, ?Cond] [lookahead &notin; {` ` [no LineTerminator here] `extends`, ` ` [no LineTerminator here] `is`}]
+        PermUnionType[?Yield, ?Await, ?Cond] [no LineTerminator here] `is` PermType[?Yield, ?Await]
+        [+Cond] PermConditionalType[?Yield, ?Await, ?Cond]
+        PermFunctionType[?Yield, ?Await, ?Cond]
+        PermConstructorType[?Yield, ?Await, ?Cond]
+
+      PermFunctionType[Yield, Await, Cond] :
         PermTypeParameters[?Yield, ?Await] `(` FormalParameters[?Yield, ?Await] `)` `=>` PermType[?Yield, ?Await]
         `(` FormalParameters[?Yield, ?Await] `)` `=>` PermType[?Yield, ?Await]
         PermTypeParameters[?Yield, ?Await] [lookahead != `(`]
 
-      PermConstructorType[Yield, Await] :
+      PermConstructorType[Yield, Await, Cond] :
         `abstract`? `new` PermTypeParameters[?Yield, ?Await] `(` FormalParameters[?Yield, ?Await] `)` `=>` PermType[?Yield, ?Await]
         `abstract`? `new` `(` FormalParameters[?Yield, ?Await] `)` `=>` PermType[?Yield, ?Await]
         `abstract`? `new` PermTypeParameters[?Yield, ?Await] [lookahead != `(`]
@@ -1288,8 +1300,8 @@
         `<` PermTypeArgumentList[?Yield, ?Await] [lookahead &notin; {`>`, `,`}]
         `<` PermTypeArgumentList[?Yield, ?Await] `,` [lookahead &notin; {`>`, `,`}]
 
-      PermConditionalType[Yield, Await] :
-        PermUnionType[?Yield, ?Await] [no LineTerminator here] `extends` PermType[?Yield, ?Await] `?` PermType[?Yield, ?Await] `:` PermType[?Yield, ?Await]
+      PermConditionalType[Yield, Await, Cond] :
+        PermUnionType[?Yield, ?Await, ?Cond] [no LineTerminator here] `extends` PermCondLevelType[?Yield, ?Await, ?Cond] `?` PermCondLevelType[?Yield, ?Await, ?Cond] `:` PermCondLevelType[?Yield, ?Await, ?Cond]
     </emu-grammar>
     <emu-note>
       <p>In the main grammar, `asserts` and `this is` type predicates only appear in |ReturnTypeAnnotation|. TSC parses them at the primary type level everywhere and validates their position later. TSC also allows newlines between `asserts x` / `asserts this` and `is` (see <emu-xref href="#sec-ts-permissive-primary-types"></emu-xref>).</p>
@@ -1298,7 +1310,7 @@
       <p>In the main grammar, `x is` type predicates only appear in |ReturnTypeAnnotation|. This permissive grammar models them at the |PermType| level for simplicity. TSC only parses them in return type context (via speculative parsing of `identifier [no LineTerminator here] is`).</p>
     </emu-note>
     <emu-note>
-      <p>TSC always parses `&lt;` as starting a function type, `new` as starting a constructor type, and `abstract new` as starting a constructor type in type position. The lookahead restriction on the first |PermType| alternative prevents |PermUnionType| from matching in these cases. |PermFunctionType| and |PermConstructorType| use |PermTypeParameters| (with error recovery for missing `&gt;`) and fallback alternatives to ensure they always match some prefix when their starting tokens are present.</p>
+      <p>TSC always parses `&lt;` as starting a function type, `new` as starting a constructor type, and `abstract new` as starting a constructor type in type position. The lookahead restriction on the first |PermCondLevelType| alternative prevents |PermUnionType| from matching in these cases. |PermFunctionType| and |PermConstructorType| use |PermTypeParameters| (with error recovery for missing `&gt;`) and fallback alternatives to ensure they always match some prefix when their starting tokens are present.</p>
     </emu-note>
     <emu-note>
       <p>TSC determines whether `(` starts a function type by checking whether the parenthesized content looks like formal parameters (e.g. `()`, `(...`, `(x:`, `(x,`, `(x?`, `(x=`, or `(x) =>`). The `[lookahead != \`=>\`]` restriction on the grouped type `(` |PermType| `)` in |PermPrimaryType| prevents ambiguity with |PermFunctionType| when `=>` follows the closing parenthesis. The grouped type uses |PermCloseParen| to handle missing `)`.</p>
