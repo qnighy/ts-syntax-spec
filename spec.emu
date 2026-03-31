@@ -455,6 +455,7 @@
         <emu-note>
           <p>Actual parsers implement these rules in various ways.</p>
           <ul>
+            <li>TSC restricts |Type| in unlabeled optional elements to |PostfixType|. It is because the whole element is first parsed as a JSDoc nullable type and then reinterpreted.</li>
             <li>Babel permits optional elements appearing after rest elements.</li>
             <li>Babel permits rest elements appearing after other rest elements.</li>
           </ul>
