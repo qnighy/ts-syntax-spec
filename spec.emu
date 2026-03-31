@@ -171,13 +171,13 @@
     <ul>
       <li>The TypeScript compiler itself does not clearly define the scope of syntactically correct TypeScript. The TypeScript compiler's parser is designed to be highly permissive, and many errors generally considered syntactic are deferred until type checking. Furthermore, the type checker does not clearly distinguish between syntax errors and type errors.</li>
       <li>Parsers that understand TypeScript other than the TypeScript compiler do clarify the scope of syntax errors, but they often behave inconsistently with the TypeScript compiler in edge cases.</li>
-      <li>The TypeScript type checker contains numerous ad-hoc behaviors. Therefore, it is not realistic to write down a specification that is properly separated from the implementation.</li>
+      <li>The TypeScript type checker contains numerous ad-hoc behaviours. Therefore, it is not realistic to write down a specification that is properly separated from the implementation.</li>
     </ul>
     <p>This specification aims to overcome these difficulties and propose a provisional specification suitable as a starting point for discussions within the TypeScript community. It defines the language specification based on the following criteria:</p>
     <ul>
       <li>It does not define specifications that depend on type checking, focusing only on syntax and runtime semantics.</li>
       <li>Among the errors output by the TypeScript type checker, those recognized as syntactic are classified as syntax errors. As a criterion for this, definitions with a level of complexity equivalent to ECMAScript syntax or Early Errors are considered syntactic.</li>
-      <li>It also refers to the behavior of third-party TypeScript parsers. In cases where there are discrepancies with the TypeScript compiler, it selects the more rational specification and provides supplements regarding known differences.</li>
+      <li>It also refers to the behaviour of third-party TypeScript parsers. In cases where there are discrepancies with the TypeScript compiler, it selects the more rational specification and provides supplements regarding known differences.</li>
     </ul>
     <p>It should be noted that the TypeScript language defined in this specification is unofficial and arbitrary, and possesses no binding force or authority.</p>
   </emu-clause>
@@ -204,35 +204,7 @@
         `(` Type[?Yield, ?Await] `)`
     </emu-grammar>
     <emu-note>
-      <p>TSC parses |PrimaryType| permissively using the following productions and validates it later. </p>
-      <emu-grammar>
-        PrimaryType[Yield, Await] :
-          TypeReference[?Yield, ?Await]
-          TypeQuery[?Yield, ?Await]
-          KeywordType
-          LiteralType
-          ThisType
-          TupleType[?Yield, ?Await]
-          ObjectType[?Yield, ?Await]
-          MappedType[?Yield, ?Await]
-          TemplateLiteralType[?Yield, ?Await]
-          JSDocAnyType
-          JSDocPrefixNullableType
-          JSDocFunctionType
-          `(` Type[?Yield, ?Await] `)`
-
-        JSDocAnyType :
-          `*`
-          `?` [lookahead &isin; {`,`, `}`, `)`, `>`, `=`, `|`}]
-
-        JSDocPrefixNullableType :
-          `?` [lookahead &notin; {`,`, `}`, `)`, `>`, `=`, `|`}] Type[?Yield, ?Await]
-
-        JSDocFunctionType :
-          `function` [lookahead != `(`]
-          `function` `(` JSDocFunctionParameters `)` ReturnTypeAnnotation[?Yield, ?Await]
-      </emu-grammar>
-      <p>It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
+      <p>TSC parses |PrimaryType| permissively as described in <emu-xref href="#sec-ts-permissive-primary-types"></emu-xref>. It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
       <ul>
         <li>`f &lt; x.#y &gt; (z)`, where `#y` is defined in the enclosing class</li>
       </ul>
@@ -318,19 +290,7 @@
         <p>Type identifiers following `.` is |IdentifierName|, therefore exempt from the restrictions on reserved words.</p>
       </emu-note>
       <emu-note>
-        <p>TSC parses |TypeReference| permissively using the following productions and validates it later. </p>
-        <emu-grammar>
-          QualifiedTypeName[Yield, Await] :
-            TypeImportCall
-            QualifiedTypeName[?Yield, ?Await] `.` PermissiveIdentifierName
-            TypeNamespaceReference[?Yield, ?Await] `.` PermissiveIdentifierName
-
-          PermissiveIdentifierName :
-            IdentifierName
-            PrivateIdentifier
-            [lookahead &notin; { IdentifierName, PrivateIdentifier }]
-        </emu-grammar>
-        <p>It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
+        <p>TSC parses |TypeReference| permissively as described in <emu-xref href="#sec-ts-permissive-primary-types"></emu-xref>. It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
         <ul>
           <li>`f &lt; x.#y &gt; (z)`, where `#y` is defined in the enclosing class</li>
         </ul>
@@ -355,22 +315,7 @@
         <p>Before TypeScript 6.0, `assert` was allowed as an alternative to the `with` keyword.</p>
       </emu-note>
       <emu-note>
-        <p>TSC parses |TypeImportCall| permissively using the following productions and validates it later. </p>
-        <emu-grammar>
-          TypeImportCall[Yield, Await] :
-            `import` PermissiveOpenParen Type[?Yield, ?Await] PermissiveCloseParen
-            `import` PermissiveOpenParen Type[?Yield, ?Await] `,` PermissiveOpenBrace PermissiveWithOrAsserts PermissiveColon WithClauseBody `,`? PermissiveCloseBrace PermissiveCloseParen
-
-          PermissiveWithOrAsserts :
-            `with`
-            `asserts`
-            [lookahead &notin; { `with`, `asserts` }]
-
-          WithClauseBody :
-            `{` WithEntries `,`? PermissiveCloseBrace
-            [lookahead != `{`]
-        </emu-grammar>
-        <p>It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
+        <p>TSC parses |TypeImportCall| permissively as described in <emu-xref href="#sec-ts-permissive-primary-types"></emu-xref>. It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
         <ul>
           <li>`f &lt; import(x) &gt; (x)`</li>
           <li>`f &lt; import.meta &gt; (x)`</li>
@@ -389,19 +334,7 @@
           ExpressionInTypeQuery[?Yield, ?Await] `.` IdentifierName
       </emu-grammar>
       <emu-note>
-        <p>TSC parses |TypeQuery| permissively using the following productions and validates it later. </p>
-        <emu-grammar>
-          ExpressionInTypeQuery[Yield, Await] :
-            TypeNamespaceReference[?Yield, ?Await]
-            TypeImportCall
-            ExpressionInTypeQuery[?Yield, ?Await] `.` PermissiveIdentifierName
-
-          PermissiveIdentifierName :
-            IdentifierName
-            PrivateIdentifier
-            [lookahead &notin; { IdentifierName, PrivateIdentifier }]
-        </emu-grammar>
-        <p>It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
+        <p>TSC parses |TypeQuery| permissively as described in <emu-xref href="#sec-ts-permissive-primary-types"></emu-xref>. It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
         <ul>
           <li>`f &lt; typeof x.#y &gt; (z)`, where `#y` is defined in the enclosing class</li>
         </ul>
@@ -498,33 +431,7 @@
           `...` BindingIdentifier[?Yield, ?Await] `:` Type[?Yield, ?Await]
       </emu-grammar>
       <emu-note>
-        <p>TSC parses |TupleType| permissively using the following productions and validates it later. </p>
-        <emu-grammar>
-          TupleType[Yield, Await] :
-            `[` PermissiveCloseTupleType[?Yield, ?Await]
-            `[` TupleTypeElements[?Yield, ?Await] PermissiveCloseTupleType2[?Yield, ?Await]
-            `[` TupleTypeElements[?Yield, ?Await] `,` PermissiveCloseTupleType[?Yield, ?Await]
-
-          PermissiveCloseTupleType[Yield, Await] :
-            `]`
-            [lookahead &notin; { `]`, `,`, TupleTypeElements }]
-
-          PermissiveCloseTupleType2[Yield, Await] :
-            `]`
-            [lookahead &notin; { `]`, `,` }]
-
-          TupleTypeElement[Yield, Await] :
-            [lookahead &notin; { IdentifierName `?`, IdentifierName `:`, `...` }] Type[?Yield, ?Await]
-            IdentifierName `:` Type[?Yield, ?Await]
-            IdentifierName `?` PermissiveColon Type[?Yield, ?Await]
-            `...` [lookahead &notin; { IdentifierName `?`, IdentifierName `:` }] Type[?Yield, ?Await]
-            `...` IdentifierName `:` Type[?Yield, ?Await]
-            `...` IdentifierName `?` PermissiveColon Type[?Yield, ?Await]
-            [lookahead = `,`]
-
-        </emu-grammar>
-        <p>Here we don't account for `?` after |Type| because in the permissive grammar, `?` would first be interpreted as part of a permissive optional type.</p>
-        <p>It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
+        <p>TSC parses |TupleType| permissively as described in <emu-xref href="#sec-ts-permissive-primary-types"></emu-xref>. It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
         <ul>
           <li>`f < [,] > (x)`</li>
         </ul>
@@ -582,7 +489,7 @@
           ReadonlyModifier? PropertyName[?Yield, ?Await] `?`? TypeAnnotation[?Yield, ?Await]?
 
         ObjectMethodSignature[Yield, Await] :
-          ReadonlyModifier? PropertyName[?Yield, ?Await] `?`? TypeParameters[?Yield, ?Await, +Const, -InOut]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
+          ReadonlyModifier? PropertyName[?Yield, ?Await] `?`? TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
 
         ObjectGetAccessorSignature[Yield, Await] :
           `get` PropertyName[?Yield, ?Await] `(` `)` ReturnTypeAnnotation[?Yield, ?Await, ~Predicate]?
@@ -591,10 +498,10 @@
           `set` PropertyName[?Yield, ?Await] `(` PropertySetParameterList `)` ReturnTypeAnnotation[?Yield, ?Await, ~Predicate]?
 
         ObjectCallSignature[Yield, Await] :
-          TypeParameters[?Yield, ?Await, +Const, -InOut]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
+          TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
 
         ObjectConstructSignature[Yield, Await] :
-          `new` TypeParameters[?Yield, ?Await, +Const, -InOut]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, ~Predicate]?
+          `new` TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` ReturnTypeAnnotation[?Yield, ?Await, ~Predicate]?
 
         ObjectIndexSignature[Yield, Await] :
           ReadonlyModifier? `[` BindingIdentifier[?Yield, ?Await] TypeAnnotation[?Yield, ?Await] `]` TypeAnnotation[?Yield, ?Await]?
@@ -603,7 +510,7 @@
           `readonly` [no LineTerminator here]
       </emu-grammar>
       <emu-note>
-        <p>The index type in |IndexSignature| must resolve to a type that is a "valid index key type", but it's beyond parsers' capabilities to enforce this.</p>
+        <p>The index type in |ObjectIndexSignature| must resolve to a type that is a "valid index key type", but it's beyond parsers' capabilities to enforce this.</p>
         <p>A valid index key type is</p>
         <ul>
           <li>the `string` type,</li>
@@ -711,7 +618,7 @@
         ReadonlyType[?Yield, ?Await]
 
       KeyofType[Yield, Await] :
-        `keyof` PrefixType
+        `keyof` PrefixType[?Yield, ?Await]
     </emu-grammar>
     <!-- TODO: infer types with `extends` ambiguity resolution -->
     <emu-note>
@@ -765,16 +672,16 @@
       <h1>Function and Constructor Types</h1>
       <emu-grammar type="definition">
         FunctionType[Yield, Await] :
-          TypeParameters[?Yield, ?Await, +Const, -InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, +Predicate]
+          TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, +Predicate]
 
         ConstructorType[Yield, Await] :
-          `abstract`? `new` TypeParameters[?Yield, ?Await, +Const, -InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, ~Predicate]
+          `abstract`? `new` TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` TypeOrTypePredicate[?Yield, ?Await, ~Predicate]
       </emu-grammar>
       <emu-note>
         <p>Newlines are allowed between `abstract` and `new`.</p>
       </emu-note>
       <emu-note>
-        <p>|FunctionType| and |ConstructorType| are equivalent to |ObjectType| with a unique |CallSignature| or |ConstructSignature|, respectively, but note the difference in return type delimiters.</p>
+        <p>|FunctionType| and |ConstructorType| are equivalent to |ObjectType| with a unique |ObjectCallSignature| or |ObjectConstructSignature|, respectively, but note the difference in return type delimiters.</p>
       </emu-note>
       <emu-note>
         <p>Parsers may need unbounded lookahead to disambiguate |FunctionType| from the type grouping operator `()`.</p>
@@ -905,31 +812,6 @@
     <emu-note>
       <p>Type argument list cannot be empty.</p>
     </emu-note>
-  </emu-clause>
-  <emu-clause id="sec-ts-relaxed-tokens">
-    <h1>Relaxed Tokens</h1>
-    <p>The following nonterminals are used to describe TSC's permissive parsing behavior for certain tokens.</p>
-    <emu-grammar type="definition">
-      PermissiveColon :
-        `:`
-        [lookahead != `:`]
-
-      PermissiveOpenParen :
-        `(`
-        [lookahead != `(`]
-
-      PermissiveCloseParen :
-        `)`
-        [lookahead != `)`]
-
-      PermissiveOpenBrace :
-        `{`
-        [lookahead != `{`]
-
-      PermissiveCloseBrace :
-        `}`
-        [lookahead != `}`]
-    </emu-grammar>
   </emu-clause>
 </emu-clause>
 
@@ -1077,7 +959,7 @@
         `~` UnaryExpression[?Yield, ?Await]
         `!` UnaryExpression[?Yield, ?Await]
         [+Await] AwaitExpression[?Yield]
-        `<` Type `>` UnaryExpression[?Yield, ?Await]
+        `<` Type[?Yield, ?Await] `>` UnaryExpression[?Yield, ?Await]
     </emu-grammar>
     <p>The production <emu-grammar>UnaryExpression: `<` Type `>` UnaryExpression</emu-grammar> is disabled when JSX is enabled.</p>
     <emu-clause id="sec-ts-unary-operators-evaluation" type="sdo">
@@ -1101,8 +983,8 @@
         RelationalExpression[?In, ?Yield, ?Await] `instanceof` ShiftExpression[?Yield, ?Await]
         [+In] RelationalExpression[+In, ?Yield, ?Await] `in` ShiftExpression[?Yield, ?Await]
         [+In] PrivateIdentifier `in` ShiftExpression[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] `as` Type
-        RelationalExpression[?In, ?Yield, ?Await] `satisfies` Type
+        RelationalExpression[?In, ?Yield, ?Await] `as` Type[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] `satisfies` Type[?Yield, ?Await]
     </emu-grammar>
     <emu-note>
       <p>The production for `&lt;` is modified from the original ECMA-262 grammar to include a lookahead restriction that prevents ambiguity with |ExpressionTypeArguments|.</p>
@@ -1128,16 +1010,16 @@
     <h1>Arrow Function Definitions</h1>
     <p>The following grammar extends <emu-xref href="#prod-ArrowParameters">ArrowParameters</emu-xref>:</p>
     <emu-grammar type="definition">
-      ArrowFunction[In, Yield, Await, Else] :
+      ArrowFunction[In, Yield, Await] :
         ArrowBindingIdentifier[?Yield, ?Await] [no LineTerminator here] `=>` ConciseBody[?In]
-        ArrowHead[?Yield, ?Await, ?Else] [no LineTerminator here] `=>` ConciseBody[?In]
+        ArrowHead[?Yield, ?Await] [no LineTerminator here] `=>` ConciseBody[?In]
 
       ArrowBindingIdentifier[Yield, Await] :
         BindingIdentifier[?Yield, ?Await]
 
-      ArrowHead[Yield, Await, Else] :
-        CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await] ReturnType[Else]?
-        ExpressionTypeArguments[?Yield, ?Await] ArrowFormalParameters[?Yield, ?Await] ReturnType[Else]?
+      ArrowHead[Yield, Await] :
+        CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await] ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
+        ExpressionTypeArguments[?Yield, ?Await] ArrowFormalParameters[?Yield, ?Await] ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
     </emu-grammar>
     <emu-note>
       <p>If JSX is enabled, the |ExpressionTypeArguments| in |ArrowHead| must match the following production to avoid ambiguity with JSX syntax.</p>
@@ -1155,7 +1037,7 @@
   <h1>TypeScript Permissive Grammars</h1>
   <p>TSC parser is permissive so that it always consumes all input, even if it contains syntax errors.</p>
   <p>It affects the way TypeScript handles |ExpressionTypeArguments| because permissive parsing inhibits backtracking in some cases.</p>
-  <emu-clause id="sec-ts-permissive-tokens">
+  <emu-annex id="sec-ts-permissive-tokens">
     <h1>Tokens</h1>
     <emu-grammar type="definition">
       PermColon :
@@ -1178,8 +1060,8 @@
         `}`
         [lookahead != `}`]
     </emu-grammar>
-  </emu-clause>
-  <emu-clause id="sec-ts-permissive-primary-types">
+  </emu-annex>
+  <emu-annex id="sec-ts-permissive-primary-types">
     <h1>Primary Types</h1>
     <emu-grammar type="definition">
       PermPrimaryType[Yield, Await] :
@@ -1281,15 +1163,15 @@
         [lookahead != `{`]
 
       PermTupleType[Yield, Await] :
-        `[` PermCloseTupleType[?Yield, ?Await]
-        `[` PermTupleTypeElements[?Yield, ?Await] PermCloseTupleType2[?Yield, ?Await]
-        `[` PermTupleTypeElements[?Yield, ?Await] `,` PermCloseTupleType[?Yield, ?Await]
+        `[` PermCloseTupleType
+        `[` PermTupleTypeElements[?Yield, ?Await] PermCloseTupleType2
+        `[` PermTupleTypeElements[?Yield, ?Await] `,` PermCloseTupleType
 
-      PermCloseTupleType[Yield, Await] :
+      PermCloseTupleType :
         `]`
-        [lookahead &notin; { `]`, `,`, PermTupleTypeElements }]
+        [lookahead &notin; { `]`, `,` }]
 
-      PermCloseTupleType2[Yield, Await] :
+      PermCloseTupleType2 :
         `]`
         [lookahead &notin; { `]`, `,` }]
 
@@ -1340,8 +1222,11 @@
         Type[?Yield, ?Await] `=`
         `...` Type[?Yield, ?Await] `=`
     </emu-grammar>
-  </emu-clause>
-  <emu-clause id="sec-ts-permissive-postfix-types">
+    <emu-note>
+      <p>In |PermTupleTypeElement|, we don't account for `?` after |Type| because in the permissive grammar, `?` would first be interpreted as part of a permissive optional type.</p>
+    </emu-note>
+  </emu-annex>
+  <emu-annex id="sec-ts-permissive-postfix-types">
     <h1>Postfix Types</h1>
     <emu-grammar type="definition">
       PermPostfixType[Yield, Await] :
@@ -1349,8 +1234,8 @@
         PermPostfixType[?Yield, ?Await] `[` `]`
         PermPostfixType[?Yield, ?Await] `[` Type[?Yield, ?Await] `]`
     </emu-grammar>
-  </emu-clause>
-  <emu-clause id="sec-ts-permissive-prefix-types">
+  </emu-annex>
+  <emu-annex id="sec-ts-permissive-prefix-types">
     <h1>Prefix Types</h1>
     <emu-grammar type="definition">
       PermPrefixType[Yield, Await] :
@@ -1362,8 +1247,8 @@
     <emu-note>
       <p>In the main grammar, `unique` is restricted to `unique symbol` in |VariableTypeAnnotation|, but TSC parses it as a general prefix type operator at higher precedence and validates later.</p>
     </emu-note>
-  </emu-clause>
-  <emu-clause id="sec-ts-permissive-intersection-types">
+  </emu-annex>
+  <emu-annex id="sec-ts-permissive-intersection-types">
     <h1>Intersection Types</h1>
     <emu-grammar type="definition">
       PermIntersectionType[Yield, Await] :
@@ -1371,8 +1256,8 @@
         `&` PermPrefixType[?Yield, ?Await]
         PermIntersectionType[?Yield, ?Await] `&` PermPrefixType[?Yield, ?Await]
     </emu-grammar>
-  </emu-clause>
-  <emu-clause id="sec-ts-permissive-union-types">
+  </emu-annex>
+  <emu-annex id="sec-ts-permissive-union-types">
     <h1>Union Types</h1>
     <emu-grammar type="definition">
       PermUnionType[Yield, Await] :
@@ -1380,8 +1265,8 @@
         `|` PermIntersectionType[?Yield, ?Await]
         PermUnionType[?Yield, ?Await] `|` PermIntersectionType[?Yield, ?Await]
     </emu-grammar>
-  </emu-clause>
-  <emu-clause id="sec-ts-permissive-conditional-and-function-types">
+  </emu-annex>
+  <emu-annex id="sec-ts-permissive-conditional-and-function-types">
     <h1>Conditional and Function Types</h1>
     <emu-grammar type="definition">
       PermType[Yield, Await] :
@@ -1396,10 +1281,10 @@
         PermUnionType[?Yield, ?Await] `is` PermType[?Yield, ?Await]
 
       PermFunctionType[Yield, Await] :
-        TypeParameters[?Yield, ?Await, +Const, -InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` PermType[?Yield, ?Await]
+        TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` PermType[?Yield, ?Await]
 
       PermConstructorType[Yield, Await] :
-        `abstract`? `new` TypeParameters[?Yield, ?Await, +Const, -InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` PermType[?Yield, ?Await]
+        `abstract`? `new` TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` PermType[?Yield, ?Await]
 
       PermConditionalType[Yield, Await] :
         PermUnionType[?Yield, ?Await] `extends` PermType[?Yield, ?Await] `?` PermType[?Yield, ?Await] `:` PermType[?Yield, ?Await]
@@ -1407,15 +1292,15 @@
     <emu-note>
       <p>In the main grammar, type predicates with `asserts` and `is` only appear in |ReturnTypeAnnotation|. TSC parses them as types of higher precedence everywhere and validates their position later. TSC also allows newlines between `asserts x` / `asserts this` and `is`.</p>
     </emu-note>
-  </emu-clause>
-  <emu-clause id="sec-ts-permissive-type-annotations">
+  </emu-annex>
+  <emu-annex id="sec-ts-permissive-type-annotations">
     <h1>Type Annotations</h1>
     <emu-grammar type="definition">
       PermReturnTypeAnnotation[Yield, Await] :
         `:` PermType[?Yield, ?Await]
     </emu-grammar>
-  </emu-clause>
-  <emu-clause id="sec-ts-permissive-type-arguments">
+  </emu-annex>
+  <emu-annex id="sec-ts-permissive-type-arguments">
     <h1>Type Arguments</h1>
     <emu-grammar type="definition">
       PermTypeArguments[Yield, Await] :
@@ -1426,7 +1311,7 @@
         PermType[?Yield, ?Await]
         PermTypeArgumentList[?Yield, ?Await] `,` PermType[?Yield, ?Await]
     </emu-grammar>
-  </emu-clause>
+  </emu-annex>
 </emu-annex>
 
 <emu-annex id="sec-bibliography" back-matter>
