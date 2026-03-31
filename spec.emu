@@ -222,7 +222,7 @@
           BindingIdentifier[?Yield, ?Await] but not ExtraKeywordType
 
         TypeOperator :: one of
-          `keyof` `readonly` `unique`
+          `infer` `keyof` `readonly` `unique`
       </emu-grammar>
 
       <emu-note>
@@ -615,12 +615,16 @@
       PrefixType[Yield, Await] :
         PostfixType[?Yield, ?Await]
         KeyofType[?Yield, ?Await]
+        InferType[?Yield, ?Await]
         ReadonlyType[?Yield, ?Await]
 
       KeyofType[Yield, Await] :
         `keyof` PrefixType[?Yield, ?Await]
+
+      InferType[Yield, Await] :
+        `infer` BindingTypeIdentifier[?Yield, ?Await]
     </emu-grammar>
-    <!-- TODO: infer types with `extends` ambiguity resolution -->
+    <!-- TODO: infer types with `extends` constraint -->
     <emu-note>
       <p>`unique` and `asserts` are not listed here.</p>
     </emu-note>
@@ -1080,6 +1084,16 @@
         IdentifierName
         PrivateIdentifier
         [lookahead &notin; { IdentifierName, PrivateIdentifier }]
+
+      PermIdentifier[Yield, Await] :
+        [lookahead != ReservedWord] IdentifierName
+        [~Yield] `yield`
+        [~Await] `await`
+        PrivateIdentifier
+        [+Yield] [lookahead = `yield`]
+        [+Await] [lookahead = `await`]
+        [lookahead &notin; {`yield`, `await`}] [lookahead = ReservedWord]
+        [lookahead &notin; { IdentifierName, PrivateIdentifier }]
     </emu-grammar>
   </emu-annex>
   <emu-annex id="sec-ts-permissive-primary-types">
@@ -1220,6 +1234,7 @@
     <emu-grammar type="definition">
       PermPrefixType[Yield, Await] :
         PermPostfixType[?Yield, ?Await]
+        `infer` PermIdentifier[?Yield, ?Await]
         `keyof` PermPrefixType[?Yield, ?Await]
         `readonly` PermPrefixType[?Yield, ?Await]
         `unique` PermPrefixType[?Yield, ?Await]
