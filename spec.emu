@@ -1037,6 +1037,11 @@
   <h1>TypeScript Permissive Grammars</h1>
   <p>TSC parser is permissive so that it always consumes all input, even if it contains syntax errors.</p>
   <p>It affects the way TypeScript handles |ExpressionTypeArguments| because permissive parsing inhibits backtracking in some cases.</p>
+  <!--
+    Permissive Grammar rules:
+    When the nonterminal |PermType| is matched against any token stream,
+    it must uniquely match a prefix of the token stream.
+  -->
   <emu-annex id="sec-ts-permissive-tokens">
     <h1>Tokens</h1>
     <emu-grammar type="definition">
@@ -1059,94 +1064,68 @@
       PermCloseBrace :
         `}`
         [lookahead != `}`]
+
+      PermIdentifierName :
+        IdentifierName
+        [lookahead != IdentifierName]
+
+      PermIdentifierNameAfterDot :
+        [no LineTerminator here] IdentifierName
+        [lookahead != ` ` [no LineTerminator here] IdentifierName] [lookahead != ` ` IdentifierName [no LineTerminator here] IdentifierName] IdentifierName
+        [lookahead != ` ` [no LineTerminator here] IdentifierName] [lookahead = ` ` IdentifierName [no LineTerminator here] IdentifierName]
+        [lookahead != IdentifierName]
+
+      PermIdentifierNameOrPrivate :
+        IdentifierName
+        PrivateIdentifier
+        [lookahead &notin; { IdentifierName, PrivateIdentifier }]
     </emu-grammar>
   </emu-annex>
   <emu-annex id="sec-ts-permissive-primary-types">
     <h1>Primary Types</h1>
     <emu-grammar type="definition">
       PermPrimaryType[Yield, Await] :
-        [lookahead &notin; PermPrimaryTypeStartSymbol] PermTypeReference[?Yield, ?Await]
+        [lookahead = IdentifierName] [lookahead &notin; {`typeof`, `null`, `true`, `false`, `this`, `void`, ExtraKeywordType, `function`, `asserts` [no LineTerminator here] IdentifierName}] PermTypeReference[?Yield, ?Await]
+        [lookahead = ExtraKeywordType `.`] PermTypeReference[?Yield, ?Await]
+        [lookahead = `.`] PermTypeReference[?Yield, ?Await]
         PermTypeQuery[?Yield, ?Await]
         KeywordType
         LiteralType
-        `this`
+        [lookahead &notin; {`this` [no LineTerminator here] `is`}] `this`
         PermTupleType[?Yield, ?Await]
         ObjectType[?Yield, ?Await]
         MappedType[?Yield, ?Await]
         TemplateLiteralType[?Yield, ?Await]
-        `(` PermType[?Yield, ?Await] `)`
+        `(` PermType[?Yield, ?Await] `)` [lookahead != `=>`]
         PermJSDocAnyType
         PermJSDocPrefixNullableType[?Yield, ?Await]
         PermJSDocPrefixNonNullableType[?Yield, ?Await]
         PermJSDocFunctionType[?Yield, ?Await]
-
-      PermPrimaryTypeStartSymbol :
-        StringLiteral
-        NoSubstitutionTemplate
-        TemplateHead
-        NumericLiteral
-        `-` NumericLiteral
-        `[`
-        `{`
-        `(`
-        `*`
-        `?`
-        `!`
+        `this` [no LineTerminator here] `is` PermType[?Yield, ?Await]
+        `asserts` [no LineTerminator here] IdentifierName `is` PermType[?Yield, ?Await]
+        `asserts` [no LineTerminator here] IdentifierName [lookahead != `is`]
+        [lookahead &notin; { IdentifierName, StringLiteral, NoSubstitutionTemplate, TemplateHead, NumericLiteral, `-` NumericLiteral, `[`, `{`, `(`, `*`, `?`, `!`, `.` }]
 
       PermTypeReference[Yield, Await] :
-        [lookahead != PermTypeReferenceExcl] PermIdentifierName [lookahead &notin; {`.`, ` ` [no LineTerminator here] `<`}]
-        [lookahead != PermTypeReferenceExcl] PermIdentifierName [no LineTerminator here] PermTypeArguments[?Yield, ?Await]
-        [lookahead != PermTypeReferenceExcl2] PermQualifiedTypeName[?Yield, ?Await] [lookahead &notin; {`.`, ` ` [no LineTerminator here] `<`}]
-        [lookahead != PermTypeReferenceExcl2] PermQualifiedTypeName[?Yield, ?Await] [no LineTerminator here] PermTypeArguments[?Yield, ?Await]
+        PermQualifiedTypeName[?Yield, ?Await] [lookahead &notin; {`.`, ` ` [no LineTerminator here] `&lt;`}]
+        PermQualifiedTypeName[?Yield, ?Await] [no LineTerminator here] PermTypeArguments[?Yield, ?Await]
 
       PermQualifiedTypeName[Yield, Await] :
-        PermTypeImportCall[?Yield, ?Await]
-        PermQualifiedTypeName[?Yield, ?Await] `.` PermPropIdentifierName
-        PermIdentifierName `.` PermPropIdentifierName
-
-      PermTypeReferenceExcl :: one of
-          `any`
-          `bigint` `boolean`
-          `false` `function`
-          `import`
-          `keyof`
-          `never` `null` `number`
-          `object`
-          `readonly`
-          `string` `symbol`
-          `this` `true` `typeof`
-          `undefined` `unique` `unknown`
-          `void`
-
-      PermTypeReferenceExcl2 :: one of
-          `any`
-          `bigint` `boolean`
-          `false` `function`
-          `keyof`
-          `never` `null` `number`
-          `object`
-          `readonly`
-          `string` `symbol`
-          `this` `true` `typeof`
-          `undefined` `unique` `unknown`
-          `void`
-
-      PermPropIdentifierName :
-        IdentifierName
-        [lookahead &notin; { IdentifierName, `<` }]
-
-      PermIdentifierName :
-        IdentifierName
-        PrivateIdentifier
-        [lookahead &notin; { IdentifierName, PrivateIdentifier }]
+        [lookahead != `import`] PermIdentifierNameOrPrivate
+        PermTypeImportCall[?Yield, ?Await] [lookahead != `.`]
+        PermTypeImportCall[?Yield, ?Await] `.` PermIdentifierNameOrPrivate
+        PermQualifiedTypeName[?Yield, ?Await] `.` PermIdentifierNameAfterDot
+        `.` PermIdentifierNameAfterDot
 
       PermTypeQuery[Yield, Await] :
-        `typeof` PermExpressionInTypeQuery[?Yield, ?Await]
+        `typeof` PermExpressionInTypeQuery[?Yield, ?Await] [lookahead &notin; {`.`, ` ` [no LineTerminator here] `&lt;`}]
+        `typeof` PermExpressionInTypeQuery[?Yield, ?Await] [no LineTerminator here] PermTypeArguments[?Yield, ?Await]
 
       PermExpressionInTypeQuery[Yield, Await] :
-        [lookahead != `import`] PermIdentifierName
-        PermTypeImportCall[?Yield, ?Await]
-        PermExpressionInTypeQuery[?Yield, ?Await] `.` PermPropIdentifierName
+        [lookahead != `import`] PermIdentifierNameOrPrivate
+        PermTypeImportCall[?Yield, ?Await] [lookahead != `.`]
+        PermTypeImportCall[?Yield, ?Await] `.` PermIdentifierNameOrPrivate
+        PermExpressionInTypeQuery[?Yield, ?Await] `.` PermIdentifierNameAfterDot
         [lookahead != IdentifierName]
 
       PermTypeImportCall[Yield, Await] :
@@ -1270,15 +1249,11 @@
     <h1>Conditional and Function Types</h1>
     <emu-grammar type="definition">
       PermType[Yield, Await] :
-        PermUnionType[?Yield, ?Await]
+        [lookahead &notin; {`<`, `new`, `abstract` `new`}] PermUnionType[?Yield, ?Await] [lookahead &notin; {` ` [no LineTerminator here] `extends`, ` ` [no LineTerminator here] `is`}]
+        PermUnionType[?Yield, ?Await] [no LineTerminator here] `is` PermType[?Yield, ?Await]
+        PermConditionalType[?Yield, ?Await]
         PermFunctionType[?Yield, ?Await]
         PermConstructorType[?Yield, ?Await]
-        PermConditionalType[?Yield, ?Await]
-        `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await]
-        `asserts` [no LineTerminator here] IdentifierReference[?Yield, ?Await] `is` PermType[?Yield, ?Await]
-        `asserts` [no LineTerminator here] `this`
-        `asserts` [no LineTerminator here] `this` `is` PermType[?Yield, ?Await]
-        PermUnionType[?Yield, ?Await] `is` PermType[?Yield, ?Await]
 
       PermFunctionType[Yield, Await] :
         TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` PermType[?Yield, ?Await]
@@ -1287,10 +1262,19 @@
         `abstract`? `new` TypeParameters[?Yield, ?Await, +Const, ~InOut]? `(` FormalParameters[?Yield, ?Await] `)` `=>` PermType[?Yield, ?Await]
 
       PermConditionalType[Yield, Await] :
-        PermUnionType[?Yield, ?Await] `extends` PermType[?Yield, ?Await] `?` PermType[?Yield, ?Await] `:` PermType[?Yield, ?Await]
+        PermUnionType[?Yield, ?Await] [no LineTerminator here] `extends` PermType[?Yield, ?Await] `?` PermType[?Yield, ?Await] `:` PermType[?Yield, ?Await]
     </emu-grammar>
     <emu-note>
-      <p>In the main grammar, type predicates with `asserts` and `is` only appear in |ReturnTypeAnnotation|. TSC parses them as types of higher precedence everywhere and validates their position later. TSC also allows newlines between `asserts x` / `asserts this` and `is`.</p>
+      <p>In the main grammar, `asserts` and `this is` type predicates only appear in |ReturnTypeAnnotation|. TSC parses them at the primary type level everywhere and validates their position later. TSC also allows newlines between `asserts x` / `asserts this` and `is` (see <emu-xref href="#sec-ts-permissive-primary-types"></emu-xref>).</p>
+    </emu-note>
+    <emu-note>
+      <p>In the main grammar, `x is` type predicates only appear in |ReturnTypeAnnotation|. This permissive grammar models them at the |PermType| level for simplicity. TSC only parses them in return type context (via speculative parsing of `identifier [no LineTerminator here] is`).</p>
+    </emu-note>
+    <emu-note>
+      <p>TSC always parses `&lt;` as starting a function type, `new` as starting a constructor type, and `abstract new` as starting a constructor type in type position. The lookahead restriction on the first |PermType| alternative prevents |PermUnionType| from matching in these cases.</p>
+    </emu-note>
+    <emu-note>
+      <p>TSC determines whether `(` starts a function type by checking whether the parenthesized content looks like formal parameters (e.g. `()`, `(...`, `(x:`, `(x,`, `(x?`, `(x=`, or `(x) =>`). The `[lookahead != \`=>\`]` restriction on the grouped type `(` |PermType| `)` in |PermPrimaryType| prevents ambiguity with |PermFunctionType| when `=>` follows the closing parenthesis.</p>
     </emu-note>
   </emu-annex>
   <emu-annex id="sec-ts-permissive-type-annotations">

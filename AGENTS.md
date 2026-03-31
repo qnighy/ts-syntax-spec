@@ -27,3 +27,7 @@ Unofficial specification for TypeScript syntax, written as an extension to ECMA-
 ## Conventions
 
 - Grammar parameters `[Yield, Await]` must be threaded through all production references consistently
+
+## Known Grammarkdown lint warnings
+
+Grammarkdown does not support `[no LineTerminator here]` at the start of a lookahead set element. Work around this by prepending a backquoted space (`` ` ` ``) before `[no LineTerminator here]`, following the existing pattern in `PermTypeReference`.
