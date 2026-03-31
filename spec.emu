@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-GB-oxendict">
 <meta charset="utf-8">
+<link rel="icon" href="img/favicon.ico">
 <style>
   #metadata-block {
     margin: 4em 0;
@@ -14,6 +15,10 @@
   #metadata-block > ul {
     list-style-type: none;
     margin: 0; padding: 0;
+  }
+
+  #ecma-logo {
+    width: 500px;
   }
 
   /* TODO: Get proper Ecmarkup support for examples */
@@ -67,6 +72,7 @@
   location: https://qnighy.github.io/ts-syntax-spec/
   copyright: false
 </pre>
+<p><img src="img/unofficial-logo.svg" id="ecma-logo" alt="Unofficial TypeScript Spec logo"></p>
 <div id="metadata-block">
   <h1>About this Specification</h1>
   <p>The document at <a href="https://qnighy.github.io/ts-syntax-spec/">https://qnighy.github.io/ts-syntax-spec/</a> is the most accurate and up-to-date version of this specification. It contains the content of the most recently published snapshot plus any modifications that will be included in the next snapshot.</p>
