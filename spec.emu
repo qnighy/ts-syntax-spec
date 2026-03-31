@@ -704,7 +704,7 @@
       <h1>Conditional Types</h1>
       <emu-grammar type="definition">
         ConditionalType[Yield, Await, Cond] :
-          UnionType[?Yield, ?Await, ?Cond] `extends` CondLevelType[?Yield, ?Await, ?Cond] `?` CondLevelType[?Yield, ?Await, ?Cond] `:` CondLevelType[?Yield, ?Await, ?Cond]
+          UnionType[?Yield, ?Await, ?Cond] [no LineTerminator here] `extends` CondLevelType[?Yield, ?Await, ~Cond] `?` CondLevelType[?Yield, ?Await, +Cond] `:` CondLevelType[?Yield, ?Await, +Cond]
       </emu-grammar>
     </emu-clause>
     <!-- TODO: parse `extends` conditionally -->
@@ -1301,7 +1301,7 @@
         `<` PermTypeArgumentList[?Yield, ?Await] `,` [lookahead &notin; {`>`, `,`}]
 
       PermConditionalType[Yield, Await, Cond] :
-        PermUnionType[?Yield, ?Await, ?Cond] [no LineTerminator here] `extends` PermCondLevelType[?Yield, ?Await, ?Cond] `?` PermCondLevelType[?Yield, ?Await, ?Cond] `:` PermCondLevelType[?Yield, ?Await, ?Cond]
+        PermUnionType[?Yield, ?Await, ?Cond] [no LineTerminator here] `extends` PermCondLevelType[?Yield, ?Await, ~Cond] `?` PermCondLevelType[?Yield, ?Await, +Cond] `:` PermCondLevelType[?Yield, ?Await, +Cond]
     </emu-grammar>
     <emu-note>
       <p>In the main grammar, `asserts` and `this is` type predicates only appear in |ReturnTypeAnnotation|. TSC parses them at the primary type level everywhere and validates their position later. TSC also allows newlines between `asserts x` / `asserts this` and `is` (see <emu-xref href="#sec-ts-permissive-primary-types"></emu-xref>).</p>
