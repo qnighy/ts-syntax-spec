@@ -19,7 +19,7 @@
   "license": "MIT",
   "homepage": "https://qnighy.github.io/ts-syntax-spec/",
   "devDependencies": {
-    "@tc39/ecma262-biblio": "^2.2.3029",
+    "@tc39/ecma262-biblio": "^2.2.3043",
     "ecmarkup": "^24.0.0"
   }
 }
