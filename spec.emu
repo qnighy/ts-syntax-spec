@@ -1256,10 +1256,10 @@
       <emu-grammar>
         FormalParameters :
           [empty]
-        FunctionRestParameter
-        FormalParameterList
-        FormalParameterList `,`
-        FormalParameterList `,` FunctionRestParameter
+          FunctionRestParameter
+          FormalParameterList
+          FormalParameterList `,`
+          FormalParameterList `,` FunctionRestParameter
       </emu-grammar>
     </emu-clause>
     <emu-clause id="sec-static-semantics-contains-this-parameter" type="sdo">
