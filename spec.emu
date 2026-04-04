@@ -1195,6 +1195,56 @@
   </emu-clause>
 </emu-clause>
 
+<emu-clause id="sec-typescript-language-statements-and-declarations">
+  <h1>TypeScript Language: Statements and Declarations</h1>
+  <p>This section extends <emu-xref href="#sec-ecmascript-language-statements-and-declarations">ECMAScript Language: Statements and Declarations</emu-xref> to support TypeScript-specific syntax.</p>
+  <emu-clause id="sec-ts-declarations-and-the-variable-statement">
+    <h1>Declarations and the Variable Statement</h1>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-LexicalBinding">LexicalBinding</a>:</p>
+    <emu-grammar type="definition">
+      LexicalBinding[In, Yield, Await] :
+        BindingIdentifier[?Yield, ?Await] DefiniteInitialization? TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]?
+        BindingPattern[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]
+
+      DefiniteInitialization :
+        [no LineTerminator here] `!`
+    </emu-grammar>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-VariableDeclaration">VariableDeclaration</a>:</p>
+    <emu-grammar type="definition">
+      VariableDeclaration[In, Yield, Await] :
+        BindingIdentifier[?Yield, ?Await] DefiniteInitialization? TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]?
+        BindingPattern[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]
+    </emu-grammar>
+    <emu-clause id="sec-ts-declarations-and-the-variable-statement-syntax-mapping">
+      <h1>Syntax Mapping</h1>
+      <p>The following productions:</p>
+      <emu-grammar>
+        LexicalBinding :
+          BindingIdentifier DefiniteInitialization? TypeAnnotation? Initializer?
+          BindingPattern TypeAnnotation? Initializer
+      </emu-grammar>
+      <p>are <emu-xref href="#mapped-to">mapped to</emu-xref> the following productions, respectively:</p>
+      <emu-grammar>
+        LexicalBinding :
+          BindingIdentifier Initializer?
+          BindingPattern Initializer
+      </emu-grammar>
+      <p>The following productions:</p>
+      <emu-grammar>
+        VariableDeclaration :
+          BindingIdentifier DefiniteInitialization? TypeAnnotation? Initializer?
+          BindingPattern TypeAnnotation? Initializer
+      </emu-grammar>
+      <p>are <emu-xref href="#mapped-to">mapped to</emu-xref> the following productions, respectively:</p>
+      <emu-grammar>
+        VariableDeclaration :
+          BindingIdentifier Initializer?
+          BindingPattern Initializer
+      </emu-grammar>
+    </emu-clause>
+  </emu-clause>
+</emu-clause>
+
 <emu-clause id="sec-typescript-language-functions-and-classes">
   <h1>TypeScript Language: Functions and Classes</h1>
   <p>This section extends <emu-xref href="#sec-ecmascript-language-functions-and-classes">ECMAScript Language: Functions and Classes</emu-xref> to support TypeScript-specific syntax.</p>

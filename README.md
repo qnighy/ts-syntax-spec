@@ -28,7 +28,7 @@ You can read the specification at https://qnighy.github.io/ts-syntax-spec/.
   - [x] Legacy type assertion
   - [x] `as` and `satisfies` expressions
 - [ ] Statements and Declarations
-  - [ ] Variable statement extensions
+  - [x] Variable statement extensions
   - [ ] For extensions
   - [ ] Catch extensions
   - [ ] Type aliases
