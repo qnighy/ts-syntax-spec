@@ -1179,6 +1179,39 @@
 <emu-clause id="sec-typescript-language-functions-and-classes">
   <h1>TypeScript Language: Functions and Classes</h1>
   <p>This section extends <emu-xref href="#sec-ecmascript-language-functions-and-classes">ECMAScript Language: Functions and Classes</emu-xref> to support TypeScript-specific syntax.</p>
+  <emu-clause id="sec-ts-parameter-lists">
+    <h1>Parameter Lists</h1>
+    <p>The following grammar extends <emu-xref href="#prod-FormalParameters">FormalParameters</emu-xref>:</p>
+    <emu-grammar type="definition">
+      FormalParameters[Yield, Await] :
+        [empty]
+        FunctionRestParameter[?Yield, ?Await]
+        FormalParameterList[?Yield, ?Await]
+        FormalParameterList[?Yield, ?Await] `,`
+        FormalParameterList[?Yield, ?Await] `,` FunctionRestParameter[?Yield, ?Await]
+        FunctionThisParameter[?Yield, ?Await]
+        FunctionThisParameter[?Yield, ?Await] `,`
+        FunctionThisParameter[?Yield, ?Await] `,` FunctionRestParameter[?Yield, ?Await]
+        FunctionThisParameter[?Yield, ?Await] `,` FormalParameterList[?Yield, ?Await]
+        FunctionThisParameter[?Yield, ?Await] `,` FormalParameterList[?Yield, ?Await] `,`
+        FunctionThisParameter[?Yield, ?Await] `,` FormalParameterList[?Yield, ?Await] `,` FunctionRestParameter[?Yield, ?Await]
+
+      FunctionThisParameter[Yield, Await] :
+        `this` TypeAnnotation[?Yield, ?Await]?
+    </emu-grammar>
+    <p>The following grammar extends <emu-xref href="#prod-FunctionRestParameter">FunctionRestParameter</emu-xref>:</p>
+    <emu-grammar type="definition">
+      FunctionRestParameter[Yield, Await] :
+        BindingRestElement[?Yield, ?Await] `?`? TypeAnnotation[?Yield, ?Await]?
+    </emu-grammar>
+    <p>The following grammar extends <emu-xref href="#prod-FormalParameter">FormalParameter</emu-xref>:</p>
+    <emu-grammar type="definition">
+      FormalParameter[Yield, Await] :
+        BindingIdentifier[?Yield, ?Await] `?`? TypeAnnotation[?Yield, ?Await]? Initializer[+In, ?Yield, ?Await]?
+        BindingPattern[?Yield, ?Await] `?`? TypeAnnotation[?Yield, ?Await]? Initializer[+In, ?Yield, ?Await]?
+    </emu-grammar>
+    <!-- TODO: constructor parameter properties -->
+  </emu-clause>
   <emu-clause id="sec-ts-arrow-function-definitions">
     <h1>Arrow Function Definitions</h1>
     <p>The following grammar extends <emu-xref href="#prod-ArrowParameters">ArrowParameters</emu-xref>:</p>
