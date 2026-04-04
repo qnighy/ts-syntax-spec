@@ -1392,6 +1392,7 @@
         <li>Babel and SWC allow type predicates in `get` accessors.</li>
         <li>Babel and SWC allow `this` parameters in `get` and `set` accessors.</li>
       </ul>
+      <p>This note also applies to |GeneratorMethod|, |AsyncMethod|, and |AsyncGeneratorMethod|.</p>
     </emu-note>
     <emu-clause id="sec-ts-method-definitions-syntax-mapping">
       <h1>Syntax Mapping</h1>
@@ -1440,6 +1441,63 @@
           <li>Babel allows return type annotations in constructors.</li>
         </ul>
       </emu-note>
+    </emu-clause>
+  </emu-clause>
+  <emu-clause id="sec-ts-generator-function-definitions">
+    <h1>Generator Function Definitions</h1>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-GeneratorDeclaration">GeneratorDeclaration</a>:</p>
+    <emu-grammar type="definition">
+      GeneratorDeclaration[Yield, Await, Default] :
+        `function` `*` BindingIdentifier[?Yield, ?Await] TypeParameters[?Yield, ?Await]? `(` FormalParameters[+Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` GeneratorBody `}`
+        [+Default] `function` `*` TypeParameters[?Yield, ?Await]? `(` FormalParameters[+Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` GeneratorBody `}`
+    </emu-grammar>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-GeneratorExpression">GeneratorExpression</a>:</p>
+    <emu-grammar type="definition">
+      GeneratorExpression :
+        `function` `*` BindingIdentifier[+Yield, ~Await]? TypeParameters[?Yield, ?Await]? `(` FormalParameters[+Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` GeneratorBody `}`
+    </emu-grammar>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-GeneratorMethod">GeneratorMethod</a>:</p>
+    <emu-grammar type="definition">
+      GeneratorMethod[Yield, Await] :
+        `*` ClassElementName[?Yield, ?Await] TypeParameters[?Yield, ?Await]? `(` UniqueFormalParameters[+Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` GeneratorBody `}`
+    </emu-grammar>
+    <emu-note>
+      <p>Generators cannot have meaningful type predicates because their return types cannot be void or boolean. We allow them here nonetheless because the errors are more like type errors than syntax errors.</p>
+    </emu-note>
+    <emu-clause id="sec-ts-generator-function-definitions-syntax-mapping">
+      <h1>Syntax Mapping</h1>
+      <p>The following productions:</p>
+      <emu-grammar>
+        GeneratorDeclaration :
+          `function` `*` BindingIdentifier TypeParameters? `(` FormalParameters `)` ReturnTypeAnnotation? `{` GeneratorBody `}`
+          `function` `*` TypeParameters? `(` FormalParameters `)` ReturnTypeAnnotation? `{` GeneratorBody `}`
+      </emu-grammar>
+      <p>are <emu-xref href="#mapped-to">mapped to</emu-xref> the following productions, respectively:</p>
+      <emu-grammar>
+        GeneratorDeclaration :
+          `function` `*` BindingIdentifier `(` FormalParameters `)` `{` GeneratorBody `}`
+          `function` `*` `(` FormalParameters `)` `{` GeneratorBody `}`
+      </emu-grammar>
+      <p>The following production:</p>
+      <emu-grammar>
+        GeneratorExpression :
+          `function` `*` BindingIdentifier? TypeParameters? `(` FormalParameters `)` ReturnTypeAnnotation? `{` GeneratorBody `}`
+      </emu-grammar>
+      <p>is <emu-xref href="#mapped-to">mapped to</emu-xref> the following production:</p>
+      <emu-grammar>
+        GeneratorExpression :
+          `function` `*` BindingIdentifier? `(` FormalParameters `)` `{` GeneratorBody `}`
+      </emu-grammar>
+      <p>The following production:</p>
+      <emu-grammar>
+        GeneratorMethod :
+          `*` ClassElementName TypeParameters? `(` UniqueFormalParameters `)` ReturnTypeAnnotation? `{` GeneratorBody `}`
+      </emu-grammar>
+      <p>is <emu-xref href="#mapped-to">mapped to</emu-xref> the following production:</p>
+      <emu-grammar>
+        GeneratorMethod :
+          `*` ClassElementName `(` UniqueFormalParameters `)` `{` GeneratorBody `}`
+      </emu-grammar>
     </emu-clause>
   </emu-clause>
 </emu-clause>
