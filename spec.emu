@@ -1191,9 +1191,12 @@
         BindingIdentifier[?Yield, ?Await]
 
       ArrowHead[Yield, Await] :
-        CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await] ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
-        TypeParameters[?Yield, ?Await] ArrowFormalParameters[?Yield, ?Await] ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
+        TypeParameters[?Yield, ?Await]? ArrowFormalParameters[?Yield, ?Await] ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
     </emu-grammar>
+    <emu-note>
+      <p>|ArrowHead| originally referenced |CoverParenthesizedExpressionAndArrowParameterList|. See <emu-xref href="#sec-ts-backtracking">Backtracking over cover grammars</emu-xref> for the rationale.</p>
+      <p>Disambiguation between |ArrowHead| and parenthesized expressions in |PrimaryExpression| is still necessary. Most parsers implement it using backtracking, optionally with bounded lookahead for optimization.</p>
+    </emu-note>
     <emu-note>
       <p>If JSX is enabled, the |TypeParameters| in |ArrowHead| must match the following production to avoid ambiguity with JSX syntax.</p>
       <emu-grammar type="definition">
