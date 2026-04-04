@@ -845,11 +845,11 @@
         `&lt;` TypeArgumentList[?Yield, ?Await] `,` `&gt;`
 
       ExpressionTypeArguments[Yield, Await] :
-        TypeArguments[?Yield, ?Await] TypeArgumentsLookahead
+        [lookahead == TypeArgumentsLookahead] TypeArguments[?Yield, ?Await]
 
       TypeArgumentsLookahead:
-        [no LineTerminator here] [lookahead != DoesNotFollowTypeArgumentsNLT]
-        LineTerminator [lookahead != DoesNotFollowTypeArgumentsLT]
+        TypeArguments[?Yield, ?Await] [no LineTerminator here] [lookahead != DoesNotFollowTypeArgumentsNLT]
+        TypeArguments[?Yield, ?Await] LineTerminator [lookahead != DoesNotFollowTypeArgumentsLT]
 
       DoesNotFollowTypeArgumentsNLT :
         `this`
@@ -906,6 +906,8 @@
     <emu-note>
       <p>Actual parsers implement these rules in various ways.</p>
       <ul>
+        <li>TSC uses |PermTypeArguments| in place of |TypeArguments| for |TypeArgumentsLookahead|.</li>
+        <li>Babel uses a different set of lookahead tokens for |DoesNotFollowTypeArgumentsNLT| and |DoesNotFollowTypeArgumentsLT|.</li>
       </ul>
     </emu-note>
   </emu-clause>
@@ -1072,7 +1074,7 @@
     <emu-grammar type="definition">
       RelationalExpression[In, Yield, Await] :
         ShiftExpression[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] [lookahead != ExpressionTypeArguments[?Yield, ?Await]] `&lt;` ShiftExpression[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] [lookahead != TypeArgumentsLookahead] `&lt;` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `&gt;` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `&lt;=` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `&gt;=` ShiftExpression[?Yield, ?Await]
@@ -1115,12 +1117,12 @@
 
       ArrowHead[Yield, Await] :
         CoverParenthesizedExpressionAndArrowParameterList[?Yield, ?Await] ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
-        ExpressionTypeArguments[?Yield, ?Await] ArrowFormalParameters[?Yield, ?Await] ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
+        TypeParameters[?Yield, ?Await] ArrowFormalParameters[?Yield, ?Await] ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
     </emu-grammar>
     <emu-note>
-      <p>If JSX is enabled, the |ExpressionTypeArguments| in |ArrowHead| must match the following production to avoid ambiguity with JSX syntax.</p>
+      <p>If JSX is enabled, the |TypeParameters| in |ArrowHead| must match the following production to avoid ambiguity with JSX syntax.</p>
       <emu-grammar type="definition">
-        TypeArgumentsLookahead:
+        TypeParametersLookahead:
           `<` `const`? BindingIdentifier[+Yield, +Await] `extends` [lookahead &notin; { `=`, `>`, `/` }]
           `<` `const`? BindingIdentifier[+Yield, +Await] `=`
           `<` `const`? BindingIdentifier[+Yield, +Await] `,`
