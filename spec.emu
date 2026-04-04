@@ -189,6 +189,66 @@
   </emu-clause>
 </emu-clause>
 
+<emu-clause id="sec-typescript-language-lexical-grammar">
+  <h1>TypeScript Language: Lexical Grammar</h1>
+  <emu-clause id="sec-ts-lt-gt-tokens">
+    <h1>Rescanning of `&lt;` and `&gt;`</h1>
+    <p>The following productions use `&lt;` and `&gt;` as angle brackets:</p>
+    <emu-grammar>
+      TypeParameters :
+        `&lt;` TypeParameterList `&gt;`
+        `&lt;` TypeParameterList `,` `&gt;`
+
+      TypeArguments :
+        `&lt;` TypeArgumentList `&gt;`
+        `&lt;` TypeArgumentList `,` `&gt;`
+
+      UnaryExpression :
+        `&lt;` Type `&gt;` UnaryExpression
+    </emu-grammar>
+    <p>Additionally, the following grammar is used for lookahead to detect type parameters or type arguments:</p>
+    <emu-grammar>
+      DoesNotFollowTypeArgumentsNLT :
+        `import` `&lt;`
+        `&lt;`
+        `&gt;`
+
+      DoesNotFollowTypeArgumentsLT :
+        `&lt;`
+        `&gt;`
+
+      TypeParametersLookahead:
+        `&lt;` `const`? BindingIdentifier[+Yield, +Await] `extends` [lookahead &notin; { `=`, `&gt;`, `/` }]
+        `&lt;` `const`? BindingIdentifier[+Yield, +Await] `=`
+        `&lt;` `const`? BindingIdentifier[+Yield, +Await] `,`
+    </emu-grammar>
+    <p>When `&lt;` or `&gt;` in such productions is expected, the parser needs to rescan the following tokens to correctly interpret them as angle brackets:</p>
+    <ul>
+      <li>`&lt;&lt;`</li>
+      <li>`&gt;&gt;`</li>
+      <li>`&gt;&gt;&gt;`</li>
+      <li>`&gt;&gt;=`</li>
+      <li>`&gt;=`</li>
+    </ul>
+    <emu-note>
+      <p>`&lt;=` and `&lt;&lt;=` do not involve rescanning, as they cannot be reinterpreted as part of valid TypeScript syntax.</p>
+    </emu-note>
+    <emu-note>
+      <p>The following examples illustrate the need for rescanning:</p>
+      <ul>
+        <li>In `type T = Readonly&lt;Partial&lt;U&gt;&gt;;`, the token `&gt;&gt;` is split into two tokens.</li>
+        <li>In `type T = Readonly&lt;Partial&lt;Omit&lt;U, keyof V&gt;&gt;&gt;;`, the token `&gt;&gt;&gt;` is split into three tokens.</li>
+        <li>In `type T&lt;U&gt;= V;`, the token `&gt;=` is split into two tokens.</li>
+        <li>In `type T&lt;K extends Exclude&lt;keyof U, keyof V&gt;&gt;= W;`, the token `&gt;&gt;=` is split into three tokens.</li>
+        <li>In `f&lt;&lt;T&gt;() =&gt; void&gt;();`, the token `&lt;&lt;` is split into two tokens.</li>
+      </ul>
+    </emu-note>
+    <emu-note>
+      <p>It is possible to implement the rescanning inversely, first tokenizing them as one-letter tokens and then combining them as needed. TSC does this for `&gt;`.</p>
+    </emu-note>
+  </emu-clause>
+</emu-clause>
+
 <emu-clause id="sec-typescript-language-types">
   <h1>TypeScript Language: Types</h1>
   <emu-note>
@@ -792,8 +852,8 @@
     <h1>Type Parameters</h1>
     <emu-grammar type="definition">
       TypeParameters[Yield, Await, Const, InOut] :
-        `<` TypeParameterList[?Yield, ?Await, ?Const, ?InOut] `>`
-        `<` TypeParameterList[?Yield, ?Await, ?Const, ?InOut] `,` `>`
+        `&lt;` TypeParameterList[?Yield, ?Await, ?Const, ?InOut] `&gt;`
+        `&lt;` TypeParameterList[?Yield, ?Await, ?Const, ?InOut] `,` `&gt;`
 
       TypeParameterList[Yield, Await, Const, InOut] :
         TypeParameter[?Yield, ?Await, ?Const, ?InOut]
@@ -1057,12 +1117,12 @@
         `~` UnaryExpression[?Yield, ?Await]
         `!` UnaryExpression[?Yield, ?Await]
         [+Await] AwaitExpression[?Yield]
-        `<` Type[?Yield, ?Await] `>` UnaryExpression[?Yield, ?Await]
+        `&lt;` Type[?Yield, ?Await] `&gt;` UnaryExpression[?Yield, ?Await]
     </emu-grammar>
-    <p>The production <emu-grammar>UnaryExpression: `<` Type `>` UnaryExpression</emu-grammar> is disabled when JSX is enabled.</p>
+    <p>The production <emu-grammar>UnaryExpression: `&lt;` Type `&gt;` UnaryExpression</emu-grammar> is disabled when JSX is enabled.</p>
     <emu-clause id="sec-ts-unary-operators-evaluation" type="sdo">
       <h1>Runtime Semantics: Evaluation</h1>
-      <emu-grammar>UnaryExpression: `<` Type `>` UnaryExpression</emu-grammar>
+      <emu-grammar>UnaryExpression: `&lt;` Type `&gt;` UnaryExpression</emu-grammar>
       <emu-alg>
         1. Return ? Evaluation of |UnaryExpression|. This may be of type Reference.
       </emu-alg>
@@ -1123,9 +1183,9 @@
       <p>If JSX is enabled, the |TypeParameters| in |ArrowHead| must match the following production to avoid ambiguity with JSX syntax.</p>
       <emu-grammar type="definition">
         TypeParametersLookahead:
-          `<` `const`? BindingIdentifier[+Yield, +Await] `extends` [lookahead &notin; { `=`, `>`, `/` }]
-          `<` `const`? BindingIdentifier[+Yield, +Await] `=`
-          `<` `const`? BindingIdentifier[+Yield, +Await] `,`
+          `&lt;` `const`? BindingIdentifier[+Yield, +Await] `extends` [lookahead &notin; { `=`, `&gt;`, `/` }]
+          `&lt;` `const`? BindingIdentifier[+Yield, +Await] `=`
+          `&lt;` `const`? BindingIdentifier[+Yield, +Await] `,`
       </emu-grammar>
     </emu-note>
   </emu-clause>
@@ -1278,10 +1338,10 @@
 
       PermJSDocAnyType :
         `*`
-        `?` [lookahead &isin; {`,`, `}`, `)`, `>`, `=`, `|`}]
+        `?` [lookahead &isin; {`,`, `}`, `)`, `&gt;`, `=`, `|`}]
 
       PermJSDocPrefixNullableType[Yield, Await] :
-        `?` [lookahead &notin; {`,`, `}`, `)`, `>`, `=`, `|`}] PermType[?Yield, ?Await]
+        `?` [lookahead &notin; {`,`, `}`, `)`, `&gt;`, `=`, `|`}] PermType[?Yield, ?Await]
 
       PermJSDocPrefixNonNullableType[Yield, Await] :
         `!` PermType[?Yield, ?Await]
@@ -1396,10 +1456,10 @@
         `abstract`? `new` [lookahead &notin; {`(`, ` ` [no LineTerminator here] `<`}]
 
       PermTypeParameters[Yield, Await] :
-        `<` PermTypeArgumentList[?Yield, ?Await] `>`
-        `<` PermTypeArgumentList[?Yield, ?Await] `,` `>`
-        `<` PermTypeArgumentList[?Yield, ?Await] [lookahead &notin; {`>`, `,`}]
-        `<` PermTypeArgumentList[?Yield, ?Await] `,` [lookahead &notin; {`>`, `,`}]
+        `&lt;` PermTypeArgumentList[?Yield, ?Await] `&gt;`
+        `&lt;` PermTypeArgumentList[?Yield, ?Await] `,` `&gt;`
+        `&lt;` PermTypeArgumentList[?Yield, ?Await] [lookahead &notin; {`&gt;`, `,`}]
+        `&lt;` PermTypeArgumentList[?Yield, ?Await] `,` [lookahead &notin; {`&gt;`, `,`}]
 
       PermConditionalType[Yield, Await, Cond] :
         PermUnionType[?Yield, ?Await, ?Cond] [no LineTerminator here] `extends` PermCondLevelType[?Yield, ?Await, ~Cond] `?` PermCondLevelType[?Yield, ?Await, +Cond] `:` PermCondLevelType[?Yield, ?Await, +Cond]
@@ -1428,8 +1488,8 @@
     <h1>Type Arguments</h1>
     <emu-grammar type="definition">
       PermTypeArguments[Yield, Await] :
-        `<` PermTypeArgumentList[?Yield, ?Await] `>`
-        `<` PermTypeArgumentList[?Yield, ?Await] `,` `>`
+        `&lt;` PermTypeArgumentList[?Yield, ?Await] `&gt;`
+        `&lt;` PermTypeArgumentList[?Yield, ?Await] `,` `&gt;`
 
       PermTypeArgumentList[Yield, Await] :
         PermType[?Yield, ?Await]
