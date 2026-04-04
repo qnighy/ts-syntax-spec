@@ -830,7 +830,6 @@
           UnionType[?Yield, ?Await, ?Cond] [no LineTerminator here] `extends` CondLevelType[?Yield, ?Await, ~Cond] `?` CondLevelType[?Yield, ?Await, +Cond] `:` CondLevelType[?Yield, ?Await, +Cond]
       </emu-grammar>
     </emu-clause>
-    <!-- TODO: parse `extends` conditionally -->
   </emu-clause>
   <emu-clause id="sec-ts-type-predicates">
     <h1>Type Predicates</h1>
