@@ -993,7 +993,7 @@
   <p>This section extends <emu-xref href="#sec-ecmascript-language-expressions">ECMAScript Language: Expressions</emu-xref> to support TypeScript-specific expressions.</p>
   <emu-clause id="sec-ts-left-hand-side-expressions">
     <h1>Left-Hand-Side Expressions</h1>
-    <p>The following grammar extends <emu-xref href="#prod-MemberExpression">MemberExpression</emu-xref>:</p>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-MemberExpression">MemberExpression</a>:</p>
     <emu-grammar type="definition">
       MemberExpression[Yield, Await] :
         PrimaryExpression[?Yield, ?Await]
@@ -1007,7 +1007,7 @@
         MemberExpression[?Yield, ?Await] [no LineTerminator here] `!`
         MemberExpression[?Yield, ?Await] ExpressionTypeArguments[?Yield, ?Await]
     </emu-grammar>
-    <p>The following grammar extends <emu-xref href="#prod-CallExpression">CallExpression</emu-xref>:</p>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-CallExpression">CallExpression</a>:</p>
     <emu-grammar type="definition">
       CallExpression[Yield, Await] :
         CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await] #callcover
@@ -1021,7 +1021,7 @@
         CallExpression[?Yield, ?Await] [no LineTerminator here] `!`
         CallExpression[?Yield, ?Await] ExpressionTypeArguments[?Yield, ?Await]
     </emu-grammar>
-    <p>The following grammar extends <emu-xref href="#prod-OptionalChain">OptionalChain</emu-xref>:</p>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-OptionalChain">OptionalChain</a>:</p>
     <emu-grammar type="definition">
       OptionalChain[Yield, Await] :
         `?.` Arguments[?Yield, ?Await]
@@ -1120,7 +1120,7 @@
   </emu-clause>
   <emu-clause id="sec-ts-unary-operators">
     <h1>Unary Operators</h1>
-    <p>The following grammar extends <emu-xref href="#prod-UnaryExpression">UnaryExpression</emu-xref>:</p>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-UnaryExpression">UnaryExpression</a>:</p>
     <emu-grammar type="definition">
       UnaryExpression[Yield, Await] :
         UpdateExpression[?Yield, ?Await]
@@ -1145,7 +1145,7 @@
   </emu-clause>
   <emu-clause id="sec-ts-relational-operators">
     <h1>Relational Operators</h1>
-    <p>The following grammar extends <emu-xref href="#prod-RelationalExpression">RelationalExpression</emu-xref>:</p>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-RelationalExpression">RelationalExpression</a>:</p>
     <emu-grammar type="definition">
       RelationalExpression[In, Yield, Await] :
         ShiftExpression[?Yield, ?Await]
@@ -1181,7 +1181,7 @@
   <p>This section extends <emu-xref href="#sec-ecmascript-language-functions-and-classes">ECMAScript Language: Functions and Classes</emu-xref> to support TypeScript-specific syntax.</p>
   <emu-clause id="sec-ts-parameter-lists">
     <h1>Parameter Lists</h1>
-    <p>The following grammar extends <emu-xref href="#prod-FormalParameters">FormalParameters</emu-xref>:</p>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a>:</p>
     <emu-grammar type="definition">
       FormalParameters[Yield, Await] :
         [empty]
@@ -1199,12 +1199,12 @@
       FunctionThisParameter[Yield, Await] :
         `this` TypeAnnotation[?Yield, ?Await]?
     </emu-grammar>
-    <p>The following grammar extends <emu-xref href="#prod-FunctionRestParameter">FunctionRestParameter</emu-xref>:</p>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-FunctionRestParameter">FunctionRestParameter</a>:</p>
     <emu-grammar type="definition">
       FunctionRestParameter[Yield, Await] :
         BindingRestElement[?Yield, ?Await] `?`? TypeAnnotation[?Yield, ?Await]?
     </emu-grammar>
-    <p>The following grammar extends <emu-xref href="#prod-FormalParameter">FormalParameter</emu-xref>:</p>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-FormalParameter">FormalParameter</a>:</p>
     <emu-grammar type="definition">
       FormalParameter[Yield, Await] :
         BindingIdentifier[?Yield, ?Await] `?`? TypeAnnotation[?Yield, ?Await]? Initializer[+In, ?Yield, ?Await]?
@@ -1214,7 +1214,7 @@
   </emu-clause>
   <emu-clause id="sec-ts-arrow-function-definitions">
     <h1>Arrow Function Definitions</h1>
-    <p>The following grammar extends <emu-xref href="#prod-ArrowParameters">ArrowParameters</emu-xref>:</p>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-ArrowParameters">ArrowParameters</a>:</p>
     <emu-grammar type="definition">
       ArrowFunction[In, Yield, Await] :
         ArrowBindingIdentifier[?Yield, ?Await] [no LineTerminator here] `=>` ConciseBody[?In]
