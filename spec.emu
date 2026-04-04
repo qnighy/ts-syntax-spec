@@ -1500,6 +1500,59 @@
       </emu-grammar>
     </emu-clause>
   </emu-clause>
+  <emu-clause id="sec-ts-async-generator-function-definitions">
+    <h1>Async Generator Function Definitions</h1>
+    <h2>Syntax</h2>
+    <emu-grammar type="definition">
+      AsyncGeneratorDeclaration[Yield, Await, Default] :
+        `async` [no LineTerminator here] `function` `*` BindingIdentifier[?Yield, ?Await] TypeParameters[?Yield, ?Await]? `(` FormalParameters[+Yield, +Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` AsyncGeneratorBody `}`
+        [+Default] `async` [no LineTerminator here] `function` `*` TypeParameters[?Yield, ?Await]? `(` FormalParameters[+Yield, +Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` AsyncGeneratorBody `}`
+
+      AsyncGeneratorExpression :
+        `async` [no LineTerminator here] `function` `*` BindingIdentifier[+Yield, +Await]? TypeParameters[?Yield, ?Await]? `(` FormalParameters[+Yield, +Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` AsyncGeneratorBody `}`
+
+      AsyncGeneratorMethod[Yield, Await] :
+        `async` [no LineTerminator here] `*` ClassElementName[?Yield, ?Await] TypeParameters[?Yield, ?Await]? `(` UniqueFormalParameters[+Yield, +Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` AsyncGeneratorBody `}`
+    </emu-grammar>
+    <emu-note>
+      <p>Async generators cannot have meaningful type predicates because their return types cannot be void or boolean. We allow them here nonetheless because the errors are more like type errors than syntax errors.</p>
+    </emu-note>
+    <emu-clause id="sec-ts-async-generator-function-definitions-syntax-mapping">
+      <h1>Syntax Mapping</h1>
+      <p>The following productions:</p>
+      <emu-grammar>
+        AsyncGeneratorDeclaration :
+          `async` [no LineTerminator here] `function` `*` BindingIdentifier TypeParameters? `(` FormalParameters `)` ReturnTypeAnnotation? `{` AsyncGeneratorBody `}`
+          `async` [no LineTerminator here] `function` `*` TypeParameters? `(` FormalParameters `)` ReturnTypeAnnotation? `{` AsyncGeneratorBody `}`
+      </emu-grammar>
+      <p>are <emu-xref href="#mapped-to">mapped to</emu-xref> the following productions, respectively:</p>
+      <emu-grammar>
+        AsyncGeneratorDeclaration :
+          `async` [no LineTerminator here] `function` `*` BindingIdentifier `(` FormalParameters `)` `{` AsyncGeneratorBody `}`
+          `async` [no LineTerminator here] `function` `*` `(` FormalParameters `)` `{` AsyncGeneratorBody `}`
+      </emu-grammar>
+      <p>The following production:</p>
+      <emu-grammar>
+        AsyncGeneratorExpression :
+          `async` [no LineTerminator here] `function` `*` BindingIdentifier? TypeParameters? `(` FormalParameters `)` ReturnTypeAnnotation? `{` AsyncGeneratorBody `}`
+      </emu-grammar>
+      <p>is <emu-xref href="#mapped-to">mapped to</emu-xref> the following production:</p>
+      <emu-grammar>
+        AsyncGeneratorExpression :
+          `async` [no LineTerminator here] `function` `*` BindingIdentifier? `(` FormalParameters `)` `{` AsyncGeneratorBody `}`
+      </emu-grammar>
+      <p>The following production:</p>
+      <emu-grammar>
+        AsyncGeneratorMethod :
+          `async` [no LineTerminator here] `*` ClassElementName TypeParameters? `(` UniqueFormalParameters `)` ReturnTypeAnnotation? `{` AsyncGeneratorBody `}`
+      </emu-grammar>
+      <p>is <emu-xref href="#mapped-to">mapped to</emu-xref> the following production:</p>
+      <emu-grammar>
+        AsyncGeneratorMethod :
+          `async` [no LineTerminator here] `*` ClassElementName `(` UniqueFormalParameters `)` `{` AsyncGeneratorBody `}`
+      </emu-grammar>
+    </emu-clause>
+  </emu-clause>
 </emu-clause>
 
 <emu-annex id="sec-ts-permissive-grammars">
