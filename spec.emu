@@ -163,6 +163,7 @@
     <h1>Syntax Mapping</h1>
     <p>For simplicity, this specification reuses ECMAScript's <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations">Syntax-Directed Operations</emu-xref> even when the production in question is modified from the original grammar.</p>
     <p>A production in this specification may be <dfn id="mapped-to">mapped to</dfn> a production in ECMA-262. In such cases, the syntax-directed operations of the said production in this specification are derived from the syntax-directed operations of the referenced production in ECMA-262 by transforming the derivation tree as specified in the mapping. The transformation can be omitted if the original production can be uniquely reconstructed from the modified production by removing some symbols in the modified production.</p>
+    <p>This specification may override some of the derived syntax-directed operations, as it does for ones derived for chain productions.</p>
     <p>For example, if the following production:</p>
     <emu-grammar>
       FunctionRestParameter[Yield, Await] :
@@ -1261,6 +1262,36 @@
         FormalParameterList `,` FunctionRestParameter
       </emu-grammar>
     </emu-clause>
+    <emu-clause id="sec-static-semantics-contains-this-parameter" type="sdo">
+      <h1>Static Semantics: ContainsThisParameter ( ): a Boolean</h1>
+      <dl class="header">
+        <dt>description</dt>
+        <dd>It determines whether the syntax it is applied to contains a `this` parameter.</dd>
+      </dl>
+      <emu-grammar>
+        FormalParameters :
+          [empty]
+          FunctionRestParameter
+          FormalParameterList
+          FormalParameterList `,`
+          FormalParameterList `,` FunctionRestParameter
+      </emu-grammar>
+      <emu-alg>
+        1. Return *false*.
+      </emu-alg>
+      <emu-grammar>
+        FormalParameters :
+          FunctionThisParameter
+          FunctionThisParameter `,`
+          FunctionThisParameter `,` FunctionRestParameter
+          FunctionThisParameter `,` FormalParameterList
+          FunctionThisParameter `,` FormalParameterList `,`
+          FunctionThisParameter `,` FormalParameterList `,` FunctionRestParameter
+      </emu-grammar>
+      <emu-alg>
+        1. Return *true*.
+      </emu-alg>
+    </emu-clause>
   </emu-clause>
   <emu-clause id="sec-ts-function-definitions">
     <h1>Function Definitions</h1>
@@ -1328,6 +1359,18 @@
           `&lt;` `const`? BindingIdentifier[+Yield, +Await] `,`
       </emu-grammar>
     </emu-note>
+    <emu-clause id="sec-ts-arrow-function-definitions-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>
+        ArrowFunction :
+          ArrowHead [no LineTerminator here] `=>` ConciseBody
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if ContainsThisParameter of |ArrowHead|'s |ArrowFormalParameters| is *true*.
+        </li>
+      </ul>
+    </emu-clause>
   </emu-clause>
 </emu-clause>
 
