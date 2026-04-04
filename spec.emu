@@ -1298,21 +1298,21 @@
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-FunctionDeclaration">FunctionDeclaration</a>:</p>
     <emu-grammar type="definition">
       FunctionDeclaration[Yield, Await, Default] :
-        `function` BindingIdentifier[?Yield, ?Await] `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` FunctionBody[~Yield, ~Await] `}`
-        [+Default] `function` `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` FunctionBody[~Yield, ~Await] `}`
+        `function` BindingIdentifier[?Yield, ?Await] TypeParameters[?Yield, ?Await]? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` FunctionBody[~Yield, ~Await] `}`
+        [+Default] `function` TypeParameters[?Yield, ?Await]? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` FunctionBody[~Yield, ~Await] `}`
     </emu-grammar>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-FunctionExpression">FunctionExpression</a>:</p>
     <emu-grammar type="definition">
       FunctionExpression :
-        `function` BindingIdentifier[~Yield, ~Await]? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, +Predicate]? `{` FunctionBody[~Yield, ~Await] `}`
+        `function` BindingIdentifier[~Yield, ~Await]? TypeParameters[?Yield, ?Await]? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, +Predicate]? `{` FunctionBody[~Yield, ~Await] `}`
     </emu-grammar>
     <emu-clause id="sec-ts-function-definitions-syntax-mapping">
       <h1>Syntax Mapping</h1>
       <p>The following productions:</p>
       <emu-grammar>
         FunctionDeclaration :
-          `function` BindingIdentifier `(` FormalParameters `)` ReturnTypeAnnotation? `{` FunctionBody `}`
-          `function` `(` FormalParameters `)` ReturnTypeAnnotation? `{` FunctionBody `}`
+          `function` BindingIdentifier TypeParameters[?Yield, ?Await]? `(` FormalParameters `)` ReturnTypeAnnotation? `{` FunctionBody `}`
+          `function` TypeParameters[?Yield, ?Await]? `(` FormalParameters `)` ReturnTypeAnnotation? `{` FunctionBody `}`
       </emu-grammar>
       <p>are <emu-xref href="#mapped-to">mapped to</emu-xref> the following productions, respectively:</p>
       <emu-grammar>
@@ -1323,7 +1323,7 @@
       <p>The following production:</p>
       <emu-grammar>
         FunctionExpression :
-          `function` BindingIdentifier? `(` FormalParameters `)` ReturnTypeAnnotation? `{` FunctionBody `}`
+          `function` BindingIdentifier? TypeParameters[?Yield, ?Await]? `(` FormalParameters `)` ReturnTypeAnnotation? `{` FunctionBody `}`
       </emu-grammar>
       <p>is <emu-xref href="#mapped-to">mapped to</emu-xref> the following production:</p>
       <emu-grammar>
@@ -1370,6 +1370,76 @@
           It is a Syntax Error if ContainsThisParameter of |ArrowHead|'s |ArrowFormalParameters| is *true*.
         </li>
       </ul>
+    </emu-clause>
+  </emu-clause>
+  <emu-clause id="sec-ts-method-definitions">
+    <h1>Method Definitions</h1>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-MethodDefinition">MethodDefinition</a>:</p>
+    <emu-grammar type="definition">
+      MethodDefinition[Yield, Await] :
+        ClassElementName[?Yield, ?Await] TypeParameters[?Yield, ?Await]? `(` UniqueFormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` FunctionBody[~Yield, ~Await] `}`
+        GeneratorMethod[?Yield, ?Await]
+        AsyncMethod[?Yield, ?Await]
+        AsyncGeneratorMethod[?Yield, ?Await]
+        `get` ClassElementName[?Yield, ?Await] `(` `)` ReturnTypeAnnotation[?Yield, ?Await, ~Predicate]? `{` FunctionBody[~Yield, ~Await] `}`
+        `set` ClassElementName[?Yield, ?Await] `(` PropertySetParameterList `)` `{` FunctionBody[~Yield, ~Await] `}`
+    </emu-grammar>
+    <emu-note>
+      <p>Actual parsers implement these rules in various ways.</p>
+      <ul>
+        <li>Babel allows type parameters in `get` and `set` accessors.</li>
+        <li>Babel and SWC allow return type annotations in `set` accessors.</li>
+        <li>Babel and SWC allow type predicates in `get` accessors.</li>
+        <li>Babel and SWC allow `this` parameters in `get` and `set` accessors.</li>
+      </ul>
+    </emu-note>
+    <emu-clause id="sec-ts-method-definitions-syntax-mapping">
+      <h1>Syntax Mapping</h1>
+      <p>The following production:</p>
+      <emu-grammar>
+        MethodDefinition :
+          ClassElementName TypeParameters? `(` UniqueFormalParameters `)` ReturnTypeAnnotation? `{` FunctionBody `}`
+      </emu-grammar>
+      <p>is <emu-xref href="#mapped-to">mapped to</emu-xref> the following production:</p>
+      <emu-grammar>
+        MethodDefinition :
+          ClassElementName `(` UniqueFormalParameters `)` `{` FunctionBody `}`
+      </emu-grammar>
+      <p>The following production:</p>
+      <emu-grammar>
+        MethodDefinition :
+          `get` ClassElementName `(` `)` ReturnTypeAnnotation? `{` FunctionBody `}`
+      </emu-grammar>
+      <p>is <emu-xref href="#mapped-to">mapped to</emu-xref> the following production:</p>
+      <emu-grammar>
+        MethodDefinition :
+          `get` ClassElementName `(` `)` `{` FunctionBody `}`
+      </emu-grammar>
+    </emu-clause>
+    <emu-clause id="sec-ts-method-definitions-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>
+        MethodDefinition :
+          ClassElementName TypeParameters? `(` UniqueFormalParameters `)` ReturnTypeAnnotation? `{` FunctionBody `}`
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if ClassElementKind of the |ClassElement| that encloses this |MethodDefinition| is ~constructor-method~, and ContainsThisParameter of this |MethodDefinition|'s |UniqueFormalParameters| is *true*.
+        </li>
+        <li>
+          It is a Syntax Error if ClassElementKind of the |ClassElement| that encloses this |MethodDefinition| is ~constructor-method~, and |ReturnTypeAnnotation| is present.
+        </li>
+        <li>
+          It is a Syntax Error if ClassElementKind of the |ClassElement| that encloses this |MethodDefinition| is ~constructor-method~, and |TypeParameters| is present.
+        </li>
+      </ul>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>Babel and SWC allow `this` parameters in constructors.</li>
+          <li>Babel allows return type annotations in constructors.</li>
+        </ul>
+      </emu-note>
     </emu-clause>
   </emu-clause>
 </emu-clause>
