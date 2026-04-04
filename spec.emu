@@ -144,6 +144,20 @@
     <h1>Grammar Notation</h1>
     <p>This specification follows the same grammar notation convention as defined by <a href="https://tc39.es/ecma262/#sec-grammar-notation">ECMA-262 (Grammar Notation)</a>, including <a href="https://tc39.es/ecma262/#sec-grammatical-parameters">grammatical parameters</a> and <a href="https://tc39.es/ecma262/#sec-lookahead-restrictions">lookahead restrictions</a>. Grammar productions in this specification extend those defined in ECMA-262.</p>
   </emu-clause>
+
+  <emu-clause id="sec-ts-backtracking">
+    <h1>Backtracking over cover grammars</h1>
+    <p>ECMAScript and TypeScript, despite their compatibility, have totally different principles for their grammar:</p>
+    <ul>
+      <li>The ECMAScript spec and its implementations are developed in mutual cooperation, while in TypeScript, TSC functions as the de facto reference implementation, and the other implementations follow TSC's behavior.</li>
+      <li>ECMAScript is intentionally kept <a href="https://esdiscuss.org/topic/lr-1-grammar-parser-and-lookahead-restrictions#content-8">LR(1) with a few extensions</a>, while TypeScript syntax can have unbounded lookahead.</li>
+    </ul>
+    <p>To accommodate this difference, this specification is written intentionally in a different style to describe grammar constructs that require explicit disambiguation.</p>
+    <ul>
+      <li>ECMAScript uses <emu-xref href="#must-cover">cover grammars</emu-xref> to disambiguate certain constructs. We instead use backtracking for disambiguation where |CoverParenthesizedExpressionAndArrowParameterList| or |CoverCallExpressionAndAsyncArrowHead| is used. The uses of |CoverInitializedName| is left intact.</li>
+      <li>ECMAScript restricts grammar symbols that can appear in lookahead positions. We lift this restriction and allow arbitrary nonterminals to appear in lookahead positions. It reflects the fact that most parsers disambiguate constructs using backtracking rather than remembering syntax trees that cover ambiguous constructs.</li>
+    </ul>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="sec-terms-and-definitions">
@@ -191,6 +205,7 @@
 
 <emu-clause id="sec-typescript-language-lexical-grammar">
   <h1>TypeScript Language: Lexical Grammar</h1>
+  <p>TypeScript's lexical grammar is largely identical to <emu-xref href="#sec-ecmascript-language-lexical-grammar">ECMAScript's lexical grammar</emu-xref>, with the following extensions:</p>
   <emu-clause id="sec-ts-lt-gt-tokens">
     <h1>Rescanning of `&lt;` and `&gt;`</h1>
     <p>The following productions use `&lt;` and `&gt;` as angle brackets:</p>
