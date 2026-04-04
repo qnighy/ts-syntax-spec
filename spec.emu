@@ -1212,6 +1212,23 @@
     </emu-grammar>
     <!-- TODO: constructor parameter properties -->
   </emu-clause>
+  <emu-clause id="sec-ts-function-definitions">
+    <h1>Function Definitions</h1>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-FunctionDeclaration">FunctionDeclaration</a>:</p>
+    <emu-grammar type="definition">
+      FunctionDeclaration[Yield, Await, Default] :
+        `function` BindingIdentifier[?Yield, ?Await] `(` FormalParameters[~Yield, ~Await] `)` `{` FunctionBody[~Yield, ~Await] `}`
+        [+Default] `function` `(` FormalParameters[~Yield, ~Await] `)` `{` FunctionBody[~Yield, ~Await] `}`
+        `function` BindingIdentifier[?Yield, ?Await] `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate] `{` FunctionBody[~Yield, ~Await] `}`
+        [+Default] `function` `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate] `{` FunctionBody[~Yield, ~Await] `}`
+    </emu-grammar>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-FunctionExpression">FunctionExpression</a>:</p>
+    <emu-grammar type="definition">
+      FunctionExpression :
+        `function` BindingIdentifier[~Yield, ~Await]? `(` FormalParameters[~Yield, ~Await] `)` `{` FunctionBody[~Yield, ~Await] `}`
+        `function` BindingIdentifier[~Yield, ~Await]? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, +Predicate] `{` FunctionBody[~Yield, ~Await] `}`
+    </emu-grammar>
+  </emu-clause>
   <emu-clause id="sec-ts-arrow-function-definitions">
     <h1>Arrow Function Definitions</h1>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-ArrowParameters">ArrowParameters</a>:</p>
