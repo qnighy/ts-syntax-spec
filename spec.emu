@@ -158,6 +158,24 @@
       <li>ECMAScript restricts grammar symbols that can appear in lookahead positions. We lift this restriction and allow arbitrary nonterminals to appear in lookahead positions. It reflects the fact that most parsers disambiguate constructs using backtracking rather than remembering syntax trees that cover ambiguous constructs.</li>
     </ul>
   </emu-clause>
+
+  <emu-clause id="sec-ts-syntax-mapping">
+    <h1>Syntax Mapping</h1>
+    <p>For simplicity, this specification reuses ECMAScript's <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations">Syntax-Directed Operations</emu-xref> even when the production in question is modified from the original grammar.</p>
+    <p>A production in this specification may be <dfn id="mapped-to">mapped to</dfn> a production in ECMA-262. In such cases, the syntax-directed operations of the said production in this specification are derived from the syntax-directed operations of the referenced production in ECMA-262 by transforming the derivation tree as specified in the mapping. The transformation can be omitted if the original production can be uniquely reconstructed from the modified production by removing some symbols in the modified production.</p>
+    <p>For example, if the following production:</p>
+    <emu-grammar>
+      FunctionRestParameter[Yield, Await] :
+        BindingRestElement[?Yield, ?Await] `?`? TypeAnnotation[?Yield, ?Await]?
+    </emu-grammar>
+    <p>is <emu-xref href="#mapped-to">mapped to</emu-xref> the following production in ECMA-262:</p>
+    <emu-grammar>
+      FunctionRestParameter[Yield, Await] :
+        BindingRestElement[?Yield, ?Await]
+    </emu-grammar>
+    <p>Then the transformation is uniquely determined because the only way to reconstruct the original production is by removing the two optional annotations.</p>
+    <p><emu-xref href="#sec-static-semantics-boundnames">BoundNames</emu-xref> of this production is then automatically derived from the |BindingElement| nonterminal because the original production is a <emu-xref href="#sec-context-free-grammars">chain production</emu-xref>.</p>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="sec-terms-and-definitions">
