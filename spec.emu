@@ -841,11 +841,51 @@
     <h1>Type Arguments</h1>
     <emu-grammar type="definition">
       TypeArguments[Yield, Await] :
-        `<` TypeArgumentList[?Yield, ?Await] `>`
-        `<` TypeArgumentList[?Yield, ?Await] `,` `>`
+        `&lt;` TypeArgumentList[?Yield, ?Await] `&gt;`
+        `&lt;` TypeArgumentList[?Yield, ?Await] `,` `&gt;`
 
       ExpressionTypeArguments[Yield, Await] :
-        TypeArguments[?Yield, ?Await]
+        TypeArguments[?Yield, ?Await] TypeArgumentsLookahead
+
+      TypeArgumentsLookahead:
+        [no LineTerminator here] [lookahead != DoesNotFollowTypeArgumentsNLT]
+        LineTerminator [lookahead != DoesNotFollowTypeArgumentsLT]
+
+      DoesNotFollowTypeArgumentsNLT :
+        `this`
+        `super`
+        Literal
+        `[`
+        `{`
+        `function`
+        `class`
+        `new`
+        `/=`
+        `import` `(`
+        `import` `&lt;`
+        `import` `.`
+        Identifier but not `as`, `satisfies`
+        PrivateIdentifier
+        `yield`
+        `await`
+        `++`
+        `--`
+        `delete`
+        `void`
+        `typeof`
+        `+`
+        `-`
+        `~`
+        `!`
+        `&lt;`
+        `&gt;`
+        `@`
+
+      DoesNotFollowTypeArgumentsLT :
+        `&lt;`
+        `&gt;`
+        `+`
+        `-`
 
       TypeArgumentList[Yield, Await] :
         Type[?Yield, ?Await]
@@ -853,6 +893,20 @@
     </emu-grammar>
     <emu-note>
       <p>Type argument list cannot be empty.</p>
+    </emu-note>
+    <emu-note>
+      <p>|DoesNotFollowTypeArgumentsNLT| is determined based on the following rules:</p>
+      <ul>
+        <li>`&lt;`, `&gt;`, `+`, `-`, and `/=` do not follow type arguments.</li>
+        <li>`(`, |NoSubstitutionTemplate|, and |TemplateHead| can follow type arguments.</li>
+        <li>Otherwise, binary operators can follow type arguments.</li>
+        <li>Otherwise, tokens that start expressions do not follow type arguments.</li>
+      </ul>
+    </emu-note>
+    <emu-note>
+      <p>Actual parsers implement these rules in various ways.</p>
+      <ul>
+      </ul>
     </emu-note>
   </emu-clause>
 </emu-clause>
