@@ -1179,6 +1179,7 @@
     </emu-grammar>
     <emu-note>
       <p>The production for `&lt;` is modified from the original ECMA-262 grammar to include a lookahead restriction that prevents ambiguity with |ExpressionTypeArguments|.</p>
+      <p>It's semantics is the same, as the derivation tree is unchanged.</p>
     </emu-note>
     <emu-clause id="sec-ts-relational-operators-runtime-semantics-evaluation" type="sdo">
       <h1>Runtime Semantics: Evaluation</h1>
@@ -1229,23 +1230,76 @@
         BindingPattern[?Yield, ?Await] `?`? TypeAnnotation[?Yield, ?Await]? Initializer[+In, ?Yield, ?Await]?
     </emu-grammar>
     <!-- TODO: constructor parameter properties -->
+    <emu-clause id="sec-ts-parameter-lists-syntax-mapping">
+      <h1>Syntax Mapping</h1>
+      <p>The following production:</p>
+      <emu-grammar>
+        FormalParameters :
+          FunctionThisParameter[?Yield, ?Await]
+      </emu-grammar>
+      <p>is <emu-xref href="#mapped-to">mapped to</emu-xref> the following production:</p>
+      <emu-grammar>
+        FormalParameters :
+          [empty]
+      </emu-grammar>
+      <p>The following productions:</p>
+      <emu-grammar>
+        FormalParameters :
+          FunctionThisParameter `,`
+          FunctionThisParameter `,` FunctionRestParameter
+          FunctionThisParameter `,` FormalParameterList
+          FunctionThisParameter `,` FormalParameterList `,`
+          FunctionThisParameter `,` FormalParameterList `,` FunctionRestParameter
+      </emu-grammar>
+      <p>are <emu-xref href="#mapped-to">mapped to</emu-xref> the following productions, respectively:</p>
+      <emu-grammar>
+        FormalParameters :
+          [empty]
+        FunctionRestParameter
+        FormalParameterList
+        FormalParameterList `,`
+        FormalParameterList `,` FunctionRestParameter
+      </emu-grammar>
+    </emu-clause>
   </emu-clause>
   <emu-clause id="sec-ts-function-definitions">
     <h1>Function Definitions</h1>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-FunctionDeclaration">FunctionDeclaration</a>:</p>
     <emu-grammar type="definition">
       FunctionDeclaration[Yield, Await, Default] :
-        `function` BindingIdentifier[?Yield, ?Await] `(` FormalParameters[~Yield, ~Await] `)` `{` FunctionBody[~Yield, ~Await] `}`
-        [+Default] `function` `(` FormalParameters[~Yield, ~Await] `)` `{` FunctionBody[~Yield, ~Await] `}`
-        `function` BindingIdentifier[?Yield, ?Await] `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate] `{` FunctionBody[~Yield, ~Await] `}`
-        [+Default] `function` `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate] `{` FunctionBody[~Yield, ~Await] `}`
+        `function` BindingIdentifier[?Yield, ?Await] `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` FunctionBody[~Yield, ~Await] `}`
+        [+Default] `function` `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` FunctionBody[~Yield, ~Await] `}`
     </emu-grammar>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-FunctionExpression">FunctionExpression</a>:</p>
     <emu-grammar type="definition">
       FunctionExpression :
-        `function` BindingIdentifier[~Yield, ~Await]? `(` FormalParameters[~Yield, ~Await] `)` `{` FunctionBody[~Yield, ~Await] `}`
-        `function` BindingIdentifier[~Yield, ~Await]? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, +Predicate] `{` FunctionBody[~Yield, ~Await] `}`
+        `function` BindingIdentifier[~Yield, ~Await]? `(` FormalParameters[~Yield, ~Await] `)` ReturnTypeAnnotation[~Yield, ~Await, +Predicate]? `{` FunctionBody[~Yield, ~Await] `}`
     </emu-grammar>
+    <emu-clause id="sec-ts-function-definitions-syntax-mapping">
+      <h1>Syntax Mapping</h1>
+      <p>The following productions:</p>
+      <emu-grammar>
+        FunctionDeclaration :
+          `function` BindingIdentifier `(` FormalParameters `)` ReturnTypeAnnotation? `{` FunctionBody `}`
+          `function` `(` FormalParameters `)` ReturnTypeAnnotation? `{` FunctionBody `}`
+      </emu-grammar>
+      <p>are <emu-xref href="#mapped-to">mapped to</emu-xref> the following productions, respectively:</p>
+      <emu-grammar>
+        FunctionDeclaration :
+          `function` BindingIdentifier `(` FormalParameters `)` `{` FunctionBody `}`
+          `function` `(` FormalParameters `)` `{` FunctionBody `}`
+      </emu-grammar>
+      <p>The following production:</p>
+      <emu-grammar>
+        FunctionExpression :
+          `function` BindingIdentifier? `(` FormalParameters `)` ReturnTypeAnnotation? `{` FunctionBody `}`
+      </emu-grammar>
+      <p>is <emu-xref href="#mapped-to">mapped to</emu-xref> the following production:</p>
+      <emu-grammar>
+        FunctionExpression :
+          `function` BindingIdentifier? `(` FormalParameters `)` `{` FunctionBody `}`
+      </emu-grammar>
+    </emu-clause>
   </emu-clause>
   <emu-clause id="sec-ts-arrow-function-definitions">
     <h1>Arrow Function Definitions</h1>
