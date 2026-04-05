@@ -30,13 +30,14 @@ You can read the specification at https://qnighy.github.io/ts-syntax-spec/.
 - [ ] Statements and Declarations
   - [x] Variable statement extensions
   - [x] For extensions
-  - [ ] Catch extensions
+  - [x] Catch extensions
   - [ ] Type aliases
   - [ ] Interfaces
   - [ ] Namespaces
   - [ ] Ambient globals
   - [ ] Ambient modules, as declared in non-modules
   - [ ] Ambient module augmentations
+  - [x] Ambient variable declarations
   - [ ] Enums
 - [ ] Functions and Methods
   - [x] Basic Function extensions
@@ -48,7 +49,7 @@ You can read the specification at https://qnighy.github.io/ts-syntax-spec/.
   - [x] Accessors
   - [x] Constructors
   - [ ] Constructor parameter properties
-  - [ ] Ambient functions and overloads
+  - [x] Ambient functions and overloads
 - [ ] Classes
   - [ ] Class type parameters
   - [ ] Class type arguments
@@ -59,6 +60,7 @@ You can read the specification at https://qnighy.github.io/ts-syntax-spec/.
   - [ ] Class element optionality
   - [ ] Class element type annotations
   - [ ] Class element modifiers
+  - [ ] Ambient classes
 - [ ] Scripts and Modules
   - [ ] Type-only imports and exports
   - [ ] CommonJS interpretations and special syntax
