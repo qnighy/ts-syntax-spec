@@ -159,6 +159,15 @@
     </ul>
   </emu-clause>
 
+  <emu-clause id="sec-ts-syntax-context">
+    <h1>Syntax Context</h1>
+    <p>Behavior of TypeScript programs depends on how the implementation is configured. To reflect this, the specification introduces the concept of <dfn id="syntax-context">syntax context</dfn> attached to a source text being parsed.</p>
+    <p>When a TypeScript source text is being matched against a goal symbol, the specification requires the caller of the parsing algorithm to provide a syntax context, which is a <emu-xref href="#syntax-context-record">syntax context record</emu-xref>.</p>
+    <p>The syntax context can be referenced throughout the whole parsing process and Early Error checking.</p>
+    <p>Some nonterminals define <dfn id="syntax-alteration">syntax alterations</dfn>. They are like conditionals <sub>[+Await]</sub> / <sub>[~Await]</sub> but is matched against the syntax context.</p>
+    <p>When a syntax context is not provided, the <emu-xref href="#default-syntax-context-record">default Syntax Context Record</emu-xref> is used.</p>
+  </emu-clause>
+
   <emu-clause id="sec-ts-syntax-mapping">
     <h1>Syntax Mapping</h1>
     <p>For simplicity, this specification reuses ECMAScript's <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations">Syntax-Directed Operations</emu-xref> even when the production in question is modified from the original grammar.</p>
@@ -176,6 +185,41 @@
     </emu-grammar>
     <p>Then the transformation is uniquely determined because the only way to reconstruct the original production is by removing the two optional annotations.</p>
     <p><emu-xref href="#sec-static-semantics-boundnames">BoundNames</emu-xref> of this production is then automatically derived from the |BindingElement| nonterminal because the original production is a <emu-xref href="#sec-context-free-grammars">chain production</emu-xref>.</p>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-typescript-data-types-and-values">
+  <h1>TypeScript Data Types and Values</h1>
+  <p>This section extends <emu-xref href="#sec-ecmascript-data-types-and-values">ECMAScript Data Types and Values</emu-xref>.</p>
+  <emu-clause id="sec-typescript-specification-types">
+    <h1>TypeScript Specification Types</h1>
+    <p>This section extends <emu-xref href="#sec-ecmascript-specification-types">ECMAScript Specification Types</emu-xref>.</p>
+    <emu-clause id="sec-ts-syntax-context-record">
+      <h1>The Syntax Context Record Specification Type</h1>
+      <p>The <dfn id="syntax-context-record">Syntax Context Record</dfn> type is used to represent the configuration of the parser that affects syntaxes added in this specification.</p>
+      <emu-table id="table-syntax-context-record-fields" caption="Syntax Context Record Fields">
+        <table>
+          <thead>
+            <tr>
+              <th>Field Name</th>
+              <th>Value</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tr>
+            <td>[[TypeScript]]</td>
+            <td>a Boolean</td>
+            <td>Indicates whether the parser is currently parsing TypeScript syntax.</td>
+          </tr>
+          <tr>
+            <td>[[JSX]]</td>
+            <td>a Boolean</td>
+            <td>Indicates whether the parser is currently parsing JSX syntax.</td>
+          </tr>
+        </table>
+      </emu-table>
+    </emu-clause>
+    <p>The <dfn id="default-syntax-context-record">default Syntax Context Record</dfn> is the Syntax Context Record { [[TypeScript]]: *false*, [[JSX]]: *false* }.</p>
   </emu-clause>
 </emu-clause>
 
@@ -880,6 +924,25 @@
         <li>TSC parses `unique symbol` as types of higher precedence, and then reports non-grammatical errors later.</li>
       </ul>
     </emu-note>
+    <emu-clause id="sec-ts-type-annotations-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>
+        TypeAnnotation :
+          `:` Type
+
+        VariableTypeAnnotation :
+          `:` Type
+          `:` `unique` `symbol`
+
+        ReturnTypeAnnotation :
+          `:` TypeOrTypePredicate
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if [[TypeScript]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+        </li>
+      </ul>
+    </emu-clause>
   </emu-clause>
   <emu-clause id="sec-ts-type-parameters">
     <h1>Type Parameters</h1>
@@ -920,6 +983,16 @@
     <emu-clause id="sec-ts-type-parameters-static-semantics-early-errors">
       <h1>Static Semantics: Early Errors</h1>
       <emu-grammar>
+        TypeParameters :
+          `&lt;` TypeParameterList `&gt;`
+          `&lt;` TypeParameterList `,` `&gt;`
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if [[TypeScript]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+        </li>
+      </ul>
+      <emu-grammar>
         TypeParameterList : TypeParameterList `,` TypeParameter
       </emu-grammar>
       <ul>
@@ -938,9 +1011,10 @@
         `&lt;` TypeArgumentList[?Yield, ?Await] `,` `&gt;`
 
       ExpressionTypeArguments[Yield, Await] :
-        [lookahead == TypeArgumentsLookahead] TypeArguments[?Yield, ?Await]
+        [lookahead == TypeArgumentsLookahead[?Yield, ?Await]] TypeArguments[?Yield, ?Await]
 
-      TypeArgumentsLookahead:
+      TypeArgumentsLookahead[Yield, Await]:
+        [> (no production)]
         TypeArguments[?Yield, ?Await] [no LineTerminator here] [lookahead != DoesNotFollowTypeArgumentsNLT]
         TypeArguments[?Yield, ?Await] LineTerminator [lookahead != DoesNotFollowTypeArgumentsLT]
 
@@ -996,13 +1070,23 @@
         <li>Otherwise, tokens that start expressions do not follow type arguments.</li>
       </ul>
     </emu-note>
-    <emu-note>
-      <p>Actual parsers implement these rules in various ways.</p>
-      <ul>
-        <li>TSC uses |PermTypeArguments| in place of |TypeArguments| for |TypeArgumentsLookahead|.</li>
-        <li>Babel uses a different set of lookahead tokens for |DoesNotFollowTypeArgumentsNLT| and |DoesNotFollowTypeArgumentsLT|.</li>
-      </ul>
-    </emu-note>
+    <emu-clause id="sec-ts-type-arguments-syntax-alterations">
+      <h1>Syntax Alterations</h1>
+      <p>By default, |TypeArgumentsLookahead| does not match anything.</p>
+      <p>However, when [[TypeScript]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true*, we add the following production to |TypeArgumentsLookahead|:</p>
+      <emu-grammar>
+        TypeArgumentsLookahead[Yield, Await]:
+          TypeArguments[?Yield, ?Await] [no LineTerminator here] [lookahead != DoesNotFollowTypeArgumentsNLT]
+          TypeArguments[?Yield, ?Await] LineTerminator [lookahead != DoesNotFollowTypeArgumentsLT]
+      </emu-grammar>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>TSC uses |PermTypeArguments| in place of |TypeArguments| for |TypeArgumentsLookahead|.</li>
+          <li>Babel uses a different set of lookahead tokens for |DoesNotFollowTypeArgumentsNLT| and |DoesNotFollowTypeArgumentsLT|.</li>
+        </ul>
+      </emu-note>
+    </emu-clause>
   </emu-clause>
 </emu-clause>
 
@@ -1091,6 +1175,26 @@
           It is a Syntax Error if any source text is matched by this production.
         </li>
       </ul>
+      <emu-grammar>
+        MemberExpression :
+          MemberExpression `!`
+          MemberExpression ExpressionTypeArguments
+
+        CallExpression :
+          CallExpression `!`
+          CallExpression ExpressionTypeArguments
+
+        OptionalChain :
+          `?.` ExpressionTypeArguments Arguments
+          `?.` ExpressionTypeArguments TemplateLiteral
+          OptionalChain `!`
+          OptionalChain ExpressionTypeArguments
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if [[TypeScript]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+        </li>
+      </ul>
     </emu-clause>
     <emu-clause id="sec-ts-left-hand-side-expressions-runtime-semantics-evaluation" type="sdo">
       <h1>Runtime Semantics: Evaluation</h1>
@@ -1150,9 +1254,21 @@
         `~` UnaryExpression[?Yield, ?Await]
         `!` UnaryExpression[?Yield, ?Await]
         [+Await] AwaitExpression[?Yield]
-        `&lt;` Type[?Yield, ?Await] `&gt;` UnaryExpression[?Yield, ?Await]
     </emu-grammar>
-    <p>The production <emu-grammar>UnaryExpression: `&lt;` Type `&gt;` UnaryExpression</emu-grammar> is disabled when JSX is enabled.</p>
+    <emu-note>
+      The productions above is the same as the original ECMA-262 grammar, but see the next clause.</p>
+    </emu-note>
+    <emu-clause id="sec-ts-unary-operators-syntax-alterations">
+      <h1>Syntax Alterations</h1>
+      <p>When [[TypeScript]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and [[JSX]] of the same syntax context is *false*, we add the following production to the grammar of |UnaryExpression|:</p>
+      <emu-grammar>
+        UnaryExpression[Yield, Await] :
+          `&lt;` Type[?Yield, ?Await] `&gt;` UnaryExpression[?Yield, ?Await]
+      </emu-grammar>
+      <emu-note>
+        <p>Only one of JSX tags and legacy type assertions can be enabled at a time. When neither of [[TypeScript]] nor [[JSX]] is enabled, the choice is arbitrary as we would rule it out with Early Errors anyway. We choose to enable JSX tags in this case to imitate TSC's behaviour.</p>
+      </emu-note>
+    </emu-clause>
     <emu-clause id="sec-ts-unary-operators-evaluation" type="sdo">
       <h1>Runtime Semantics: Evaluation</h1>
       <emu-grammar>UnaryExpression: `&lt;` Type `&gt;` UnaryExpression</emu-grammar>
@@ -1167,19 +1283,20 @@
     <emu-grammar type="definition">
       RelationalExpression[In, Yield, Await] :
         ShiftExpression[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] [lookahead != TypeArgumentsLookahead] `&lt;` ShiftExpression[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] [lookahead != TypeArgumentsLookahead[?Yield, ?Await]] `&lt;` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `&gt;` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `&lt;=` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `&gt;=` ShiftExpression[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] `instanceof` ShiftExpression[?Yield, ?Await]
         [+In] RelationalExpression[+In, ?Yield, ?Await] `in` ShiftExpression[?Yield, ?Await]
         [+In] PrivateIdentifier `in` ShiftExpression[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] `as` Type[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] `satisfies` Type[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] [no LineTerminator here] `as` Type[?Yield, ?Await]
+        RelationalExpression[?In, ?Yield, ?Await] [no LineTerminator here] `satisfies` Type[?Yield, ?Await]
     </emu-grammar>
     <emu-note>
       <p>The production for `&lt;` is modified from the original ECMA-262 grammar to include a lookahead restriction that prevents ambiguity with |ExpressionTypeArguments|.</p>
-      <p>It's semantics is the same, as the derivation tree is unchanged.</p>
+      <p>Its semantics is the same, as the derivation tree is unchanged.</p>
+      <p>This modification takes effect only when [[TypeScript]] is *true*. See <emu-xref href="#sec-ts-type-arguments-syntax-alterations">Type Arguments Syntax Alterations</emu-xref>.</p>
     </emu-note>
     <emu-clause id="sec-ts-relational-operators-runtime-semantics-evaluation" type="sdo">
       <h1>Runtime Semantics: Evaluation</h1>
@@ -1211,6 +1328,21 @@
   </emu-grammar>
   <emu-clause id="sec-ts-statement-semantics">
     <h1>Statement Semantics</h1>
+    <emu-clause id="sec-ts-statement-semantics-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>
+        Declaration :
+          TopLevelAmbientDeclaration
+          FunctionOverloadDeclaration
+          TypeAliasDeclaration
+          InterfaceDeclaration
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if [[TypeScript]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+        </li>
+      </ul>
+    </emu-clause>
     <emu-clause id="sec-ts-statement-semantics-runtime-semantics-evaluation" type="sdo">
       <h1>Runtime Semantics: Evaluation</h1>
       <emu-grammar>
@@ -1304,6 +1436,24 @@
       </emu-grammar>
       <emu-note>
         <p>Transformation is uniquely determined because |Initializer| is optional in the original production.</p>
+      </emu-note>
+    </emu-clause>
+    <emu-clause id="sec-ts-declarations-and-the-variable-statement-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>
+        LexicalBinding :
+          BindingIdentifier `!` TypeAnnotation
+
+        VariableDeclaration :
+          BindingIdentifier `!` TypeAnnotation
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if [[TypeScript]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+        </li>
+      </ul>
+      <emu-note>
+        <p>The Early Error rules for |TypeAnnotation| should have ruled out this production. An additional check is here for completeness, as some parsers allow `!` without |TypeAnnotation|.</p>
       </emu-note>
     </emu-clause>
   </emu-clause>
@@ -1572,6 +1722,26 @@
           FormalParameterList `,`
           FormalParameterList `,` FunctionRestParameter
       </emu-grammar>
+    </emu-clause>
+    <emu-clause id="sec-ts-parameter-lists-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>
+        FormalParameters :
+          FunctionThisParameter
+          FunctionThisParameter `,`
+          FunctionThisParameter `,` FunctionRestParameter
+          FunctionThisParameter `,` FormalParameterList
+          FunctionThisParameter `,` FormalParameterList `,`
+          FunctionThisParameter `,` FormalParameterList `,` FunctionRestParameter
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if [[TypeScript]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+        </li>
+      </ul>
+      <emu-note>
+        <p>`function f(this) {}` is allowed in TypeScript, but not in JavaScript, despite `this` without type annotation is useless.</p>
+      </emu-note>
     </emu-clause>
     <emu-clause id="sec-static-semantics-contains-this-parameter" type="sdo">
       <h1>Static Semantics: ContainsThisParameter ( ): a Boolean</h1>
