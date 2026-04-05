@@ -1198,6 +1198,33 @@
 <emu-clause id="sec-typescript-language-statements-and-declarations">
   <h1>TypeScript Language: Statements and Declarations</h1>
   <p>This section extends <emu-xref href="#sec-ecmascript-language-statements-and-declarations">ECMAScript Language: Statements and Declarations</emu-xref> to support TypeScript-specific syntax.</p>
+  <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-Declaration">Declaration</a>:</p>
+  <emu-grammar type="definition">
+    Declaration[Yield, Await] :
+      HoistableDeclaration[?Yield, ?Await, ~Default]
+      ClassDeclaration[?Yield, ?Await, ~Default]
+      LexicalDeclaration[+In, ?Yield, ?Await]
+      TopLevelAmbientDeclaration[?Yield, ?Await]
+      OverloadSignatureDeclaration[?Yield, ?Await]
+      TypeAliasDeclaration[?Yield, ?Await]
+      InterfaceDeclaration[?Yield, ?Await]
+  </emu-grammar>
+  <emu-clause id="sec-ts-statement-semantics">
+    <h1>Statement Semantics</h1>
+    <emu-clause id="sec-ts-statement-semantics-runtime-semantics-evaluation" type="sdo">
+      <h1>Runtime Semantics: Evaluation</h1>
+      <emu-grammar>
+        Declaration :
+          TopLevelAmbientDeclaration
+          OverloadSignatureDeclaration
+          TypeAliasDeclaration
+          InterfaceDeclaration
+      </emu-grammar>
+      <emu-alg>
+        1. Return ~empty~.
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
   <emu-clause id="sec-ts-declarations-and-the-variable-statement">
     <h1>Declarations and the Variable Statement</h1>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-LexicalBinding">LexicalBinding</a>:</p>
@@ -1290,7 +1317,7 @@
     <emu-clause id="sec-ts-for-in-and-for-of-statements">
       <h1>The `for`-`in`, `for`-`of`, and `for`-`await`-`of` Statements</h1>
       <emu-note>
-        <p>This specification does not currently update |ForStatement| here.</p>
+        <p>This specification does not currently update |ForInOfStatement| here.</p>
       </emu-note>
       <emu-note>
         <p>Actual parsers implement these rules in various ways.</p>
@@ -1330,6 +1357,81 @@
           BindingIdentifier
           BindingPattern
       </emu-grammar>
+    </emu-clause>
+  </emu-clause>
+  <emu-clause id="sec-ts-ambient-declarations">
+    <h1>Ambient and Overload Declarations</h1>
+    <emu-grammar type="definition">
+      TopLevelAmbientDeclaration[Yield, Await] :
+        `declare` [no LineTerminator here] AmbientDeclaration[?Yield, ?Await]
+
+      AmbientDeclaration[Yield, Await] :
+        AmbientVariableDeclaration[?Yield, ?Await]
+        AmbientFunctionDeclaration[?Yield, ?Await]
+        AmbientClassDeclaration[?Yield, ?Await]
+    </emu-grammar>
+    <emu-clause id="sec-ts-ambient-variable-declarations">
+      <h1>Ambient Variable Declarations</h1>
+      <emu-grammar type="definition">
+        AmbientVariableDeclaration[Yield, Await] :
+          `var` AmbientBindingList[~Init, ?Yield, ?Await] `;`
+          `let` AmbientBindingList[~Init, ?Yield, ?Await] `;`
+          `const` AmbientBindingList[+Init, ?Yield, ?Await] `;`
+
+        AmbientBindingList[Init, Yield, Await] :
+          AmbientVariableBinding[?Init, ?Yield, ?Await]
+          AmbientBindingList[?Init, ?Yield, ?Await] `,` AmbientVariableBinding[?Init, ?Yield, ?Await]
+
+        AmbientVariableBinding[Init, Yield, Await] :
+          BindingIdentifier[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]?
+          BindingPattern[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]?
+          [+Init] BindingIdentifier[?Yield, ?Await] `=` AmbientInitLiteral[?Yield, ?Await]
+          [+Init] BindingPattern[?Yield, ?Await] `=` AmbientInitLiteral[?Yield, ?Await]
+
+        AmbientInitLiteral[Yield, Await] :
+          BooleanLiteral
+          StringLiteral
+          NoSubstitutionTemplate
+          NumericLiteral
+          `-` NumericLiteral
+          EnumReferenceExpression[?Yield, ?Await]
+
+        EnumReferenceExpression[Yield, Await] :
+          EntityNameExpression[?Yield, ?Await] `.` IdentifierName
+          EntityNameExpression[?Yield, ?Await] `[` EnumReferenceKeyExpression `]`
+
+        EnumReferenceKeyExpression :
+          StringLiteral
+          NoSubstitutionTemplate
+          NumericLiteral
+          `-` NumericLiteral
+
+        EntityNameExpression[Yield, Await] :
+          IdentifierReference[?Yield, ?Await]
+          EntityNameExpression[?Yield, ?Await] `.` IdentifierName
+      </emu-grammar>
+      <emu-note>
+        <p>Initializers are only allowed here only when it is a `declare const` initialized with literal-like values without type annotations.</p>
+      </emu-note>
+      <emu-note>
+        <p>`null` cannot be used as an initializer in `declare const`.</p>
+      </emu-note>
+      <emu-note>
+        <p>Interestingly, initializers can be currently used in conjunction with binding patterns, enabling use of `declare const { length } = "foo";`.</p>
+      </emu-note>
+      <emu-note>
+        <p>|EnumReferenceExpression| must resolve to a constant enum member, but it's beyond parsers' capabilities to enforce this.</p>
+      </emu-note>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>Babel disallows number literals in |EnumReferenceKeyExpression|.</li>
+          <li>Babel allows some additional keywords in |IdentifierReference| in |EntityNameExpression|.</li>
+          <li>SWC allows arbitrary expressions for `declare const` initializers.</li>
+          <li>SWC allows initializers in `declare let` and `declare var` as well.</li>
+          <li>SWC allows initializers to be used in conjunction with type annotations.</li>
+        </ul>
+      </emu-note>
     </emu-clause>
   </emu-clause>
 </emu-clause>
