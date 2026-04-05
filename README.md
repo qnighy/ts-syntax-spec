@@ -15,6 +15,12 @@ You can read the specification at https://qnighy.github.io/ts-syntax-spec/.
   - [x] Backtracking
   - [x] Syntax Mapping
   - [ ] Syntax Context
+- [ ] Syntax Contexts
+  - [x] TypeScript
+  - [x] JSX
+  - [ ] Legacy class field semantics
+  - [ ] Non-verbatim syntaxes
+  - [ ] Non-isolated-modules syntaxes
 - [ ] Extension of Syntax-Directed Operations
 - [ ] Types
   - [x] Most types
@@ -23,6 +29,7 @@ You can read the specification at https://qnighy.github.io/ts-syntax-spec/.
   - [ ] Uniqueness constraint of type parameters
   - [ ] Streamline tuple type structure
 - [x] Expressions
+  - [ ] JSX
   - [x] Non-nullish assertion
   - [x] Type arguments in calls and instantiation expression
   - [x] Legacy type assertion
