@@ -1205,15 +1205,26 @@
       LexicalBinding[In, Yield, Await] :
         BindingIdentifier[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]?
         BindingPattern[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]
-        BindingIdentifier[?Yield, ?Await] [no LineTerminator here] `!` TypeAnnotation[?Yield, ?Await]
+        [+In] BindingIdentifier[?Yield, ?Await] [no LineTerminator here] `!` TypeAnnotation[?Yield, ?Await]
     </emu-grammar>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-VariableDeclaration">VariableDeclaration</a>:</p>
     <emu-grammar type="definition">
       VariableDeclaration[In, Yield, Await] :
         BindingIdentifier[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]?
         BindingPattern[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]
-        BindingIdentifier[?Yield, ?Await] [no LineTerminator here] `!` TypeAnnotation[?Yield, ?Await]
+        [+In] BindingIdentifier[?Yield, ?Await] [no LineTerminator here] `!` TypeAnnotation[?Yield, ?Await]
     </emu-grammar>
+    <emu-note>
+      <p>The <sub>[+In]</sub> condition is used here to forbid the use of the definite assignment assertion (`!`) in `for` statements.</p>
+    </emu-note>
+    <emu-note>
+      <p>Actual parsers implement these rules in various ways.</p>
+      <ul>
+        <li>Babel and SWC allow definite assignment assertions (`!`) to be used together with initializers.</li>
+        <li>Babel and SWC allow definite assignment assertions (`!`) to be used without type annotations.</li>
+        <li>Babel and SWC allow definite assignment assertions (`!`) to be used in `for` statements as well.</li>
+      </ul>
+    </emu-note>
     <emu-clause id="sec-ts-declarations-and-the-variable-statement-syntax-mapping">
       <h1>Syntax Mapping</h1>
       <p>The following productions:</p>
@@ -1266,11 +1277,26 @@
       <emu-note>
         <p>Transformation is uniquely determined because |Initializer| is optional in the original production.</p>
       </emu-note>
+    </emu-clause>
+  </emu-clause>
+  <emu-clause id="sec-ts-iteration-statements">
+    <h1>Iteration Statements</h1>
+    <emu-clause id="sec-ts-for-statement">
+      <h1>The `for` Statement</h1>
+      <emu-note>
+        <p>This specification does not update |ForStatement| here. Instead, `for` statements are updated through |LexicalDeclaration| and |VariableStatement| in <emu-xref href="#sec-ts-declarations-and-the-variable-statement">Declarations and the Variable Statement</emu-xref>.</p>
+      </emu-note>
+    </emu-clause>
+    <emu-clause id="sec-ts-for-in-and-for-of-statements">
+      <h1>The `for`-`in`, `for`-`of`, and `for`-`await`-`of` Statements</h1>
+      <emu-note>
+        <p>This specification does not currently update |ForStatement| here.</p>
+      </emu-note>
       <emu-note>
         <p>Actual parsers implement these rules in various ways.</p>
         <ul>
-          <li>Babel and SWC allow definite assignment assertions (`!`) to be used together with initializers.</li>
-          <li>Babel and SWC allow definite assignment assertions (`!`) to be used without type annotations.</li>
+          <li>Babel and SWC allow use of definite assignment assertions `!` in the variable declarations of  `for`-`in`, `for`-`of`, and `for`-`await`-`of` statements.</li>
+          <li>Babel allows use of type annotations in the variable declarations of `for`-`in`, `for`-`of`, and `for`-`await`-`of` statements as well.</li>
         </ul>
       </emu-note>
     </emu-clause>

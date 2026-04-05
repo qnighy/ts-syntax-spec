@@ -29,7 +29,7 @@ You can read the specification at https://qnighy.github.io/ts-syntax-spec/.
   - [x] `as` and `satisfies` expressions
 - [ ] Statements and Declarations
   - [x] Variable statement extensions
-  - [ ] For extensions
+  - [x] For extensions
   - [ ] Catch extensions
   - [ ] Type aliases
   - [ ] Interfaces
