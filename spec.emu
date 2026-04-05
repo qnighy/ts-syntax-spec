@@ -1301,6 +1301,37 @@
       </emu-note>
     </emu-clause>
   </emu-clause>
+  <emu-clause id="sec-ts-try-statement">
+    <h1>The `try` Statement</h1>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-CatchParameter">CatchParameter</a>:</p>
+    <emu-grammar type="definition">
+      CatchParameter[Yield, Await] :
+        BindingIdentifier[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]?
+        BindingPattern[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]?
+    </emu-grammar>
+    <emu-note>
+      <p></p>
+    </emu-note>
+    <emu-note>
+      <p>The index type in |CatchParameter| must resolve to `unknown` or `any`, but it's beyond parsers' capabilities to enforce this.</p>
+      <p>It also means that it is meaningless to have |TypeAnnotation| after |BindingPattern| in this context, but we do not rule out this syntax for the same reason.</p>
+    </emu-note>
+    <emu-clause id="sec-ts-catch-parameter-syntax-mapping">
+      <h1>Syntax Mapping</h1>
+      <p>The following productions:</p>
+      <emu-grammar>
+        CatchParameter :
+          BindingIdentifier TypeAnnotation?
+          BindingPattern TypeAnnotation?
+      </emu-grammar>
+      <p>are <emu-xref href="#mapped-to">mapped to</emu-xref> the following productions, respectively:</p>
+      <emu-grammar>
+        CatchParameter :
+          BindingIdentifier
+          BindingPattern
+      </emu-grammar>
+    </emu-clause>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="sec-typescript-language-functions-and-classes">
