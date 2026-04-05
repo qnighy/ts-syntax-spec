@@ -1203,24 +1203,23 @@
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-LexicalBinding">LexicalBinding</a>:</p>
     <emu-grammar type="definition">
       LexicalBinding[In, Yield, Await] :
-        BindingIdentifier[?Yield, ?Await] DefiniteInitialization? TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]?
+        BindingIdentifier[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]?
         BindingPattern[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]
-
-      DefiniteInitialization :
-        [no LineTerminator here] `!`
+        BindingIdentifier[?Yield, ?Await] [no LineTerminator here] `!` TypeAnnotation[?Yield, ?Await]
     </emu-grammar>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-VariableDeclaration">VariableDeclaration</a>:</p>
     <emu-grammar type="definition">
       VariableDeclaration[In, Yield, Await] :
-        BindingIdentifier[?Yield, ?Await] DefiniteInitialization? TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]?
+        BindingIdentifier[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]?
         BindingPattern[?Yield, ?Await] TypeAnnotation[?Yield, ?Await]? Initializer[?In, ?Yield, ?Await]
+        BindingIdentifier[?Yield, ?Await] [no LineTerminator here] `!` TypeAnnotation[?Yield, ?Await]
     </emu-grammar>
     <emu-clause id="sec-ts-declarations-and-the-variable-statement-syntax-mapping">
       <h1>Syntax Mapping</h1>
       <p>The following productions:</p>
       <emu-grammar>
         LexicalBinding :
-          BindingIdentifier DefiniteInitialization? TypeAnnotation? Initializer?
+          BindingIdentifier TypeAnnotation? Initializer?
           BindingPattern TypeAnnotation? Initializer
       </emu-grammar>
       <p>are <emu-xref href="#mapped-to">mapped to</emu-xref> the following productions, respectively:</p>
@@ -1229,10 +1228,23 @@
           BindingIdentifier Initializer?
           BindingPattern Initializer
       </emu-grammar>
+      <p>The following production:</p>
+      <emu-grammar>
+        LexicalBinding :
+          BindingIdentifier [no LineTerminator here] `!` TypeAnnotation
+      </emu-grammar>
+      <p>is <emu-xref href="#mapped-to">mapped to</emu-xref> the following production:</p>
+      <emu-grammar>
+        LexicalBinding :
+          BindingIdentifier Initializer?
+      </emu-grammar>
+      <emu-note>
+        <p>Transformation is uniquely determined because |Initializer| is optional in the original production.</p>
+      </emu-note>
       <p>The following productions:</p>
       <emu-grammar>
         VariableDeclaration :
-          BindingIdentifier DefiniteInitialization? TypeAnnotation? Initializer?
+          BindingIdentifier TypeAnnotation? Initializer?
           BindingPattern TypeAnnotation? Initializer
       </emu-grammar>
       <p>are <emu-xref href="#mapped-to">mapped to</emu-xref> the following productions, respectively:</p>
@@ -1241,6 +1253,26 @@
           BindingIdentifier Initializer?
           BindingPattern Initializer
       </emu-grammar>
+      <p>The following production:</p>
+      <emu-grammar>
+        VariableDeclaration :
+          BindingIdentifier [no LineTerminator here] `!` TypeAnnotation
+      </emu-grammar>
+      <p>is <emu-xref href="#mapped-to">mapped to</emu-xref> the following production:</p>
+      <emu-grammar>
+        VariableDeclaration :
+          BindingIdentifier Initializer?
+      </emu-grammar>
+      <emu-note>
+        <p>Transformation is uniquely determined because |Initializer| is optional in the original production.</p>
+      </emu-note>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>Babel and SWC allow definite assignment assertions (`!`) to be used together with initializers.</li>
+          <li>Babel and SWC allow definite assignment assertions (`!`) to be used without type annotations.</li>
+        </ul>
+      </emu-note>
     </emu-clause>
   </emu-clause>
 </emu-clause>
