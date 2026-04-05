@@ -1205,7 +1205,7 @@
       ClassDeclaration[?Yield, ?Await, ~Default]
       LexicalDeclaration[+In, ?Yield, ?Await]
       TopLevelAmbientDeclaration[?Yield, ?Await]
-      OverloadSignatureDeclaration[?Yield, ?Await]
+      FunctionOverloadDeclaration[?Yield, ?Await, ~Default]
       TypeAliasDeclaration[?Yield, ?Await]
       InterfaceDeclaration[?Yield, ?Await]
   </emu-grammar>
@@ -1216,7 +1216,7 @@
       <emu-grammar>
         Declaration :
           TopLevelAmbientDeclaration
-          OverloadSignatureDeclaration
+          FunctionOverloadDeclaration
           TypeAliasDeclaration
           InterfaceDeclaration
       </emu-grammar>
@@ -1367,7 +1367,7 @@
 
       AmbientDeclaration[Yield, Await] :
         AmbientVariableDeclaration[?Yield, ?Await]
-        AmbientFunctionDeclaration[?Yield, ?Await]
+        AmbientFunctionDeclaration[?Yield, ?Await, ~Default]
         AmbientClassDeclaration[?Yield, ?Await]
     </emu-grammar>
     <emu-clause id="sec-ts-ambient-variable-declarations">
@@ -1432,6 +1432,74 @@
           <li>SWC allows initializers to be used in conjunction with type annotations.</li>
         </ul>
       </emu-note>
+      <emu-clause id="sec-ts-ambient-variable-declarations-static-semantics-early-errors">
+        <h1>Static Semantics: Early Errors</h1>
+        <emu-grammar>
+          EnumReferenceKeyExpression :
+            NumericLiteral
+            `-` NumericLiteral
+        </emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if NumericValue of |NumericLiteral| is a BigInt.
+          </li>
+        </ul>
+      </emu-clause>
+    </emu-clause>
+    <emu-clause id="sec-ts-ambient-function-declarations">
+      <h1>Ambient Function Declarations and Overloads</h1>
+      <emu-grammar type="definition">
+        AmbientFunctionDeclaration[Yield, Await, Default] :
+          `function` BindingIdentifier[?Yield, ?Await] TypeParameters[?Yield, ?Await]? `(` FormalParameters[~Yield, ~Await] `)` TypeAnnotation[?Yield, ?Await]? `;`
+          [+Default] `function` TypeParameters[?Yield, ?Await]? `(` FormalParameters[~Yield, ~Await] `)` TypeAnnotation[?Yield, ?Await]? `;`
+
+        FunctionOverloadDeclaration[Yield, Await, Default] :
+          `function` BindingIdentifier[?Yield, ?Await] TypeParameters[?Yield, ?Await]? `(` FormalParameters[~Yield, ~Await] `)` TypeAnnotation[?Yield, ?Await]? `;`
+          `async` [no LineTerminator here] `function` BindingIdentifier[?Yield, ?Await] TypeParameters[?Yield, ?Await]? `(` FormalParameters[~Yield, +Await] `)` TypeAnnotation[?Yield, ?Await]? `;`
+          `function` `*` BindingIdentifier[?Yield, ?Await] TypeParameters[?Yield, ?Await]? `(` FormalParameters[+Yield, ~Await] `)` TypeAnnotation[?Yield, ?Await]? `;`
+          `async` [no LineTerminator here] `function` BindingIdentifier[?Yield, ?Await] TypeParameters[?Yield, ?Await]? `(` FormalParameters[+Yield, +Await] `)` TypeAnnotation[?Yield, ?Await]? `;`
+          [+Default] `function` TypeParameters[?Yield, ?Await]? `(` FormalParameters[~Yield, ~Await] `)` TypeAnnotation[?Yield, ?Await]? `;`
+          [+Default] `async` [no LineTerminator here] `function` TypeParameters[?Yield, ?Await]? `(` FormalParameters[~Yield, +Await] `)` TypeAnnotation[?Yield, ?Await]? `;`
+          [+Default] `function` `*` TypeParameters[?Yield, ?Await]? `(` FormalParameters[+Yield, ~Await] `)` TypeAnnotation[?Yield, ?Await]? `;`
+          [+Default] `async` [no LineTerminator here] `function` `*` TypeParameters[?Yield, ?Await]? `(` FormalParameters[+Yield, +Await] `)` TypeAnnotation[?Yield, ?Await]? `;`
+      </emu-grammar>
+      <emu-note>
+        <p>There is no async and/or generator ambient function declarations. `async` and `*` are stripped when generating declaration files.</p>
+      </emu-note>
+      <emu-note>
+        <p>|FunctionOverloadDeclaration| must be placed before a |HoistableDeclaration| or another |FunctionOverloadDeclaration| of the same name.</p>
+        <p>This restriction is fairly marginal; it can be thought of as syntax error or type error. Here we classify it as a type error.</p>
+      </emu-note>
+      <emu-clause id="sec-ts-ambient-function-declarations-static-semantics-early-errors">
+        <h1>Static Semantics: Early Errors</h1>
+        <emu-grammar>
+          AmbientFunctionDeclaration :
+            `function` BindingIdentifier TypeParameters? `(` FormalParameters `)` TypeAnnotation? `;`
+            `function` TypeParameters? `(` FormalParameters `)` TypeAnnotation? `;`
+
+          FunctionOverloadDeclaration :
+            `function` BindingIdentifier TypeParameters? `(` FormalParameters `)` TypeAnnotation? `;`
+            `async` `function` BindingIdentifier TypeParameters? `(` FormalParameters `)` TypeAnnotation? `;`
+            `function` `*` BindingIdentifier TypeParameters? `(` FormalParameters `)` TypeAnnotation? `;`
+            `async` `function` `*` BindingIdentifier TypeParameters? `(` FormalParameters `)` TypeAnnotation? `;`
+            `function` TypeParameters? `(` FormalParameters `)` TypeAnnotation? `;`
+            `async` `function` TypeParameters? `(` FormalParameters `)` TypeAnnotation? `;`
+            `function` `*` TypeParameters? `(` FormalParameters `)` TypeAnnotation? `;`
+            `async` `function` `*` TypeParameters? `(` FormalParameters `)` TypeAnnotation? `;`
+        </emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if ContainsExpression of |FormalParameters| is *true*.
+          </li>
+        </ul>
+        <emu-note>
+          <p>Actual parsers implement these rules in various ways.</p>
+          <ul>
+            <li>Babel and SWC allow default values for parameters in ambient function declarations and overloads.</li>
+            <li>Babel and SWC allow default values for binding patterns in parameters in ambient function declarations and overloads.</li>
+          </ul>
+        </emu-note>
+      </emu-clause>
     </emu-clause>
   </emu-clause>
 </emu-clause>
