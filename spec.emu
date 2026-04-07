@@ -325,6 +325,44 @@
       <p>It is possible to implement the rescanning inversely, first tokenizing them as one-letter tokens and then combining them as needed. TSC does this for `&gt;`.</p>
     </emu-note>
   </emu-clause>
+  <emu-clause id="sec-jsx-tokens">
+    <h1>JSX Tokens</h1>
+    <emu-clause id="sec-jsx-identifier-names">
+      <h1>JSX Identifier Names</h1>
+      <emu-grammar type="definition">
+        JSXIdentifierName ::
+          IdentifierStart
+          JSXIdentifierName JSXIdentifierPart
+
+        JSXIdentifierPart ::
+          JSXIdentifierPartChar
+          `\` UnicodeEscapeSequence
+
+        JSXIdentifierPartChar ::
+          IdentifierPartChar
+          `-`
+      </emu-grammar>
+      <emu-note>
+        <p>|JSXIdentifierName| is |IdentifierName| with the addition of the `-` character.</p>
+      </emu-note>
+      <emu-clause id="sec-jsx-identifier-names-static-semantics-early-errors">
+        <h1>Static Semantics: Early Errors</h1>
+        <emu-grammar>JSXIdentifierPart :: `\` UnicodeEscapeSequence</emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if the IdentifierCodePoint of |UnicodeEscapeSequence| is not some Unicode code point matched by the |JSXIdentifierPartChar| lexical grammar production.
+          </li>
+        </ul>
+        <emu-note>
+          <p>Actual parsers implement these rules in various ways.</p>
+          <ul>
+            <li>TSC and SWC disallows |UnicodeEscapeSequence| whose IdentifierCodePoint is `-`, while allowing escapes that match |IdentifierPartChar|.</li>
+            <li>Babel disallows |JSXIdentifierName| that includes any |UnicodeEscapeSequence|.</li>
+          </ul>
+        </emu-note>
+      </emu-clause>
+    </emu-clause>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="sec-typescript-language-types">
