@@ -1093,6 +1093,57 @@
 <emu-clause id="sec-typescript-language-expressions">
   <h1>TypeScript Language: Expressions</h1>
   <p>This section extends <emu-xref href="#sec-ecmascript-language-expressions">ECMAScript Language: Expressions</emu-xref> to support TypeScript-specific expressions.</p>
+  <emu-clause id="sec-ts-primary-expression">
+    <h1>Primary Expressions</h1>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-PrimaryExpression">PrimaryExpression</a>:</p>
+    <emu-grammar type="definition">
+      PrimaryExpression[Yield, Await] :
+        `this`
+        IdentifierReference[?Yield, ?Await]
+        Literal
+        ArrayLiteral[?Yield, ?Await]
+        ObjectLiteral[?Yield, ?Await]
+        FunctionExpression
+        ClassExpression[?Yield, ?Await]
+        GeneratorExpression
+        AsyncFunctionExpression
+        AsyncGeneratorExpression
+        RegularExpressionLiteral
+        TemplateLiteral[?Yield, ?Await, ~Tagged]
+        ParenthesizedExpression[?Yield, ?Await]
+        JSXElement[?Yield, ?Await]
+        JSXFragment[?Yield, ?Await]
+    </emu-grammar>
+    <emu-note>
+      <p>|PrimaryExpression| originally referenced |CoverParenthesizedExpressionAndArrowParameterList|. See <emu-xref href="#sec-ts-backtracking">Backtracking over cover grammars</emu-xref> for the rationale.</p>
+      <p>Disambiguation between |ArrowHead| and parenthesized expressions in |PrimaryExpression| is still necessary. Most parsers implement it using backtracking, optionally with bounded lookahead for optimization.</p>
+    </emu-note>
+    <emu-clause id="sec-ts-primary-expression-syntax-alterations">
+      <h1>Syntax Alterations</h1>
+      <p>When [[TypeScript]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and [[JSX]] of the same syntax context is *false*, we remove the following productions from the grammar of |PrimaryExpression|:</p>
+      <emu-grammar>
+        PrimaryExpression[Yield, Await] :
+          JSXElement[?Yield, ?Await]
+          JSXFragment[?Yield, ?Await]
+      </emu-grammar>
+      <emu-note>
+        <p>Only one of JSX tags and legacy type assertions can be enabled at a time. When neither of [[TypeScript]] nor [[JSX]] is enabled, the choice is arbitrary as we would rule it out with Early Errors anyway. We choose to enable JSX tags in this case to imitate TSC's behaviour.</p>
+      </emu-note>
+    </emu-clause>
+    <emu-clause id="sec-ts-primary-expression-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>
+        PrimaryExpression :
+          JSXElement
+          JSXFragment
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if [[JSX]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+        </li>
+      </ul>
+    </emu-clause>
+  </emu-clause>
   <emu-clause id="sec-ts-left-hand-side-expressions">
     <h1>Left-Hand-Side Expressions</h1>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-MemberExpression">MemberExpression</a>:</p>
@@ -1141,6 +1192,10 @@
         OptionalChain[?Yield, ?Await] [no LineTerminator here] `!`
         OptionalChain[?Yield, ?Await] ExpressionTypeArguments[?Yield, ?Await]
     </emu-grammar>
+    <emu-note>
+      <p>|CallExpression| originally referenced |CoverCallExpressionAndAsyncArrowHead|. See <emu-xref href="#sec-ts-backtracking">Backtracking over cover grammars</emu-xref> for the rationale.</p>
+      <p>Disambiguation between |AsyncArrowHead| and |CallMemberExpression| is still necessary. Most parsers implement it using backtracking, optionally with bounded lookahead for optimization.</p>
+    </emu-note>
     <emu-note>
       <p>|ExpressionTypeArguments| that are not attached to a function call or a `new` expression are called Instantiation Expressions.</p>
 
@@ -2099,6 +2154,10 @@
       AsyncArrowHead[Yield] :
         `async` [no LineTerminator here] TypeParameters[?Yield, ?Await]? ArrowFormalParameters[?Yield, +Await] ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
     </emu-grammar>
+    <emu-note>
+      <p>|AsyncArrowFunction| originally referenced |CoverCallExpressionAndAsyncArrowHead|. See <emu-xref href="#sec-ts-backtracking">Backtracking over cover grammars</emu-xref> for the rationale.</p>
+      <p>Disambiguation between |AsyncArrowHead| and |CallMemberExpression| is still necessary. Most parsers implement it using backtracking, optionally with bounded lookahead for optimization.</p>
+    </emu-note>
     <emu-note>
       <p>This specification slightly alters the use of |ArrowFormalParameters|, namely by switching from <sub>[~Yield]</sub> to <sub>[?Yield]</sub>.</p>
       <p>This is to accommodate the removal of cover grammars; the use of an identifier named `yield` in an async arrow function parameter list in a non-strict generator context should have been ruled out when first parsed as |MemberExpression|. This specification uses <sub>[?Yield]</sub> to correctly reflect this behavior.</p>
