@@ -344,6 +344,7 @@
       </emu-grammar>
       <emu-note>
         <p>|JSXIdentifierName| is |IdentifierName| with the addition of the `-` character.</p>
+        <p>Trailing `-`s and consecutive `-`s are also allowed.</p>
       </emu-note>
       <emu-clause id="sec-jsx-identifier-names-static-semantics-early-errors">
         <h1>Static Semantics: Early Errors</h1>
@@ -356,8 +357,40 @@
         <emu-note>
           <p>Actual parsers implement these rules in various ways.</p>
           <ul>
-            <li>TSC and SWC disallows |UnicodeEscapeSequence| whose IdentifierCodePoint is `-`, while allowing escapes that match |IdentifierPartChar|.</li>
-            <li>Babel disallows |JSXIdentifierName| that includes any |UnicodeEscapeSequence|.</li>
+            <li>SWC disallows |UnicodeEscapeSequence| whose IdentifierCodePoint is `-`, while allowing escapes that match |IdentifierPartChar|.</li>
+            <li>TSC and Babel disallows |JSXIdentifierName| that includes any |UnicodeEscapeSequence|.</li>
+          </ul>
+        </emu-note>
+      </emu-clause>
+      <emu-clause id="sec-static-semantics-is-jsx-literal-name" type="sdo">
+        <h1>
+          Runtime Semantics: IsJSXLiteralName ( ): a Boolean
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-grammar>
+          JSXIdentifierName ::
+            IdentifierStart
+            JSXIdentifierName JSXIdentifierPart
+        </emu-grammar>
+        <emu-alg>
+          1. Let _name_ be the IdentifierCodePoints of this |JSXIdentifierName|.
+          1. Assert: _name_ is not empty.
+          1. Let _nameStart_ be the first code point of _name_.
+          1. If _nameStart_ is an ASCII lowercase letter, return *true*.
+          1. If _name_ contains `-`, return *true*.
+          1. Return *false*.
+        </emu-alg>
+        <emu-note>
+          <p>Examples:</p>
+          <ul>
+            <li>The tag name of `&lt;div /&gt;` is `"div"`, a string literal, because it starts with an ASCII lowercase letter.</li>
+            <li>The tag name of `&lt;my-component /&gt;` is `"my-component"`, a string literal, because it contains a `-`. It also starts with an ASCII lowercase letter.</li>
+            <li>The tag name of `&lt;My-Component /&gt;` is `"My-Component"`, a string literal, because it contains a `-`.</li>
+            <li>The tag name of `&lt;MyComponent /&gt;` is `MyComponent`, an identifier, because it does not start with an ASCII lowercase letter and does not contain a `-`.</li>
+            <li>The tag name of `&lt;あ /&gt;` is `あ`, an identifier, because `あ` is not a lowercase letter.</li>
+            <li>The tag name of `&lt;π /&gt;` is `π`, an identifier. Although `π` is a lowercase letter, it is not a part of ASCII.</li>
+            <li>The tag name of `&lt;à /&gt;` depends on whether `à` is represented in its NFC or NFD form. In its NFC form, it is an identifier as the first code point `à` is not in ASCII. In its NFD form, it is a string literal as the first code point is `a`.</li>
           </ul>
         </emu-note>
       </emu-clause>
