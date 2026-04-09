@@ -457,6 +457,7 @@
           JSXMultilineWhiteSpace WhiteSpace
           JSXMultilineWhiteSpace LineTerminator
       </emu-grammar>
+      <p>|NamedCharacterReference| is a set of names as defined in <a href="https://html.spec.whatwg.org/multipage/named-characters.html">HTML Standard §13.5</a>.</p>
       <emu-note>
         <p>JSX Text is the longest sequence terminated by a `{` or `<`, and interpreted as follows:</p>
         <ul>
@@ -475,6 +476,7 @@
         <p>JavaScript comments or JavaScript string escapes are not interpreted within JSX text.</p>
       </emu-note>
       <emu-note>
+        <p>There is a difference in how character references are handled in JSX compared to <a href="https://html.spec.whatwg.org/multipage/parsing.html">HTML parsing</a>:</p>
         <p>Unlike HTML, omission of `;` in a character reference results in a verbatim interpretation of the `&` character.</p>
         <p>Unlike HTML, numbered character references to C1 control characters are interpreted as they are; they are not replaced with the corresponding Windows-1252 characters.</p>
       </emu-note>
