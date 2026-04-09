@@ -403,9 +403,11 @@
           JSXText
           JSXIgnoredWhiteSpace
           `&lt;`
-          `&lt;/`
           `{`
       </emu-grammar>
+      <emu-note>
+        <p>TSC and SWC tokenizes `&lt;/` here in addition. See note in <emu-xref href="#sec-jsx-elements-and-fragments">JSX Elements and Fragments</emu-xref>.</p>
+      </emu-note>
       <p>For this goal, |JSXIgnoredWhiteSpace| is discarded, except when it appears as part of |JSXText|.</p>
       <p>Unlike ordinary tokenization goals, this goal does not have |WhiteSpace|, |LineTerminator|, or |Comment|. They are not skipped like in other places.</p>
       <p>The following nonterminals are defined for use in this goal:</p>
@@ -1332,6 +1334,57 @@
           It is a Syntax Error if [[JSX]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
         </li>
       </ul>
+    </emu-clause>
+    <emu-clause id="sec-jsx-elements-and-fragments">
+      <h1>JSX Elements and Fragments</h1>
+      <emu-grammar type="definition">
+        JSXElement[Yield, Await] :
+          JSXSelfClosingElement[?Yield, ?Await]
+          JSXOpeningElement[?Yield, ?Await] JSXChildren[?Yield, ?Await]? JSXClosingElement[?Yield, ?Await]
+
+        JSXFragment[Yield, Await] :
+          `&lt;` `&gt;` JSXChildren[?Yield, ?Await]? `&lt;` `/` `&gt;`
+
+        JSXSelfClosingElement[Yield, Await] :
+          `&lt;` JSXTagName JSXAttributes[?Yield, ?Await]? `/` `&gt;`
+
+        JSXOpeningElement[Yield, Await] :
+          `&lt;` JSXTagName JSXAttributes[?Yield, ?Await]? `&gt;`
+
+        JSXClosingElement[Yield, Await] :
+          `&lt;` `/` JSXTagName `&gt;`
+
+        JSXTagName :
+          JSXIdentifierName
+          JSXNamespacedName
+          JSXMemberExpression
+
+        JSXNamespacedName :
+          JSXIdentifierName `:` JSXIdentifierName
+
+        JSXMemberExpression :
+          JSXIdentifierName `.` JSXIdentifierName
+          JSXMemberExpression `.` JSXIdentifierName
+      </emu-grammar>
+      <emu-note>
+        <p>Whitespace is allowed within JSX elements where it is disallowed in HTML.</p>
+        <p>For example, the following are all valid JSX elements:</p>
+        <ul>
+          <li>`&lt; div &gt;&lt;/ div &gt;`</li>
+          <li>`&lt; div &gt;&lt; / div &gt;`, though TSC and SWC disallow it</li>
+          <li>`&lt; img / &gt;`</li>
+          <li>`&lt;svg : path&gt;&lt;/svg : path&gt;`</li>
+        </ul>
+      </emu-note>
+      <emu-note>
+        <p>|JSXIdentifierName| does not exclude reserved words. Therefore, `&lt;var/&gt;` is a valid JSX element.</p>
+      </emu-note>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>TSC and SWC disallow whitespace between `&lt;` and `/`.</li>
+        </ul>
+      </emu-note>
     </emu-clause>
   </emu-clause>
   <emu-clause id="sec-ts-left-hand-side-expressions">
