@@ -362,6 +362,24 @@
           </ul>
         </emu-note>
       </emu-clause>
+      <emu-clause id="sec-static-semantics-has-hyphen" type="sdo">
+        <h1>
+          Runtime Semantics: HasHyphen ( ): a Boolean
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-grammar>
+          JSXIdentifierName ::
+            IdentifierStart
+            JSXIdentifierName JSXIdentifierPart
+        </emu-grammar>
+        <emu-alg>
+          1. Let _name_ be the IdentifierCodePoints of this |JSXIdentifierName|.
+          1. If _name_ contains `-`, return *true*.
+          1. Assert: this |JSXIdentifierName| matches |IdentifierName|.
+          1. Return *false*.
+        </emu-alg>
+      </emu-clause>
       <emu-clause id="sec-static-semantics-is-jsx-literal-name" type="sdo">
         <h1>
           Runtime Semantics: IsJSXLiteralName ( ): a Boolean
@@ -378,7 +396,8 @@
           1. Assert: _name_ is not empty.
           1. Let _nameStart_ be the first code point of _name_.
           1. If _nameStart_ is an ASCII lowercase letter, return *true*.
-          1. If _name_ contains `-`, return *true*.
+          1. If HasHyphen of this |JSXIdentifierName| is *true*, return *true*.
+          1. Assert: this |JSXIdentifierName| matches |IdentifierName|.
           1. Return *false*.
         </emu-alg>
         <emu-note>
@@ -1346,15 +1365,15 @@
           `&lt;` `&gt;` JSXChildren[?Yield, ?Await]? `&lt;` `/` `&gt;`
 
         JSXSelfClosingElement[Yield, Await] :
-          `&lt;` JSXTagName JSXAttributes[?Yield, ?Await]? `/` `&gt;`
+          `&lt;` JSXElementName JSXAttributes[?Yield, ?Await]? `/` `&gt;`
 
         JSXOpeningElement[Yield, Await] :
-          `&lt;` JSXTagName JSXAttributes[?Yield, ?Await]? `&gt;`
+          `&lt;` JSXElementName JSXAttributes[?Yield, ?Await]? `&gt;`
 
         JSXClosingElement[Yield, Await] :
-          `&lt;` `/` JSXTagName `&gt;`
+          `&lt;` `/` JSXElementName `&gt;`
 
-        JSXTagName :
+        JSXElementName :
           JSXIdentifierName
           JSXNamespacedName
           JSXMemberExpression
@@ -1385,6 +1404,27 @@
           <li>TSC and SWC disallow whitespace between `&lt;` and `/`.</li>
         </ul>
       </emu-note>
+      <emu-clause id="sec-jsx-elements-and-fragments-static-semantics-early-errors">
+        <h1>Static Semantics: Early Errors</h1>
+        <emu-grammar>
+          JSXMemberExpression :
+            JSXIdentifierName `.` JSXIdentifierName
+            JSXMemberExpression `.` JSXIdentifierName
+        </emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if HasHyphen of any |JSXIdentifierName| of this production is *true*.
+          </li>
+        </ul>
+        <emu-note>
+          <p>Actual parsers implement these rules in various ways.</p>
+          <ul>
+            <li>TSC allows hyphens in the object part of a |JSXMemberExpression|, and emits the code as it is, therefore would be unintentionally reparsed as subtraction or other expressions.</li>
+            <li>SWC allows hyphens in the object part and the property part of a |JSXMemberExpression|, and emits the code as it is, therefore would be unintentionally reparsed as subtraction or other expressions.</li>
+            <li>Babel allows hyphens in the object part of a |JSXMemberExpression|, and emits the object part as a string literal.</li>
+          </ul>
+        </emu-note>
+      </emu-clause>
     </emu-clause>
   </emu-clause>
   <emu-clause id="sec-ts-left-hand-side-expressions">
