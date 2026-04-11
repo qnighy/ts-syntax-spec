@@ -329,6 +329,35 @@
     <h1>JSX Tokens</h1>
     <emu-clause id="sec-jsx-identifier-names">
       <h1>JSX Identifier Names</h1>
+      <p>Where |JSXIdentifierName| is allowed as the next token, the following goal is used instead of |InputElementDiv| or relevant tokenization goals.</p>
+      <emu-grammar type="definition">
+        InputElementJSXIdentifier ::
+          WhiteSpace
+          LineTerminator
+          Comment
+          JSXIdentifierName
+          `{`
+          `&lt;`
+          `&gt;`
+          `/`
+          `.`
+          `:`
+          `=`
+      </emu-grammar>
+      <emu-note>
+        <p>The possible occurrences of this goal are:</p>
+        <ul>
+          <li>In |JSXSelfClosingElement| or |JSXOpeningElement|, after `&lt;`</li>
+          <li>In |JSXClosingElement|, after `&lt;` `/`</li>
+          <li>In |JSXFragment|, after the first `&lt;`, because it is still ambiguous with |JSXOpeningElement| at this position.</li>
+          <li>In |JSXNamespacedName|, after`:`</li>
+          <li>In |JSXMemberExpression|, after `.`</li>
+          <li>After any |JSXElementName|, which is always closed by |JSXIdentifierName|</li>
+          <li>In |JSXSelfClosingElement| or |JSXOpeningElement|, after |TypeArguments|, which is closed by `&gt;`</li>
+          <li>After |JSXAttributeListElement|, which is closed by `}`, `&gt;`, or |JSXStringLiteral|</li>
+        </ul>
+        <p>Typically you can tokenize |InputElementDiv| except when |IdentifierName| is found, you need to rescan it as |JSXIdentifierName|.</p>
+      </emu-note>
       <emu-grammar type="definition">
         JSXIdentifierName ::
           JSXIdentifierStart
@@ -470,6 +499,21 @@
           `&lt;`
           `{`
       </emu-grammar>
+      <emu-note>
+        <p>The possible occurrences of this goal are:</p>
+        <ul>
+          <li>In |JSXElement|, after |JSXOpeningElement|, which is always closed by `&gt;`</li>
+          <li>In |JSXFragment|, after `&gt;`</li>
+          <li>After |JSXChildren|, which is closed by `}` or `/` `&gt;`</li>
+        </ul>
+        <p>Note the lexical goal after |JSXElement| and |JSXFragment| depends on the context where |JSXElement| or |JSXFragment| appears.</p>
+        <ul>
+          <li>If it is derived as part of |JSXChild|, the next lexical goal is |InputElementJSXText|.</li>
+          <li>If it is derived as part of |PrimaryExpression|, the next lexical goal is |InputElementDiv| or |InputElementTemplateTail|.</li>
+          <li>If it is derived as part of |JSXAttributeValue|, the next lexical goal is |InputElementJSXIdentifier|.</li>
+        </ul>
+        <p>The parser must not apply usual whitespace/comment skipping rules in this context. The tokenization rule is totally different here from other contexts.</p>
+      </emu-note>
       <emu-note>
         <p>TSC and SWC tokenizes `&lt;/` here in addition. See note in <emu-xref href="#sec-jsx-elements-and-fragments">JSX Elements and Fragments</emu-xref>.</p>
       </emu-note>
@@ -2748,6 +2792,29 @@
       <ul>
         <li>Babel and SWC allow |Expression|s (comma operators) to appear without parentheses in |JSXAttributeValue|'s expression container, delimited by `{` `}`.</li>
         <li>TypeScript allows |Expression|s (comma operators) to appear without parentheses in |JSXSpreadAttribute|.</li>
+      </ul>
+    </emu-note>
+  </emu-clause>
+  <emu-clause id="sec-jsx-children">
+    <h1>JSX Children</h1>
+    <emu-grammar type="definition">
+      JSXChildren[Yield, Await] :
+        JSXChild[?Yield, ?Await]
+        JSXChildren[?Yield, ?Await] JSXChild[?Yield, ?Await]
+
+      JSXChild[Yield, Await] :
+        JSXText
+        `{` `}`
+        `{` AssignmentExpression[?Yield, ?Await] `}`
+        `{` `...` AssignmentExpression[?Yield, ?Await] `}`
+        JSXElement[?Yield, ?Await]
+        JSXFragment[?Yield, ?Await]
+    </emu-grammar>
+    <emu-note>
+      <p>Actual parsers implement these rules in various ways.</p>
+      <ul>
+        <li>Babel and SWC allow |Expression|s (comma operators) in `{` `}` or `{` `...` `}`.</li>
+        <!-- TODO: Babel is also different in that it does not transpile `{...child}` for React. -->
       </ul>
     </emu-note>
   </emu-clause>
