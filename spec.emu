@@ -1406,143 +1406,6 @@
         </li>
       </ul>
     </emu-clause>
-    <emu-clause id="sec-jsx-elements-and-fragments">
-      <h1>JSX Elements and Fragments</h1>
-      <emu-grammar type="definition">
-        JSXElement[Yield, Await] :
-          JSXSelfClosingElement[?Yield, ?Await]
-          JSXOpeningElement[?Yield, ?Await] JSXChildren[?Yield, ?Await]? JSXClosingElement[?Yield, ?Await]
-
-        JSXFragment[Yield, Await] :
-          `&lt;` `&gt;` JSXChildren[?Yield, ?Await]? `&lt;` `/` `&gt;`
-
-        JSXSelfClosingElement[Yield, Await] :
-          `&lt;` JSXElementName JSXAttributes[?Yield, ?Await]? `/` `&gt;`
-
-        JSXOpeningElement[Yield, Await] :
-          `&lt;` JSXElementName JSXAttributes[?Yield, ?Await]? `&gt;`
-
-        JSXClosingElement[Yield, Await] :
-          `&lt;` `/` JSXElementName `&gt;`
-
-        JSXElementName :
-          JSXIdentifierName
-          JSXNamespacedName
-          JSXMemberExpression
-
-        JSXNamespacedName :
-          JSXIdentifierName `:` JSXIdentifierName
-
-        JSXMemberExpression :
-          JSXMemberExpressionBase `.` JSXIdentifierName
-          JSXMemberExpression `.` JSXIdentifierName
-
-        JSXMemberExpressionBase :
-          JSXIdentifierName
-      </emu-grammar>
-      <emu-note>
-        <p>Whitespace is allowed within JSX elements where it is disallowed in HTML.</p>
-        <p>For example, the following are all valid JSX elements:</p>
-        <ul>
-          <li>`&lt; div &gt;&lt;/ div &gt;`</li>
-          <li>`&lt; div &gt;&lt; / div &gt;`, though TSC and SWC disallow it</li>
-          <li>`&lt; img / &gt;`</li>
-          <li>`&lt;svg : path&gt;&lt;/svg : path&gt;`</li>
-        </ul>
-      </emu-note>
-      <emu-note>
-        <p>|JSXIdentifierName| does not exclude reserved words. Therefore, `&lt;var/&gt;` is a valid JSX element.</p>
-      </emu-note>
-      <emu-note>
-        <p>Actual parsers implement these rules in various ways.</p>
-        <ul>
-          <li>TSC and SWC disallow whitespace between `&lt;` and `/`.</li>
-        </ul>
-      </emu-note>
-      <emu-clause id="sec-jsx-elements-and-fragments-static-semantics-early-errors">
-        <h1>Static Semantics: Early Errors</h1>
-        <emu-grammar>
-          JSXMemberExpression :
-            JSXMemberExpressionBase `.` JSXIdentifierName
-            JSXMemberExpression `.` JSXIdentifierName
-        </emu-grammar>
-        <ul>
-          <li>
-            It is a Syntax Error if HasHyphen of |JSXIdentifierName| is *true*.
-          </li>
-        </ul>
-        <emu-note>
-          <p>Actual parsers implement these rules in various ways.</p>
-          <ul>
-            <li>SWC allows hyphens the property name here, and emits the code as it is, therefore would be unintentionally reparsed as subtraction or other expressions.</li>
-          </ul>
-        </emu-note>
-        <emu-grammar>
-          JSXMemberExpressionBase :
-            JSXIdentifierName
-        </emu-grammar>
-        <ul>
-          <li>
-            It is a Syntax Error if HasHyphen of |JSXIdentifierName| is *true*.
-          </li>
-        </ul>
-        <emu-note>
-          <p>Actual parsers implement these rules in various ways.</p>
-          <ul>
-            <li>TSC and SWC allow hyphens in the expression here, and emits the code as it is, therefore would be unintentionally reparsed as subtraction or other expressions.</li>
-            <li>Babel allows hyphens in the expression here, and emits it as a string literal.</li>
-          </ul>
-        </emu-note>
-        <emu-grammar>
-          JSXElement :
-            JSXOpeningElement JSXChildren? JSXClosingElement
-        </emu-grammar>
-        <ul>
-          <li>
-            It is a Syntax Error if the StringValue of |JSXElementName| of |JSXOpeningElement| does not match the StringValue of |JSXElementName| of |JSXClosingElement|.
-          </li>
-        </ul>
-      </emu-clause>
-      <emu-clause id="sec-jsx-elements-static-semantics-string-value" type="sdo">
-        <h1>Static Semantics: StringValue</h1>
-        <emu-grammar>
-          JSXNamespacedName :
-            JSXIdentifierName `:` JSXIdentifierName
-        </emu-grammar>
-        <emu-alg>
-          1. Let _namespace_ be the StringValue of the first |JSXIdentifierName|.
-          2. Let _name_ be the StringValue of the second |JSXIdentifierName|.
-          3. Return the concatenation of _namespace_, U+003A (COLON), and _name_.
-        </emu-alg>
-        <emu-grammar>
-          JSXIdentifierName ::
-            IdentifierStart
-            JSXIdentifierName JSXIdentifierPart
-        </emu-grammar>
-        <emu-alg>
-          1. Let _idTextUnescaped_ be the IdentifierCodePoints of |JSXIdentifierName|.
-          1. Return CodePointsToString(_idTextUnescaped_).
-        </emu-alg>
-        <emu-grammar>
-          JSXMemberExpression :
-            JSXMemberExpressionBase `.` JSXIdentifierName
-        </emu-grammar>
-        <emu-alg>
-          1. Let _object_ be the StringValue of |JSXMemberExpressionBase|.
-          2. Let _property_ be the StringValue of |JSXIdentifierName|.
-          3. Return the concatenation of _object_, U+002E (FULL STOP), and _property_.
-        </emu-alg>
-        <emu-grammar>
-          JSXMemberExpressionBase :
-            JSXMemberExpression `.` JSXIdentifierName
-        </emu-grammar>
-        <emu-alg>
-          1. Let _object_ be the StringValue of |JSXMemberExpression|.
-          2. Let _property_ be the StringValue of |JSXIdentifierName|.
-          3. Return the concatenation of _object_, U+002E (FULL STOP), and _property_.
-        </emu-alg>
-      </emu-clause>
-    </emu-clause>
   </emu-clause>
   <emu-clause id="sec-ts-left-hand-side-expressions">
     <h1>Left-Hand-Side Expressions</h1>
@@ -2572,6 +2435,147 @@
         <li>When JSX is enabled, TSC and SWC impose the same lookahead restriction as |ArrowFunction|.</li>
       </ul>
     </emu-note>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-jsx-expressions">
+  <h1>JSX Expressions</h1>
+  <emu-clause id="sec-jsx-elements-and-fragments">
+    <h1>JSX Elements and Fragments</h1>
+    <emu-grammar type="definition">
+      JSXElement[Yield, Await] :
+        JSXSelfClosingElement[?Yield, ?Await]
+        JSXOpeningElement[?Yield, ?Await] JSXChildren[?Yield, ?Await]? JSXClosingElement[?Yield, ?Await]
+
+      JSXFragment[Yield, Await] :
+        `&lt;` `&gt;` JSXChildren[?Yield, ?Await]? `&lt;` `/` `&gt;`
+
+      JSXSelfClosingElement[Yield, Await] :
+        `&lt;` JSXElementName JSXAttributes[?Yield, ?Await]? `/` `&gt;`
+
+      JSXOpeningElement[Yield, Await] :
+        `&lt;` JSXElementName JSXAttributes[?Yield, ?Await]? `&gt;`
+
+      JSXClosingElement[Yield, Await] :
+        `&lt;` `/` JSXElementName `&gt;`
+
+      JSXElementName :
+        JSXIdentifierName
+        JSXNamespacedName
+        JSXMemberExpression
+
+      JSXNamespacedName :
+        JSXIdentifierName `:` JSXIdentifierName
+
+      JSXMemberExpression :
+        JSXMemberExpressionBase `.` JSXIdentifierName
+        JSXMemberExpression `.` JSXIdentifierName
+
+      JSXMemberExpressionBase :
+        JSXIdentifierName
+    </emu-grammar>
+    <emu-note>
+      <p>Whitespace is allowed within JSX elements where it is disallowed in HTML.</p>
+      <p>For example, the following are all valid JSX elements:</p>
+      <ul>
+        <li>`&lt; div &gt;&lt;/ div &gt;`</li>
+        <li>`&lt; div &gt;&lt; / div &gt;`, though TSC and SWC disallow it</li>
+        <li>`&lt; img / &gt;`</li>
+        <li>`&lt;svg : path&gt;&lt;/svg : path&gt;`</li>
+      </ul>
+    </emu-note>
+    <emu-note>
+      <p>|JSXIdentifierName| does not exclude reserved words. Therefore, `&lt;var/&gt;` is a valid JSX element.</p>
+    </emu-note>
+    <emu-note>
+      <p>Actual parsers implement these rules in various ways.</p>
+      <ul>
+        <li>TSC and SWC disallow whitespace between `&lt;` and `/`.</li>
+      </ul>
+    </emu-note>
+    <emu-clause id="sec-jsx-elements-and-fragments-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>
+        JSXMemberExpression :
+          JSXMemberExpressionBase `.` JSXIdentifierName
+          JSXMemberExpression `.` JSXIdentifierName
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if HasHyphen of |JSXIdentifierName| is *true*.
+        </li>
+      </ul>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>SWC allows hyphens the property name here, and emits the code as it is, therefore would be unintentionally reparsed as subtraction or other expressions.</li>
+        </ul>
+      </emu-note>
+      <emu-grammar>
+        JSXMemberExpressionBase :
+          JSXIdentifierName
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if HasHyphen of |JSXIdentifierName| is *true*.
+        </li>
+      </ul>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>TSC and SWC allow hyphens in the expression here, and emits the code as it is, therefore would be unintentionally reparsed as subtraction or other expressions.</li>
+          <li>Babel allows hyphens in the expression here, and emits it as a string literal.</li>
+        </ul>
+      </emu-note>
+      <emu-grammar>
+        JSXElement :
+          JSXOpeningElement JSXChildren? JSXClosingElement
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if the StringValue of |JSXElementName| of |JSXOpeningElement| does not match the StringValue of |JSXElementName| of |JSXClosingElement|.
+        </li>
+      </ul>
+    </emu-clause>
+    <emu-clause id="sec-jsx-elements-static-semantics-string-value" type="sdo">
+      <h1>Static Semantics: StringValue</h1>
+      <emu-grammar>
+        JSXNamespacedName :
+          JSXIdentifierName `:` JSXIdentifierName
+      </emu-grammar>
+      <emu-alg>
+        1. Let _namespace_ be the StringValue of the first |JSXIdentifierName|.
+        2. Let _name_ be the StringValue of the second |JSXIdentifierName|.
+        3. Return the concatenation of _namespace_, U+003A (COLON), and _name_.
+      </emu-alg>
+      <emu-grammar>
+        JSXIdentifierName ::
+          IdentifierStart
+          JSXIdentifierName JSXIdentifierPart
+      </emu-grammar>
+      <emu-alg>
+        1. Let _idTextUnescaped_ be the IdentifierCodePoints of |JSXIdentifierName|.
+        1. Return CodePointsToString(_idTextUnescaped_).
+      </emu-alg>
+      <emu-grammar>
+        JSXMemberExpression :
+          JSXMemberExpressionBase `.` JSXIdentifierName
+      </emu-grammar>
+      <emu-alg>
+        1. Let _object_ be the StringValue of |JSXMemberExpressionBase|.
+        2. Let _property_ be the StringValue of |JSXIdentifierName|.
+        3. Return the concatenation of _object_, U+002E (FULL STOP), and _property_.
+      </emu-alg>
+      <emu-grammar>
+        JSXMemberExpressionBase :
+          JSXMemberExpression `.` JSXIdentifierName
+      </emu-grammar>
+      <emu-alg>
+        1. Let _object_ be the StringValue of |JSXMemberExpression|.
+        2. Let _property_ be the StringValue of |JSXIdentifierName|.
+        3. Return the concatenation of _object_, U+002E (FULL STOP), and _property_.
+      </emu-alg>
+    </emu-clause>
   </emu-clause>
 </emu-clause>
 
