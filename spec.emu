@@ -475,7 +475,7 @@
           [lookahead != JSXCharacterReference] `&`
 
         JSXLiteralChar ::
-          SourceCharacter but not `&lt;` or `&gt;` or `{` or `}` or `&amp;` or WhiteSpace or LineTerminator
+          SourceCharacter but not one of `&lt;` or `&gt;` or `{` or `}` or `&amp;` or WhiteSpace or LineTerminator
 
         JSXCharacterReference ::
           `&` JSXNamedCharacterReferenceName `;`
@@ -504,7 +504,7 @@
           JSXMultilineWhiteSpace LineTerminator
       </emu-grammar>
       <emu-note>
-        <p>JSX Text is the longest sequence terminated by a `{` or `<`, and interpreted as follows:</p>
+        <p>JSX Text is the longest sequence terminated by a `{` or `&lt;`, and interpreted as follows:</p>
         <ul>
           <li>
             A sequence of white space characters and/or line terminators is interpreted as follows:
@@ -521,13 +521,10 @@
         <p>JavaScript comments or JavaScript string escapes are not interpreted within JSX text.</p>
       </emu-note>
       <emu-note>
-        <p>There is a difference in how character references are handled in JSX compared to <a href="https://html.spec.whatwg.org/multipage/parsing.html">HTML parsing</a>:</p>
-        <p>Unlike HTML, omission of `;` in a character reference results in a verbatim interpretation of the `&` character.</p>
-        <p>Unlike HTML, numbered character references to C1 control characters are interpreted as they are; they are not replaced with the corresponding Windows-1252 characters.</p>
-      </emu-note>
-      <emu-note>
-        <p>TSC and SWC currently hang when parsing |JSXCodePoint| that exceeds the valid Unicode range.</p>
-        <p>SWC currently also hangs when parsing |JSXCodePoint| that designates a surrogate code point.</p>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>Babel allows `&gt;` and `}` in |JSXLiteralChar|.</li>
+        </ul>
       </emu-note>
       <emu-clause id="sec-jsx-text-static-semantics-sv">
         <h1>Static Semantics: SV</h1>
@@ -542,16 +539,46 @@
           <li>The SV of <emu-grammar>JSXTextChar :: JSXLiteralChar</emu-grammar> is the SourceCharacter of its component.</li>
           <li>The SV of <emu-grammar>JSXTextChar :: JSXCharacterReference</emu-grammar> is the SV of |JSXCharacterReference|.</li>
           <li>The SV of <emu-grammar>JSXTextChar :: `&amp;`</emu-grammar> is `&amp;`.</li>
-          <li>The SV of <emu-grammar>JSXCharacterReference :: `&` JSXNamedCharacterReferenceName `;`</emu-grammar> is the Unicode code point corresponding to the named character reference, as defined in the HTML specification.</li>
-          <li>See <emu-xref href="#sec-jsx-named-character-references-static-semantics-sv"></emu-xref> for the SV of <emu-grammar>JSXCharacterReference :: `&` JSXNamedCharacterReferenceName `;`</emu-grammar>.</li>
-          <li>The SV of <emu-grammar>JSXCharacterReference :: `&#` JSXCodePoint `;`</emu-grammar> is the Unicode code point corresponding to the MV of |JSXCodePoint|.</li>
+          <li>See <emu-xref href="#sec-jsx-character-references-static-semantics-sv"></emu-xref> for the SV of <emu-grammar>JSXCharacterReference</emu-grammar>.</li>
           <li>The SV of <emu-grammar>JSXVerbatimWhiteSpace :: JSXInlineWhiteSpace</emu-grammar> is the SourceCharacter of its component.</li>
           <li>The SV of <emu-grammar>JSXCollapsingWhiteSpace :: JSXMultilineWhiteSpace</emu-grammar> is a single space character (U+0020).</li>
           <li>The SV of <emu-grammar>JSXIgnoredWhiteSpace :: JSXMultilineWhiteSpace</emu-grammar> is the empty string.</li>
           <li>The SV of <emu-grammar>JSXInlineWhiteSpace :: WhiteSpace</emu-grammar> is the SourceCharacter of its component.</li>
         </ul>
       </emu-clause>
-      <emu-clause id="sec-jsx-text-static-semantics-mv">
+    </emu-clause>
+    <emu-clause id="sec-jsx-character-references">
+      <h1>JSX Character References</h1>
+      <emu-grammar type="definition">
+        JSXCharacterReference ::
+          `&` JSXNamedCharacterReferenceName `;`
+          `&#` JSXCodePoint `;`
+
+        JSXCodePoint ::
+          DecimalDigits[~Sep] [> but only if the MV of |DecimalDigits| &le; 0x10FFFF]
+          `x` HexDigits[~Sep] [> but only if the MV of |HexDigits| &le; 0x10FFFF]
+      </emu-grammar>
+      <emu-note>
+        <p>There is a difference in how character references are handled in JSX compared to <a href="https://html.spec.whatwg.org/multipage/parsing.html">HTML parsing</a>:</p>
+        <p>Unlike HTML, omission of `;` in a character reference results in a verbatim interpretation of the `&` character.</p>
+        <p>Unlike HTML, numbered character references to C1 control characters are interpreted as they are; they are not replaced with the corresponding Windows-1252 characters.</p>
+      </emu-note>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>TSC and SWC currently fails due to internal parser error when parsing |JSXCodePoint| that exceeds the valid Unicode range.</li>
+          <li>SWC currently also fails due to internal parser error when parsing |JSXCodePoint| that designates a surrogate code point.</li>
+        </ul>
+      </emu-note>
+      <emu-clause id="sec-jsx-character-references-static-semantics-sv">
+        <h1>Static Semantics: SV</h1>
+        <p>SV is extended as follows:</p>
+        <ul>
+          <li>See <emu-xref href="#sec-jsx-named-character-references-static-semantics-sv"></emu-xref> for the SV of <emu-grammar>JSXCharacterReference :: `&` JSXNamedCharacterReferenceName `;`</emu-grammar>.</li>
+          <li>The SV of <emu-grammar>JSXCharacterReference :: `&#` JSXCodePoint `;`</emu-grammar> is the Unicode code point corresponding to the MV of |JSXCodePoint|.</li>
+        </ul>
+      </emu-clause>
+      <emu-clause id="sec-jsx-character-references-static-semantics-mv">
         <h1>Static Semantics: MV</h1>
         <p><emu-xref href="#sec-string-literals-static-semantics-mv">MV</emu-xref> is extended as follows:</p>
         <ul>
