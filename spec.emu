@@ -408,7 +408,6 @@
           1. Return the code point matched by |JSXIdentifierPartChar|.
         </emu-alg>
       </emu-clause>
-    </emu-clause>
       <emu-clause id="sec-static-semantics-has-hyphen" type="sdo">
         <h1>
           Runtime Semantics: HasHyphen ( ): a Boolean
@@ -563,6 +562,72 @@
           <li>The SV of <emu-grammar>JSXCollapsingWhiteSpace :: JSXMultilineWhiteSpace</emu-grammar> is a single space character (U+0020).</li>
           <li>The SV of <emu-grammar>JSXIgnoredWhiteSpace :: JSXMultilineWhiteSpace</emu-grammar> is the empty string.</li>
           <li>The SV of <emu-grammar>JSXInlineWhiteSpace :: WhiteSpace</emu-grammar> is the SourceCharacter of its component.</li>
+        </ul>
+      </emu-clause>
+    </emu-clause>
+    <emu-clause id="sec-jsx-strings">
+      <h1>JSX Strings</h1>
+      <p>Where |JSXStringLiteral| is allowed as the next token, the following goal is used instead of |InputElementDiv| or relevant tokenization goals.</p>
+      <emu-grammar type="definition">
+        InputElementJSXString ::
+          WhiteSpace
+          LineTerminator
+          Comment
+          JSXStringLiteral
+          `{`
+          `&lt;`
+      </emu-grammar>
+      <emu-note>
+        <p>As usual, |WhiteSpace|, |LineTerminator|, and |Comment| are discarded.</p>
+      </emu-note>
+      <emu-note>
+        <p>Typically you can tokenize |InputElementDiv| except |StringLiteral| is replaced with |JSXStringLiteral|.</p>
+      </emu-note>
+      <emu-note>
+        <p>The only occurrence of this goal is after `=` in |JSXAttributeInitializer|.</p>
+      </emu-note>
+      <emu-grammar type="definition">
+        JSXStringLiteral ::
+          `"` JSXDoubleStringCharacters? `"`
+          `'` JSXSingleStringCharacters? `'`
+
+        JSXDoubleStringCharacters ::
+          JSXDoubleStringCharacter JSXDoubleStringCharacters?
+
+        JSXSingleStringCharacters ::
+          JSXSingleStringCharacter JSXSingleStringCharacters?
+
+        JSXDoubleStringCharacter ::
+          SourceCharacter but not one of `"` or `&amp;`
+          JSXCharacterReference
+          [lookahead != JSXCharacterReference] `&`
+
+        JSXSingleStringCharacter ::
+          SourceCharacter but not one of `'` or `&amp;`
+          JSXCharacterReference
+          [lookahead != JSXCharacterReference] `&`
+      </emu-grammar>
+
+      <emu-note>
+        <p>JSX String Literals do not interpret backslash escapes or line continuations. They instead interpret character references.</p>
+      </emu-note>
+      <emu-note>
+        <p>JSX String Literals allow multi-line strings and they are interpreted as it is represented in the source code. It contradicts ECMAScript's implicit contract that the three kinds of newlines in source code can be safely normalized.</p>
+      </emu-note>
+      <emu-clause id="sec-jsx-strings-static-semantics-sv">
+        <h1>Static Semantics: SV</h1>
+        <p>SV is extended as follows:</p>
+        <ul>
+          <li>The SV of <emu-grammar>JSXStringLiteral :: `"` JSXDoubleStringCharacters? `"`</emu-grammar> is the concatenation of the SVs of its components except quotes.</li>
+          <li>The SV of <emu-grammar>JSXStringLiteral :: `'` JSXSingleStringCharacters? `'`</emu-grammar> is the concatenation of the SVs of its components except quotes.</li>
+          <li>The SV of <emu-grammar>JSXDoubleStringCharacters :: JSXDoubleStringCharacter JSXDoubleStringCharacters?</emu-grammar> is the concatenation of the SVs of its components.</li>
+          <li>The SV of <emu-grammar>JSXSingleStringCharacters :: JSXSingleStringCharacter JSXSingleStringCharacters?</emu-grammar> is the concatenation of the SVs of its components.</li>
+          <li>The SV of <emu-grammar>JSXDoubleStringCharacter :: SourceCharacter but not one of `"` or `&amp;`</emu-grammar> is the SourceCharacter itself.</li>
+          <li>The SV of <emu-grammar>JSXSingleStringCharacter :: SourceCharacter but not one of `'` or `&amp;`</emu-grammar> is the SourceCharacter itself.</li>
+          <li>The SV of <emu-grammar>JSXDoubleStringCharacter :: JSXCharacterReference</emu-grammar> is the SV of |JSXCharacterReference|.</li>
+          <li>The SV of <emu-grammar>JSXSingleStringCharacter :: JSXCharacterReference</emu-grammar> is the SV of |JSXCharacterReference|.</li>
+          <li>The SV of <emu-grammar>JSXDoubleStringCharacter :: `&`</emu-grammar> is `&amp;`.</li>
+          <li>The SV of <emu-grammar>JSXSingleStringCharacter :: `&`</emu-grammar> is `&amp;`.</li>
         </ul>
       </emu-clause>
     </emu-clause>
@@ -2678,6 +2743,13 @@
         JSXElement[?Yield, ?Await]
         JSXFragment[?Yield, ?Await]
     </emu-grammar>
+    <emu-note>
+      <p>Actual parsers implement these rules in various ways.</p>
+      <ul>
+        <li>Babel and SWC allow |Expression|s (comma operators) to appear without parentheses in |JSXAttributeValue|'s expression container, delimited by `{` `}`.</li>
+        <li>TypeScript allows |Expression|s (comma operators) to appear without parentheses in |JSXSpreadAttribute|.</li>
+      </ul>
+    </emu-note>
   </emu-clause>
 </emu-clause>
 
