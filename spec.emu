@@ -2659,6 +2659,9 @@
         JSXAttribute[?Yield, ?Await]
         JSXSpreadAttribute[?Yield, ?Await]
 
+      JSXSpreadAttribute[Yield, Await] :
+        `{` `...` AssignmentExpression[?Yield, ?Await] `}`
+
       JSXAttribute[Yield, Await] :
         JSXAttributeName JSXAttributeInitializer[?Yield, ?Await]?
 
@@ -2668,6 +2671,12 @@
 
       JSXAttributeInitializer[Yield, Await] :
         `=` JSXAttributeValue[?Yield, ?Await]
+
+      JSXAttributeValue[Yield, Await] :
+        JSXStringLiteral
+        `{` AssignmentExpression[?Yield, ?Await] `}`
+        JSXElement[?Yield, ?Await]
+        JSXFragment[?Yield, ?Await]
     </emu-grammar>
   </emu-clause>
 </emu-clause>
