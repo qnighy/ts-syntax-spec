@@ -331,8 +331,12 @@
       <h1>JSX Identifier Names</h1>
       <emu-grammar type="definition">
         JSXIdentifierName ::
-          IdentifierStart
+          JSXIdentifierStart
           JSXIdentifierName JSXIdentifierPart
+
+        JSXIdentifierStart ::
+          IdentifierStartChar
+          `\` UnicodeEscapeSequence
 
         JSXIdentifierPart ::
           JSXIdentifierPartChar
@@ -348,17 +352,32 @@
       </emu-note>
       <emu-clause id="sec-jsx-identifier-names-static-semantics-early-errors">
         <h1>Static Semantics: Early Errors</h1>
+        <emu-grammar>JSXIdentifierStart :: `\` UnicodeEscapeSequence</emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if the IdentifierCodePoint of |UnicodeEscapeSequence| is not some Unicode code point matched by the |IdentifierStartChar| lexical grammar production.
+          </li>
+          <li>
+            It is a Syntax Error if any source text is matched by this production.
+          </li>
+        </ul>
         <emu-grammar>JSXIdentifierPart :: `\` UnicodeEscapeSequence</emu-grammar>
         <ul>
           <li>
             It is a Syntax Error if the IdentifierCodePoint of |UnicodeEscapeSequence| is not some Unicode code point matched by the |JSXIdentifierPartChar| lexical grammar production.
           </li>
+          <li>
+            It is a Syntax Error if any source text is matched by this production.
+          </li>
         </ul>
+        <emu-note>
+          <p>The latter implies the former. We structure the Early Errors here as such to reflect nuances in parser implementations.</p>
+          <p>The latter rule follows absence of |UnicodeEscapeSequence| in the original JSX spec.</p>
+        </emu-note>
         <emu-note>
           <p>Actual parsers implement these rules in various ways.</p>
           <ul>
-            <li>SWC disallows |UnicodeEscapeSequence| whose IdentifierCodePoint is `-`, while allowing escapes that match |IdentifierPartChar|.</li>
-            <li>TSC and Babel disallows |JSXIdentifierName| that includes any |UnicodeEscapeSequence|.</li>
+            <li>SWC allows |UnicodeEscapeSequence| as long as its IdentifierCodePoint matches |IdentifierPartChar| (excluding `-`).</li>
           </ul>
         </emu-note>
       </emu-clause>
@@ -367,9 +386,9 @@
         <dl class="header">
         </dl>
         <p>It extends <a href="https://tc39.es/ecma262/#sec-identifiercodepoints">IdentifierCodePoints</a>.</p>
-        <emu-grammar>JSXIdentifierName :: IdentifierStart</emu-grammar>
+        <emu-grammar>JSXIdentifierName :: JSXIdentifierStart</emu-grammar>
         <emu-alg>
-          1. Let _cp_ be the IdentifierCodePoint of |IdentifierStart|.
+          1. Let _cp_ be the IdentifierCodePoint of |JSXIdentifierStart|.
           1. Return « _cp_ ».
         </emu-alg>
         <emu-grammar>JSXIdentifierName :: JSXIdentifierName JSXIdentifierPart</emu-grammar>
@@ -398,7 +417,7 @@
         </dl>
         <emu-grammar>
           JSXIdentifierName ::
-            IdentifierStart
+            JSXIdentifierStart
             JSXIdentifierName JSXIdentifierPart
         </emu-grammar>
         <emu-alg>
@@ -416,7 +435,7 @@
         </dl>
         <emu-grammar>
           JSXIdentifierName ::
-            IdentifierStart
+            JSXIdentifierStart
             JSXIdentifierName JSXIdentifierPart
         </emu-grammar>
         <emu-alg>
@@ -2440,24 +2459,84 @@
 
 <emu-clause id="sec-jsx-expressions">
   <h1>JSX Expressions</h1>
+  <emu-clause id="sec-jsx-identifiers">
+    <h1>JSX Identifiers</h1>
+    <emu-grammar type="definition">
+      JSXSimpleIdentifier :
+        JSXIdentifierName [> but only if IsJSXLiteralName of |JSXIdentifierName| is *false*]
+
+      JSXLiteralIdentifier :
+        JSXIdentifierName [> but only if IsJSXLiteralName of |JSXIdentifierName| is *true* and StringValue of |JSXIdentifierName| is not `this`]
+
+      JSXThis :
+        JSXIdentifierName [> but only if StringValue of |JSXIdentifierName| is `this`]
+
+      JSXIdentifierReference[Yield, Await] :
+        JSXIdentifierName
+    </emu-grammar>
+
+    <emu-note>
+      <p>|JSXSimpleIdentifier|, |JSXLiteralIdentifier|, and |JSXThis| are mutually exclusive and exhaustive classifications of |JSXIdentifierName|.</p>
+    </emu-note>
+
+    <emu-note>
+      <p>|JSXThis| is matched based on its StringValue, not its verbatim spelling, to reflect the nuances of actual implementations. For example, SWC interprets the element name of `&lt;\u{74}his /&gt;` as equivalent to ThisExpression.</p>
+      <p>For implementations that disallow escaped identifiers in JSX elements, |JSXThis| is always verbatimly `this`.</p>
+    </emu-note>
+
+    <emu-clause id="sec-jsx-identifiers-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>JSXIdentifierReference : JSXIdentifierName</emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if the StringValue of |IdentifierName| is the StringValue of any |ReservedWord| except for `yield` or `await`.
+        </li>
+        <li>
+          It is a Syntax Error if IsStrict(|JSXIdentifierReference|) is *true* and the StringValue of |JSXIdentifierName| is one of *"implements"*, *"interface"*, *"let"*, *"package"*, *"private"*, *"protected"*, *"public"*, *"static"*, or *"yield"*.
+        </li>
+        <li>
+          It is a Syntax Error if this production has a <sub>[Yield]</sub> parameter and the StringValue of |JSXIdentifierName| is *"yield"*.
+        </li>
+        <li>
+          It is a Syntax Error if this production has an <sub>[Await]</sub> parameter and the StringValue of |JSXIdentifierName| is *"await"*.
+        </li>
+        <li>
+          It is a Syntax Error if HasHyphen of |JSXIdentifierName| is *true*.
+        </li>
+      </ul>
+      <emu-note>
+        <p>All reserved words mentioned here start with a lowercase letter. Thus we can assume |JSXSimpleIdentifier| satisfies the same restrictions.</p>
+      </emu-note>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <p>In fact, these rules are artificial conditions to ensure sanity of the generated code, and many parsers just emit broken code.</p>
+        <ul>
+          <li>TSC, Babel, and SWC do not check reserved words in |JSXIdentifierReference|, although all of them disallow escaped reserved words here.</li>
+          <li>TSC and SWC allow hyphens in |JSXIdentifierReference|, and just emit broken code.</li>
+          <li>Babel allows hyphens in |JSXIdentifierReference|, and emits it as a string literal.</li>
+        </ul>
+      </emu-note>
+    </emu-clause>
+  </emu-clause>
+
   <emu-clause id="sec-jsx-elements-and-fragments">
     <h1>JSX Elements and Fragments</h1>
     <emu-grammar type="definition">
       JSXElement[Yield, Await] :
         JSXSelfClosingElement[?Yield, ?Await]
-        JSXOpeningElement[?Yield, ?Await] JSXChildren[?Yield, ?Await]? JSXClosingElement
+        JSXOpeningElement[?Yield, ?Await] JSXChildren[?Yield, ?Await]? JSXClosingElement[?Yield, ?Await]
 
       JSXFragment[Yield, Await] :
         `&lt;` `&gt;` JSXChildren[?Yield, ?Await]? `&lt;` `/` `&gt;`
 
       JSXSelfClosingElement[Yield, Await] :
-        `&lt;` JSXElementName JSXAttributes[?Yield, ?Await]? `/` `&gt;`
+        `&lt;` JSXElementName[?Yield, ?Await] TypeArguments[?Yield, ?Await]? JSXAttributes[?Yield, ?Await]? `/` `&gt;`
 
       JSXOpeningElement[Yield, Await] :
-        `&lt;` JSXElementName JSXAttributes[?Yield, ?Await]? `&gt;`
+        `&lt;` JSXElementName[?Yield, ?Await] TypeArguments[?Yield, ?Await]? JSXAttributes[?Yield, ?Await]? `&gt;`
 
-      JSXClosingElement :
-        `&lt;` `/` JSXElementName `&gt;`
+      JSXClosingElement[Yield, Await] :
+        `&lt;` `/` JSXElementName[?Yield, ?Await] `&gt;`
     </emu-grammar>
     <emu-note>
       <p>Whitespace is allowed within JSX elements where it is disallowed in HTML.</p>
@@ -2492,20 +2571,19 @@
   <emu-clause id="sec-jsx-element-names">
     <h1>JSX Element Names</h1>
     <emu-grammar type="definition">
-      JSXElementName :
-        JSXIdentifierName
+      JSXElementName[Yield, Await] :
+        JSXSimpleIdentifier
+        JSXLiteralIdentifier
+        JSXThis
         JSXNamespacedName
-        JSXMemberExpression
+        JSXMemberExpression[?Yield, ?Await]
 
       JSXNamespacedName :
         JSXIdentifierName `:` JSXIdentifierName
 
-      JSXMemberExpression :
-        JSXMemberExpressionBase `.` JSXIdentifierName
-        JSXMemberExpression `.` JSXIdentifierName
-
-      JSXMemberExpressionBase :
-        JSXIdentifierName
+      JSXMemberExpression[Yield, Await] :
+        JSXIdentifierReference[?Yield, ?Await] `.` JSXIdentifierName
+        JSXMemberExpression[?Yield, ?Await] `.` JSXIdentifierName
     </emu-grammar>
     <emu-note>
       <p>|JSXIdentifierName| does not exclude reserved words. Therefore, `&lt;var/&gt;` is a valid JSX element.</p>
@@ -2514,7 +2592,7 @@
       <h1>Static Semantics: Early Errors</h1>
       <emu-grammar>
         JSXMemberExpression :
-          JSXMemberExpressionBase `.` JSXIdentifierName
+          JSXIdentifierReference `.` JSXIdentifierName
           JSXMemberExpression `.` JSXIdentifierName
       </emu-grammar>
       <ul>
@@ -2525,23 +2603,7 @@
       <emu-note>
         <p>Actual parsers implement these rules in various ways.</p>
         <ul>
-          <li>SWC allows hyphens the property name here, and emits the code as it is, therefore would be unintentionally reparsed as subtraction or other expressions.</li>
-        </ul>
-      </emu-note>
-      <emu-grammar>
-        JSXMemberExpressionBase :
-          JSXIdentifierName
-      </emu-grammar>
-      <ul>
-        <li>
-          It is a Syntax Error if HasHyphen of |JSXIdentifierName| is *true*.
-        </li>
-      </ul>
-      <emu-note>
-        <p>Actual parsers implement these rules in various ways.</p>
-        <ul>
-          <li>TSC and SWC allow hyphens in the expression here, and emits the code as it is, therefore would be unintentionally reparsed as subtraction or other expressions.</li>
-          <li>Babel allows hyphens in the expression here, and emits it as a string literal.</li>
+          <li>SWC allows hyphens the property name here, and emits the broken code.</li>
         </ul>
       </emu-note>
     </emu-clause>
@@ -2558,7 +2620,7 @@
       </emu-alg>
       <emu-grammar>
         JSXIdentifierName ::
-          IdentifierStart
+          JSXIdentifierStart
           JSXIdentifierName JSXIdentifierPart
       </emu-grammar>
       <emu-alg>
@@ -2584,6 +2646,29 @@
         3. Return the concatenation of _object_, U+002E (FULL STOP), and _property_.
       </emu-alg>
     </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-jsx-attributes">
+    <h1>JSX Attributes</h1>
+    <emu-grammar type="definition">
+      JSXAttributes[Yield, Await] :
+        JSXAttributeListElement[?Yield, ?Await]
+        JSXAttributes[?Yield, ?Await] JSXAttributeListElement[?Yield, ?Await]
+
+      JSXAttributeListElement[Yield, Await] :
+        JSXAttribute[?Yield, ?Await]
+        JSXSpreadAttribute[?Yield, ?Await]
+
+      JSXAttribute[Yield, Await] :
+        JSXAttributeName JSXAttributeInitializer[?Yield, ?Await]?
+
+      JSXAttributeName :
+        JSXIdentifierName
+        JSXNamespacedName
+
+      JSXAttributeInitializer[Yield, Await] :
+        `=` JSXAttributeValue[?Yield, ?Await]
+    </emu-grammar>
   </emu-clause>
 </emu-clause>
 
