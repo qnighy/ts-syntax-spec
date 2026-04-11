@@ -1382,8 +1382,11 @@
           JSXIdentifierName `:` JSXIdentifierName
 
         JSXMemberExpression :
-          JSXIdentifierName `.` JSXIdentifierName
+          JSXMemberExpressionBase `.` JSXIdentifierName
           JSXMemberExpression `.` JSXIdentifierName
+
+        JSXMemberExpressionBase :
+          JSXIdentifierName
       </emu-grammar>
       <emu-note>
         <p>Whitespace is allowed within JSX elements where it is disallowed in HTML.</p>
@@ -1408,20 +1411,34 @@
         <h1>Static Semantics: Early Errors</h1>
         <emu-grammar>
           JSXMemberExpression :
-            JSXIdentifierName `.` JSXIdentifierName
+            JSXMemberExpressionBase `.` JSXIdentifierName
             JSXMemberExpression `.` JSXIdentifierName
         </emu-grammar>
         <ul>
           <li>
-            It is a Syntax Error if HasHyphen of any |JSXIdentifierName| of this production is *true*.
+            It is a Syntax Error if HasHyphen of |JSXIdentifierName| is *true*.
           </li>
         </ul>
         <emu-note>
           <p>Actual parsers implement these rules in various ways.</p>
           <ul>
-            <li>TSC allows hyphens in the object part of a |JSXMemberExpression|, and emits the code as it is, therefore would be unintentionally reparsed as subtraction or other expressions.</li>
-            <li>SWC allows hyphens in the object part and the property part of a |JSXMemberExpression|, and emits the code as it is, therefore would be unintentionally reparsed as subtraction or other expressions.</li>
-            <li>Babel allows hyphens in the object part of a |JSXMemberExpression|, and emits the object part as a string literal.</li>
+            <li>SWC allows hyphens the property name here, and emits the code as it is, therefore would be unintentionally reparsed as subtraction or other expressions.</li>
+          </ul>
+        </emu-note>
+        <emu-grammar>
+          JSXMemberExpressionBase :
+            JSXIdentifierName
+        </emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if HasHyphen of |JSXIdentifierName| is *true*.
+          </li>
+        </ul>
+        <emu-note>
+          <p>Actual parsers implement these rules in various ways.</p>
+          <ul>
+            <li>TSC and SWC allow hyphens in the expression here, and emits the code as it is, therefore would be unintentionally reparsed as subtraction or other expressions.</li>
+            <li>Babel allows hyphens in the expression here, and emits it as a string literal.</li>
           </ul>
         </emu-note>
       </emu-clause>
