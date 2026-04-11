@@ -2689,7 +2689,7 @@
       <emu-grammar>
         JSXElementLookahead[Yield, Await] :
           `&lt;` [lookahead &notin; { `const`, Identifier }]
-          `&lt;` IdentifierReference[?Yield, ?Await] [lookahead &notin; { `extends`, `=` }]
+          `&lt;` IdentifierReference[?Yield, ?Await] [lookahead != `extends`]
           `&lt;` IdentifierReference[?Yield, ?Await] `extends` `=`
           `&lt;` IdentifierReference[?Yield, ?Await] `extends` `&gt;`
           `&lt;` IdentifierReference[?Yield, ?Await] `extends` `/` `&gt;`
@@ -2703,6 +2703,9 @@
           [+Yield] `&lt;` `const` `yield`
           [+Await] `&lt;` `const` `await`
       </emu-grammar>
+      <emu-note>
+        <p>Based on the rules above, you would better avoid naming an attribute `extends` or naming an intrinsic element `const`.</p>
+      </emu-note>
       <emu-note>
         <p>Actual parsers implement these rules in various ways.</p>
         <p>The lookahead above is based on the negation of TSC's lookahead rule for generic arrow functions.</p>
