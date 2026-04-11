@@ -1507,6 +1507,12 @@
       <p>|PrimaryExpression| originally referenced |CoverParenthesizedExpressionAndArrowParameterList|. See <emu-xref href="#sec-ts-backtracking">Backtracking over cover grammars</emu-xref> for the rationale.</p>
       <p>Disambiguation between |ArrowHead| and parenthesized expressions in |PrimaryExpression| is still necessary. Most parsers implement it using backtracking, optionally with bounded lookahead for optimization.</p>
     </emu-note>
+    <emu-note>
+      <p>Actual parsers implement these rules in various ways.</p>
+      <ul>
+        <li>TSC and SWC parse JSX elements and fragments as an |UnaryExpression| rather than a |PrimaryExpression|. Hence, `&lt;div /&gt;.$$type` is disallowed in those parsers.</li>
+      </ul>
+    </emu-note>
     <emu-clause id="sec-ts-primary-expression-static-semantics-early-errors">
       <h1>Static Semantics: Early Errors</h1>
       <emu-grammar>
