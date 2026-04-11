@@ -1406,8 +1406,6 @@
 
       TypeArgumentsLookahead[Yield, Await]:
         [> (no production)]
-        TypeArguments[?Yield, ?Await] [no LineTerminator here] [lookahead != DoesNotFollowTypeArgumentsNLT]
-        TypeArguments[?Yield, ?Await] LineTerminator [lookahead != DoesNotFollowTypeArgumentsLT]
 
       DoesNotFollowTypeArgumentsNLT :
         `this`
@@ -1502,25 +1500,13 @@
         RegularExpressionLiteral
         TemplateLiteral[?Yield, ?Await, ~Tagged]
         ParenthesizedExpression[?Yield, ?Await]
-        JSXElement[?Yield, ?Await]
-        JSXFragment[?Yield, ?Await]
+        [lookahead == JSXElementLookahead[?Yield, ?Await]] JSXElement[?Yield, ?Await]
+        [lookahead == JSXElementLookahead[?Yield, ?Await]] JSXFragment[?Yield, ?Await]
     </emu-grammar>
     <emu-note>
       <p>|PrimaryExpression| originally referenced |CoverParenthesizedExpressionAndArrowParameterList|. See <emu-xref href="#sec-ts-backtracking">Backtracking over cover grammars</emu-xref> for the rationale.</p>
       <p>Disambiguation between |ArrowHead| and parenthesized expressions in |PrimaryExpression| is still necessary. Most parsers implement it using backtracking, optionally with bounded lookahead for optimization.</p>
     </emu-note>
-    <emu-clause id="sec-ts-primary-expression-syntax-alterations">
-      <h1>Syntax Alterations</h1>
-      <p>When [[TypeScript]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and [[JSX]] of the same syntax context is *false*, we remove the following productions from the grammar of |PrimaryExpression|:</p>
-      <emu-grammar>
-        PrimaryExpression[Yield, Await] :
-          JSXElement[?Yield, ?Await]
-          JSXFragment[?Yield, ?Await]
-      </emu-grammar>
-      <emu-note>
-        <p>Only one of JSX tags and legacy type assertions can be enabled at a time. When neither of [[TypeScript]] nor [[JSX]] is enabled, the choice is arbitrary as we would rule it out with Early Errors anyway. We choose to enable JSX tags in this case to imitate TSC's behaviour.</p>
-      </emu-note>
-    </emu-clause>
     <emu-clause id="sec-ts-primary-expression-static-semantics-early-errors">
       <h1>Static Semantics: Early Errors</h1>
       <emu-grammar>
@@ -2674,6 +2660,58 @@
           It is a Syntax Error if the StringValue of |JSXElementName| of |JSXOpeningElement| does not match the StringValue of |JSXElementName| of |JSXClosingElement|.
         </li>
       </ul>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-jsx-lookahead">
+    <h1>JSX Lookahead Restrictions</h1>
+    <emu-grammar type="definition">
+      JSXElementLookahead[Yield, Await] :
+        `&lt;`
+    </emu-grammar>
+    <emu-note>
+      <p>See |TypeParametersLookahead| for the inverse.</p>
+    </emu-note>
+    <emu-clause id="sec-jsx-lookahead-syntax-alterations">
+      <h1>Syntax Alterations</h1>
+      <p>When [[TypeScript]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and [[JSX]] of the same syntax context is *true*, we replace the production of |JSXElementLookahead|:</p>
+      <emu-grammar>
+        JSXElementLookahead[Yield, Await] :
+          `&lt;`
+      </emu-grammar>
+      <p>with:</p>
+      <emu-grammar>
+        JSXElementLookahead[Yield, Await] :
+          `&lt;` [lookahead &notin; { `const`, Identifier }]
+          `&lt;` IdentifierReference[?Yield, ?Await] [lookahead &notin; { `extends`, `=` }]
+          `&lt;` IdentifierReference[?Yield, ?Await] `extends` `=`
+          `&lt;` IdentifierReference[?Yield, ?Await] `extends` `&gt;`
+          `&lt;` IdentifierReference[?Yield, ?Await] `extends` `/` `&gt;`
+          [+Yield] `&lt;` `yield`
+          [+Await] `&lt;` `await`
+          `&lt;` `const` [lookahead != Identifier]
+          `&lt;` `const` IdentifierReference[?Yield, ?Await] [lookahead &notin; { `extends`, `=` }]
+          `&lt;` `const` IdentifierReference[?Yield, ?Await] `extends` `=`
+          `&lt;` `const` IdentifierReference[?Yield, ?Await] `extends` `&gt;`
+          `&lt;` `const` IdentifierReference[?Yield, ?Await] `extends` `/` `&gt;`
+          [+Yield] `&lt;` `const` `yield`
+          [+Await] `&lt;` `const` `await`
+      </emu-grammar>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <p>The lookahead above is based on the negation of TSC's lookahead rule for generic arrow functions.</p>
+        <p>However, there is a fundamental disagreement among parsers how to disambiguate `&lt;`: a bounded or unbounded lookahead.</p>
+        <p>This spec is based on bounded lookahead, which is more conservative.</p>
+      </emu-note>
+      <p>When [[TypeScript]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and [[JSX]] of the same syntax context is *false*, we remove the production of |JSXElementLookahead|:</p>
+      <emu-grammar>
+        JSXElementLookahead[Yield, Await] :
+          `&lt;`
+      </emu-grammar>
+      <p>leaving no productions for |JSXElementLookahead|.</p>
+      <emu-note>
+        <p>Therefore, for TypeScript source without JSX, `&lt;` at the start of an expression is always interpreted as the less-than operator.</p>
+      </emu-note>
     </emu-clause>
   </emu-clause>
 
