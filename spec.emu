@@ -478,11 +478,8 @@
           SourceCharacter but not `&lt;` or `&gt;` or `{` or `}` or `&amp;` or WhiteSpace or LineTerminator
 
         JSXCharacterReference ::
-          `&` NamedCharacterReference `;`
+          `&` JSXNamedCharacterReferenceName `;`
           `&#` JSXCodePoint `;`
-
-        NamedCharacterReference ::
-          [> see HTML.]
 
         JSXCodePoint ::
           DecimalDigits[~Sep] [> but only if the MV of |DecimalDigits| &le; 0x10FFFF]
@@ -506,7 +503,6 @@
           JSXMultilineWhiteSpace WhiteSpace
           JSXMultilineWhiteSpace LineTerminator
       </emu-grammar>
-      <p>|NamedCharacterReference| is a set of names as defined in <a href="https://html.spec.whatwg.org/multipage/named-characters.html">HTML Standard §13.5</a>.</p>
       <emu-note>
         <p>JSX Text is the longest sequence terminated by a `{` or `<`, and interpreted as follows:</p>
         <ul>
@@ -546,7 +542,8 @@
           <li>The SV of <emu-grammar>JSXTextChar :: JSXLiteralChar</emu-grammar> is the SourceCharacter of its component.</li>
           <li>The SV of <emu-grammar>JSXTextChar :: JSXCharacterReference</emu-grammar> is the SV of |JSXCharacterReference|.</li>
           <li>The SV of <emu-grammar>JSXTextChar :: `&amp;`</emu-grammar> is `&amp;`.</li>
-          <li>The SV of <emu-grammar>JSXCharacterReference :: `&` NamedCharacterReference `;`</emu-grammar> is the Unicode code point corresponding to the named character reference, as defined in the HTML specification.</li>
+          <li>The SV of <emu-grammar>JSXCharacterReference :: `&` JSXNamedCharacterReferenceName `;`</emu-grammar> is the Unicode code point corresponding to the named character reference, as defined in the HTML specification.</li>
+          <li>See <emu-xref href="#sec-jsx-named-character-references-static-semantics-sv"></emu-xref> for the SV of <emu-grammar>JSXCharacterReference :: `&` JSXNamedCharacterReferenceName `;`</emu-grammar>.</li>
           <li>The SV of <emu-grammar>JSXCharacterReference :: `&#` JSXCodePoint `;`</emu-grammar> is the Unicode code point corresponding to the MV of |JSXCodePoint|.</li>
           <li>The SV of <emu-grammar>JSXVerbatimWhiteSpace :: JSXInlineWhiteSpace</emu-grammar> is the SourceCharacter of its component.</li>
           <li>The SV of <emu-grammar>JSXCollapsingWhiteSpace :: JSXMultilineWhiteSpace</emu-grammar> is a single space character (U+0020).</li>
@@ -2550,6 +2547,334 @@
     </emu-note>
   </emu-clause>
 </emu-clause>
+
+<emu-annex id="sec-jsx-named-character-references" normative>
+  <h1>Named Character References</h1>
+  <emu-grammar type="definition">
+    JSXNamedCharacterReferenceName :: one of
+      `AElig` `Aacute` `Acirc` `Agrave` `Alpha` `Aring` `Atilde` `Auml`
+      `Beta`
+      `Ccedil` `Chi`
+      `Dagger` `Delta`
+      `ETH` `Eacute` `Ecirc` `Egrave` `Epsilon` `Eta` `Euml`
+      `Gamma`
+      `Iacute` `Icirc` `Igrave` `Iota` `Iuml`
+      `Kappa`
+      `Lambda`
+      `Mu`
+      `Ntilde` `Nu`
+      `OElig` `Oacute` `Ocirc` `Ograve` `Omega` `Omicron` `Oslash` `Otilde` `Ouml`
+      `Phi` `Pi` `Prime` `Psi`
+      `Rho`
+      `Scaron` `Sigma`
+      `THORN` `Tau` `Theta`
+      `Uacute` `Ucirc` `Ugrave` `Upsilon` `Uuml`
+      `Xi`
+      `Yacute` `Yuml`
+      `Zeta`
+      `aacute` `acirc` `acute` `aelig` `agrave` `alefsym` `alpha` `amp` `and` `ang` `apos` `aring` `asymp` `atilde` `auml`
+      `bdquo` `beta` `brvbar` `bull`
+      `cap` `ccedil` `cedil` `cent` `chi` `circ` `clubs` `cong` `copy` `crarr` `cup` `curren`
+      `dArr` `dagger` `darr` `deg` `delta` `diams` `divide`
+      `eacute` `ecirc` `egrave` `empty` `emsp` `ensp` `epsilon` `equiv` `eta` `eth` `euml` `euro` `exist`
+      `fnof` `forall` `frac12` `frac14` `frac34` `frasl`
+      `gamma` `ge` `gt`
+      `hArr` `harr` `hearts` `hellip`
+      `iacute` `icirc` `iexcl` `igrave` `image` `infin` `int` `iota` `iquest` `isin` `iuml`
+      `kappa`
+      `lArr` `lambda` `lang` `laquo` `larr` `lceil` `ldquo` `le` `lfloor` `lowast` `loz` `lrm` `lsaquo` `lsquo` `lt`
+      `macr` `mdash` `micro` `middot` `minus` `mu`
+      `nabla` `nbsp` `ndash` `ne` `ni` `not` `notin` `nsub` `ntilde` `nu`
+      `oacute` `ocirc` `oelig` `ograve` `oline` `omega` `omicron` `oplus` `or` `ordf` `ordm` `oslash` `otilde` `otimes` `ouml`
+      `para` `part` `permil` `perp` `phi` `pi` `piv` `plusmn` `pound` `prime` `prod` `prop` `psi`
+      `quot`
+      `rArr` `radic` `rang` `raquo` `rarr` `rceil` `rdquo` `real` `reg` `rfloor` `rho` `rlm` `rsaquo` `rsquo`
+      `sbquo` `scaron` `sdot` `sect` `shy` `sigma` `sigmaf` `sim` `spades` `sub` `sube` `sum` `sup1` `sup2` `sup3` `sup` `supe` `szlig`
+      `tau` `there4` `theta` `thetasym` `thinsp` `thorn` `tilde` `times` `trade`
+      `uArr` `uacute` `uarr` `ucirc` `ugrave` `uml` `upsih` `upsilon` `uuml`
+      `weierp`
+      `xi`
+      `yacute` `yen` `yuml`
+      `zeta` `zwj` `zwnj`
+  </emu-grammar>
+  <emu-note>
+    <p>There are 253 available named character references total.</p>
+    <p>Among these, 252 are those listed by <a href="https://www.w3.org/TR/1999/REC-html401-19991224/sgml/entities.html">HTML 4.01 Specification</a>. The remaining one is `&amp;amp;apos;` for ASCII single quote.</p>
+    <p>Those that were later added in <a href="https://html.spec.whatwg.org/multipage/named-characters.html">HTML Living Standard</a>, except for `&amp;amp;apos;`, are not included.</p>
+  </emu-note>
+  <emu-annex id="sec-jsx-named-character-references-static-semantics-sv">
+    <h1>Static Semantics: SV</h1>
+    <p>The SV of the production <emu-grammar>JSXNamedCharacterReference : `&` JSXNamedCharacterReferenceName `;`</emu-grammar> is defined from the following mapping using the source text matched by |JSXNamedCharacterReferenceName| as the key:</p>
+    <emu-table id="table-jsx-named-character-references" caption="Mapping for SV of JSXNamedCharacterReference">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>SV</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>`AElig`</td>
+            <td>U+00C6</td>
+          </tr>
+          <tr><td>`Aacute`</td><td>U+00C1</td></tr>
+          <tr><td>`Acirc`</td><td>U+00C2</td></tr>
+          <tr><td>`Agrave`</td><td>U+00C0</td></tr>
+          <tr><td>`Alpha`</td><td>U+0391</td></tr>
+          <tr><td>`Aring`</td><td>U+00C5</td></tr>
+          <tr><td>`Atilde`</td><td>U+00C3</td></tr>
+          <tr><td>`Auml`</td><td>U+00C4</td></tr>
+          <tr><td>`Beta`</td><td>U+0392</td></tr>
+          <tr><td>`Ccedil`</td><td>U+00C7</td></tr>
+          <tr><td>`Chi`</td><td>U+03A7</td></tr>
+          <tr><td>`Dagger`</td><td>U+2021</td></tr>
+          <tr><td>`Delta`</td><td>U+0394</td></tr>
+          <tr><td>`ETH`</td><td>U+00D0</td></tr>
+          <tr><td>`Eacute`</td><td>U+00C9</td></tr>
+          <tr><td>`Ecirc`</td><td>U+00CA</td></tr>
+          <tr><td>`Egrave`</td><td>U+00C8</td></tr>
+          <tr><td>`Epsilon`</td><td>U+0395</td></tr>
+          <tr><td>`Eta`</td><td>U+0397</td></tr>
+          <tr><td>`Euml`</td><td>U+00CB</td></tr>
+          <tr><td>`Gamma`</td><td>U+0393</td></tr>
+          <tr><td>`Iacute`</td><td>U+00CD</td></tr>
+          <tr><td>`Icirc`</td><td>U+00CE</td></tr>
+          <tr><td>`Igrave`</td><td>U+00CC</td></tr>
+          <tr><td>`Iota`</td><td>U+0399</td></tr>
+          <tr><td>`Iuml`</td><td>U+00CF</td></tr>
+          <tr><td>`Kappa`</td><td>U+039A</td></tr>
+          <tr><td>`Lambda`</td><td>U+039B</td></tr>
+          <tr><td>`Mu`</td><td>U+039C</td></tr>
+          <tr><td>`Ntilde`</td><td>U+00D1</td></tr>
+          <tr><td>`Nu`</td><td>U+039D</td></tr>
+          <tr><td>`OElig`</td><td>U+0152</td></tr>
+          <tr><td>`Oacute`</td><td>U+00D3</td></tr>
+          <tr><td>`Ocirc`</td><td>U+00D4</td></tr>
+          <tr><td>`Ograve`</td><td>U+00D2</td></tr>
+          <tr><td>`Omega`</td><td>U+03A9</td></tr>
+          <tr><td>`Omicron`</td><td>U+039F</td></tr>
+          <tr><td>`Oslash`</td><td>U+00D8</td></tr>
+          <tr><td>`Otilde`</td><td>U+00D5</td></tr>
+          <tr><td>`Ouml`</td><td>U+00D6</td></tr>
+          <tr><td>`Phi`</td><td>U+03A6</td></tr>
+          <tr><td>`Pi`</td><td>U+03A0</td></tr>
+          <tr><td>`Prime`</td><td>U+2033</td></tr>
+          <tr><td>`Psi`</td><td>U+03A8</td></tr>
+          <tr><td>`Rho`</td><td>U+03A1</td></tr>
+          <tr><td>`Scaron`</td><td>U+0160</td></tr>
+          <tr><td>`Sigma`</td><td>U+03A3</td></tr>
+          <tr><td>`THORN`</td><td>U+00DE</td></tr>
+          <tr><td>`Tau`</td><td>U+03A4</td></tr>
+          <tr><td>`Theta`</td><td>U+0398</td></tr>
+          <tr><td>`Uacute`</td><td>U+00DA</td></tr>
+          <tr><td>`Ucirc`</td><td>U+00DB</td></tr>
+          <tr><td>`Ugrave`</td><td>U+00D9</td></tr>
+          <tr><td>`Upsilon`</td><td>U+03A5</td></tr>
+          <tr><td>`Uuml`</td><td>U+00DC</td></tr>
+          <tr><td>`Xi`</td><td>U+039E</td></tr>
+          <tr><td>`Yacute`</td><td>U+00DD</td></tr>
+          <tr><td>`Yuml`</td><td>U+0178</td></tr>
+          <tr><td>`Zeta`</td><td>U+0396</td></tr>
+          <tr><td>`aacute`</td><td>U+00E1</td></tr>
+          <tr><td>`acirc`</td><td>U+00E2</td></tr>
+          <tr><td>`acute`</td><td>U+00B4</td></tr>
+          <tr><td>`aelig`</td><td>U+00E6</td></tr>
+          <tr><td>`agrave`</td><td>U+00E0</td></tr>
+          <tr><td>`alefsym`</td><td>U+2135</td></tr>
+          <tr><td>`alpha`</td><td>U+03B1</td></tr>
+          <tr><td>`amp`</td><td>U+0026</td></tr>
+          <tr><td>`and`</td><td>U+2227</td></tr>
+          <tr><td>`ang`</td><td>U+2220</td></tr>
+          <tr><td>`apos`</td><td>U+0027</td></tr>
+          <tr><td>`aring`</td><td>U+00E5</td></tr>
+          <tr><td>`asymp`</td><td>U+2248</td></tr>
+          <tr><td>`atilde`</td><td>U+00E3</td></tr>
+          <tr><td>`auml`</td><td>U+00E4</td></tr>
+          <tr><td>`bdquo`</td><td>U+201E</td></tr>
+          <tr><td>`beta`</td><td>U+03B2</td></tr>
+          <tr><td>`brvbar`</td><td>U+00A6</td></tr>
+          <tr><td>`bull`</td><td>U+2022</td></tr>
+          <tr><td>`cap`</td><td>U+2229</td></tr>
+          <tr><td>`ccedil`</td><td>U+00E7</td></tr>
+          <tr><td>`cedil`</td><td>U+00B8</td></tr>
+          <tr><td>`cent`</td><td>U+00A2</td></tr>
+          <tr><td>`chi`</td><td>U+03C7</td></tr>
+          <tr><td>`circ`</td><td>U+02C6</td></tr>
+          <tr><td>`clubs`</td><td>U+2663</td></tr>
+          <tr><td>`cong`</td><td>U+2245</td></tr>
+          <tr><td>`copy`</td><td>U+00A9</td></tr>
+          <tr><td>`crarr`</td><td>U+21B5</td></tr>
+          <tr><td>`cup`</td><td>U+222A</td></tr>
+          <tr><td>`curren`</td><td>U+00A4</td></tr>
+          <tr><td>`dArr`</td><td>U+21D3</td></tr>
+          <tr><td>`dagger`</td><td>U+2020</td></tr>
+          <tr><td>`darr`</td><td>U+2193</td></tr>
+          <tr><td>`deg`</td><td>U+00B0</td></tr>
+          <tr><td>`delta`</td><td>U+03B4</td></tr>
+          <tr><td>`diams`</td><td>U+2666</td></tr>
+          <tr><td>`divide`</td><td>U+00F7</td></tr>
+          <tr><td>`eacute`</td><td>U+00E9</td></tr>
+          <tr><td>`ecirc`</td><td>U+00EA</td></tr>
+          <tr><td>`egrave`</td><td>U+00E8</td></tr>
+          <tr><td>`empty`</td><td>U+2205</td></tr>
+          <tr><td>`emsp`</td><td>U+2003</td></tr>
+          <tr><td>`ensp`</td><td>U+2002</td></tr>
+          <tr><td>`epsilon`</td><td>U+03B5</td></tr>
+          <tr><td>`equiv`</td><td>U+2261</td></tr>
+          <tr><td>`eta`</td><td>U+03B7</td></tr>
+          <tr><td>`eth`</td><td>U+00F0</td></tr>
+          <tr><td>`euml`</td><td>U+00EB</td></tr>
+          <tr><td>`euro`</td><td>U+20AC</td></tr>
+          <tr><td>`exist`</td><td>U+2203</td></tr>
+          <tr><td>`fnof`</td><td>U+0192</td></tr>
+          <tr><td>`forall`</td><td>U+2200</td></tr>
+          <tr><td>`frac12`</td><td>U+00BD</td></tr>
+          <tr><td>`frac14`</td><td>U+00BC</td></tr>
+          <tr><td>`frac34`</td><td>U+00BE</td></tr>
+          <tr><td>`frasl`</td><td>U+2044</td></tr>
+          <tr><td>`gamma`</td><td>U+03B3</td></tr>
+          <tr><td>`ge`</td><td>U+2265</td></tr>
+          <tr><td>`gt`</td><td>U+003E</td></tr>
+          <tr><td>`hArr`</td><td>U+21D4</td></tr>
+          <tr><td>`harr`</td><td>U+2194</td></tr>
+          <tr><td>`hearts`</td><td>U+2665</td></tr>
+          <tr><td>`hellip`</td><td>U+2026</td></tr>
+          <tr><td>`iacute`</td><td>U+00ED</td></tr>
+          <tr><td>`icirc`</td><td>U+00EE</td></tr>
+          <tr><td>`iexcl`</td><td>U+00A1</td></tr>
+          <tr><td>`igrave`</td><td>U+00EC</td></tr>
+          <tr><td>`image`</td><td>U+2111</td></tr>
+          <tr><td>`infin`</td><td>U+221E</td></tr>
+          <tr><td>`int`</td><td>U+222B</td></tr>
+          <tr><td>`iota`</td><td>U+03B9</td></tr>
+          <tr><td>`iquest`</td><td>U+00BF</td></tr>
+          <tr><td>`isin`</td><td>U+2208</td></tr>
+          <tr><td>`iuml`</td><td>U+00EF</td></tr>
+          <tr><td>`kappa`</td><td>U+03BA</td></tr>
+          <tr><td>`lArr`</td><td>U+21D0</td></tr>
+          <tr><td>`lambda`</td><td>U+03BB</td></tr>
+          <tr><td>`lang`</td><td>U+2329</td></tr>
+          <tr><td>`laquo`</td><td>U+00AB</td></tr>
+          <tr><td>`larr`</td><td>U+2190</td></tr>
+          <tr><td>`lceil`</td><td>U+2308</td></tr>
+          <tr><td>`ldquo`</td><td>U+201C</td></tr>
+          <tr><td>`le`</td><td>U+2264</td></tr>
+          <tr><td>`lfloor`</td><td>U+230A</td></tr>
+          <tr><td>`lowast`</td><td>U+2217</td></tr>
+          <tr><td>`loz`</td><td>U+25CA</td></tr>
+          <tr><td>`lrm`</td><td>U+200E</td></tr>
+          <tr><td>`lsaquo`</td><td>U+2039</td></tr>
+          <tr><td>`lsquo`</td><td>U+2018</td></tr>
+          <tr><td>`lt`</td><td>U+003C</td></tr>
+          <tr><td>`macr`</td><td>U+00AF</td></tr>
+          <tr><td>`mdash`</td><td>U+2014</td></tr>
+          <tr><td>`micro`</td><td>U+00B5</td></tr>
+          <tr><td>`middot`</td><td>U+00B7</td></tr>
+          <tr><td>`minus`</td><td>U+2212</td></tr>
+          <tr><td>`mu`</td><td>U+03BC</td></tr>
+          <tr><td>`nabla`</td><td>U+2207</td></tr>
+          <tr><td>`nbsp`</td><td>U+00A0</td></tr>
+          <tr><td>`ndash`</td><td>U+2013</td></tr>
+          <tr><td>`ne`</td><td>U+2260</td></tr>
+          <tr><td>`ni`</td><td>U+220B</td></tr>
+          <tr><td>`not`</td><td>U+00AC</td></tr>
+          <tr><td>`notin`</td><td>U+2209</td></tr>
+          <tr><td>`nsub`</td><td>U+2284</td></tr>
+          <tr><td>`ntilde`</td><td>U+00F1</td></tr>
+          <tr><td>`nu`</td><td>U+03BD</td></tr>
+          <tr><td>`oacute`</td><td>U+00F3</td></tr>
+          <tr><td>`ocirc`</td><td>U+00F4</td></tr>
+          <tr><td>`oelig`</td><td>U+0153</td></tr>
+          <tr><td>`ograve`</td><td>U+00F2</td></tr>
+          <tr><td>`oline`</td><td>U+203E</td></tr>
+          <tr><td>`omega`</td><td>U+03C9</td></tr>
+          <tr><td>`omicron`</td><td>U+03BF</td></tr>
+          <tr><td>`oplus`</td><td>U+2295</td></tr>
+          <tr><td>`or`</td><td>U+2228</td></tr>
+          <tr><td>`ordf`</td><td>U+00AA</td></tr>
+          <tr><td>`ordm`</td><td>U+00BA</td></tr>
+          <tr><td>`oslash`</td><td>U+00F8</td></tr>
+          <tr><td>`otilde`</td><td>U+00F5</td></tr>
+          <tr><td>`otimes`</td><td>U+2297</td></tr>
+          <tr><td>`ouml`</td><td>U+00F6</td></tr>
+          <tr><td>`para`</td><td>U+00B6</td></tr>
+          <tr><td>`part`</td><td>U+2202</td></tr>
+          <tr><td>`permil`</td><td>U+2030</td></tr>
+          <tr><td>`perp`</td><td>U+22A5</td></tr>
+          <tr><td>`phi`</td><td>U+03C6</td></tr>
+          <tr><td>`pi`</td><td>U+03C0</td></tr>
+          <tr><td>`piv`</td><td>U+03D6</td></tr>
+          <tr><td>`plusmn`</td><td>U+00B1</td></tr>
+          <tr><td>`pound`</td><td>U+00A3</td></tr>
+          <tr><td>`prime`</td><td>U+2032</td></tr>
+          <tr><td>`prod`</td><td>U+220F</td></tr>
+          <tr><td>`prop`</td><td>U+221D</td></tr>
+          <tr><td>`psi`</td><td>U+03C8</td></tr>
+          <tr><td>`quot`</td><td>U+0022</td></tr>
+          <tr><td>`rArr`</td><td>U+21D2</td></tr>
+          <tr><td>`radic`</td><td>U+221A</td></tr>
+          <tr><td>`rang`</td><td>U+232A</td></tr>
+          <tr><td>`raquo`</td><td>U+00BB</td></tr>
+          <tr><td>`rarr`</td><td>U+2192</td></tr>
+          <tr><td>`rceil`</td><td>U+2309</td></tr>
+          <tr><td>`rdquo`</td><td>U+201D</td></tr>
+          <tr><td>`real`</td><td>U+211C</td></tr>
+          <tr><td>`reg`</td><td>U+00AE</td></tr>
+          <tr><td>`rfloor`</td><td>U+230B</td></tr>
+          <tr><td>`rho`</td><td>U+03C1</td></tr>
+          <tr><td>`rlm`</td><td>U+200F</td></tr>
+          <tr><td>`rsaquo`</td><td>U+203A</td></tr>
+          <tr><td>`rsquo`</td><td>U+2019</td></tr>
+          <tr><td>`sbquo`</td><td>U+201A</td></tr>
+          <tr><td>`scaron`</td><td>U+0161</td></tr>
+          <tr><td>`sdot`</td><td>U+22C5</td></tr>
+          <tr><td>`sect`</td><td>U+00A7</td></tr>
+          <tr><td>`shy`</td><td>U+00AD</td></tr>
+          <tr><td>`sigma`</td><td>U+03C3</td></tr>
+          <tr><td>`sigmaf`</td><td>U+03C2</td></tr>
+          <tr><td>`sim`</td><td>U+223C</td></tr>
+          <tr><td>`spades`</td><td>U+2660</td></tr>
+          <tr><td>`sub`</td><td>U+2282</td></tr>
+          <tr><td>`sube`</td><td>U+2286</td></tr>
+          <tr><td>`sum`</td><td>U+2211</td></tr>
+          <tr><td>`sup1`</td><td>U+00B9</td></tr>
+          <tr><td>`sup2`</td><td>U+00B2</td></tr>
+          <tr><td>`sup3`</td><td>U+00B3</td></tr>
+          <tr><td>`sup`</td><td>U+2283</td></tr>
+          <tr><td>`supe`</td><td>U+2287</td></tr>
+          <tr><td>`szlig`</td><td>U+00DF</td></tr>
+          <tr><td>`tau`</td><td>U+03C4</td></tr>
+          <tr><td>`there4`</td><td>U+2234</td></tr>
+          <tr><td>`theta`</td><td>U+03B8</td></tr>
+          <tr><td>`thetasym`</td><td>U+03D1</td></tr>
+          <tr><td>`thinsp`</td><td>U+2009</td></tr>
+          <tr><td>`thorn`</td><td>U+00FE</td></tr>
+          <tr><td>`tilde`</td><td>U+02DC</td></tr>
+          <tr><td>`times`</td><td>U+00D7</td></tr>
+          <tr><td>`trade`</td><td>U+2122</td></tr>
+          <tr><td>`uArr`</td><td>U+21D1</td></tr>
+          <tr><td>`uacute`</td><td>U+00FA</td></tr>
+          <tr><td>`uarr`</td><td>U+2191</td></tr>
+          <tr><td>`ucirc`</td><td>U+00FB</td></tr>
+          <tr><td>`ugrave`</td><td>U+00F9</td></tr>
+          <tr><td>`uml`</td><td>U+00A8</td></tr>
+          <tr><td>`upsih`</td><td>U+03D2</td></tr>
+          <tr><td>`upsilon`</td><td>U+03C5</td></tr>
+          <tr><td>`uuml`</td><td>U+00FC</td></tr>
+          <tr><td>`weierp`</td><td>U+2118</td></tr>
+          <tr><td>`xi`</td><td>U+03BE</td></tr>
+          <tr><td>`yacute`</td><td>U+00FD</td></tr>
+          <tr><td>`yen`</td><td>U+00A5</td></tr>
+          <tr><td>`yuml`</td><td>U+00FF</td></tr>
+          <tr><td>`zeta`</td><td>U+03B6</td></tr>
+          <tr><td>`zwj`</td><td>U+200D</td></tr>
+          <tr><td>`zwnj`</td><td>U+200C</td></tr>
+        </tbody>
+      </table>
+    </emu-table>
+  </emu-annex>
+</emu-annex>
 
 <emu-annex id="sec-ts-permissive-grammars">
   <h1>TypeScript Permissive Grammars</h1>
