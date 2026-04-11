@@ -362,6 +362,34 @@
           </ul>
         </emu-note>
       </emu-clause>
+      <emu-clause id="sec-jsx-identifiercodepoints" type="sdo">
+        <h1>Static Semantics: IdentifierCodePoints ( ): a List of code points</h1>
+        <dl class="header">
+        </dl>
+        <p>It extends <a href="https://tc39.es/ecma262/#sec-identifiercodepoints">IdentifierCodePoints</a>.</p>
+        <emu-grammar>JSXIdentifierName :: IdentifierStart</emu-grammar>
+        <emu-alg>
+          1. Let _cp_ be the IdentifierCodePoint of |IdentifierStart|.
+          1. Return « _cp_ ».
+        </emu-alg>
+        <emu-grammar>JSXIdentifierName :: JSXIdentifierName JSXIdentifierPart</emu-grammar>
+        <emu-alg>
+          1. Let _cps_ be the IdentifierCodePoints of the derived |JSXIdentifierName|.
+          1. Let _cp_ be the IdentifierCodePoint of |JSXIdentifierPart|.
+          1. Return the list-concatenation of _cps_ and « _cp_ ».
+        </emu-alg>
+      </emu-clause>
+      <emu-clause id="sec-jsx-identifiercodepoint" type="sdo">
+        <h1>Static Semantics: IdentifierCodePoint ( ): a code point</h1>
+        <dl class="header">
+        </dl>
+        <p>It extends <a href="https://tc39.es/ecma262/#sec-identifiercodepoint">IdentifierCodePoint</a>.</p>
+        <emu-grammar>JSXIdentifierPart :: JSXIdentifierPartChar</emu-grammar>
+        <emu-alg>
+          1. Return the code point matched by |JSXIdentifierPartChar|.
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
       <emu-clause id="sec-static-semantics-has-hyphen" type="sdo">
         <h1>
           Runtime Semantics: HasHyphen ( ): a Boolean
@@ -1441,6 +1469,54 @@
             <li>Babel allows hyphens in the expression here, and emits it as a string literal.</li>
           </ul>
         </emu-note>
+        <emu-grammar>
+          JSXElement :
+            JSXOpeningElement JSXChildren? JSXClosingElement
+        </emu-grammar>
+        <ul>
+          <li>
+            It is a Syntax Error if the StringValue of |JSXElementName| of |JSXOpeningElement| does not match the StringValue of |JSXElementName| of |JSXClosingElement|.
+          </li>
+        </ul>
+      </emu-clause>
+      <emu-clause id="sec-jsx-elements-static-semantics-string-value" type="sdo">
+        <h1>Static Semantics: StringValue</h1>
+        <emu-grammar>
+          JSXNamespacedName :
+            JSXIdentifierName `:` JSXIdentifierName
+        </emu-grammar>
+        <emu-alg>
+          1. Let _namespace_ be the StringValue of the first |JSXIdentifierName|.
+          2. Let _name_ be the StringValue of the second |JSXIdentifierName|.
+          3. Return the concatenation of _namespace_, U+003A (COLON), and _name_.
+        </emu-alg>
+        <emu-grammar>
+          JSXIdentifierName ::
+            IdentifierStart
+            JSXIdentifierName JSXIdentifierPart
+        </emu-grammar>
+        <emu-alg>
+          1. Let _idTextUnescaped_ be the IdentifierCodePoints of |JSXIdentifierName|.
+          1. Return CodePointsToString(_idTextUnescaped_).
+        </emu-alg>
+        <emu-grammar>
+          JSXMemberExpression :
+            JSXMemberExpressionBase `.` JSXIdentifierName
+        </emu-grammar>
+        <emu-alg>
+          1. Let _object_ be the StringValue of |JSXMemberExpressionBase|.
+          2. Let _property_ be the StringValue of |JSXIdentifierName|.
+          3. Return the concatenation of _object_, U+002E (FULL STOP), and _property_.
+        </emu-alg>
+        <emu-grammar>
+          JSXMemberExpressionBase :
+            JSXMemberExpression `.` JSXIdentifierName
+        </emu-grammar>
+        <emu-alg>
+          1. Let _object_ be the StringValue of |JSXMemberExpression|.
+          2. Let _property_ be the StringValue of |JSXIdentifierName|.
+          3. Return the concatenation of _object_, U+002E (FULL STOP), and _property_.
+        </emu-alg>
       </emu-clause>
     </emu-clause>
   </emu-clause>
