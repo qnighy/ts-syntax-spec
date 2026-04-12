@@ -266,6 +266,295 @@
   </emu-clause>
 </emu-clause>
 
+<emu-clause id="sec-ts-syntax-directed-operations">
+  <h1>Syntax-Directed Operations</h1>
+  <p>This section extends <emu-xref href="#sec-syntax-directed-operations">Syntax-Directed Operations</emu-xref> from ECMAScript.</p>
+  <p>In addition to those defined in this section, specialized syntax-directed operations are defined throughout this specification.</p>
+
+  <emu-clause id="sec-ts-evaluation">
+    <h1>Evaluation</h1>
+    <p>This specification extends <emu-xref href="#sec-evaluation">Evaluation</emu-xref> from ECMAScript.</p>
+    <p>See each grammar production for details.</p>
+  </emu-clause>
+
+  <emu-clause id="sec-ts-syntax-directed-operations-function-name-inference">
+    <h1>Function Name Inference</h1>
+
+    <emu-clause id="sec-ts-static-semantics-hasname">
+      <h1>Static Semantics: HasName</h1>
+      <p>This section extends <emu-xref href="#sec-static-semantics-hasname">HasName</emu-xref> from ECMAScript.</p>
+
+      <emu-grammar>
+        MemberExpression :
+          MemberExpression `!`
+          MemberExpression ExpressionTypeArguments
+      </emu-grammar>
+      <emu-alg>
+        1. Return HasName of the derived |MemberExpression|.
+      </emu-alg>
+
+      <emu-grammar>
+        UnaryExpression :
+          `<` Type `>` UnaryExpression
+      </emu-grammar>
+      <emu-alg>
+        1. Return HasName of the derived |UnaryExpression|.
+      </emu-alg>
+
+      <emu-grammar>
+        RelationalExpression :
+          RelationalExpression `as` Type
+          RelationalExpression `satisfies` Type
+      </emu-grammar>
+      <emu-alg>
+        1. Return HasName of the derived |RelationalExpression|.
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-ts-static-semantics-isfunctiondefinition">
+      <h1>Static Semantics: IsFunctionDefinition</h1>
+      <p>This section extends <emu-xref href="#sec-static-semantics-isfunctiondefinition">IsFunctionDefinition</emu-xref> from ECMAScript.</p>
+      <emu-grammar>
+        PrimaryExpression :
+          JSXElement
+          JSXFragment
+      </emu-grammar>
+      <emu-alg>
+        1. Return *false*.
+      </emu-alg>
+
+      <emu-grammar>
+        MemberExpression :
+          MemberExpression `!`
+          MemberExpression ExpressionTypeArguments
+      </emu-grammar>
+      <emu-alg>
+        1. Return IsFunctionDefinition of the derived |MemberExpression|.
+      </emu-alg>
+
+      <emu-grammar>
+        UnaryExpression :
+          `<` Type `>` UnaryExpression
+      </emu-grammar>
+      <emu-alg>
+        1. Return IsFunctionDefinition of the derived |UnaryExpression|.
+      </emu-alg>
+
+      <emu-grammar>
+        RelationalExpression :
+          RelationalExpression `as` Type
+          RelationalExpression `satisfies` Type
+      </emu-grammar>
+      <emu-alg>
+        1. Return IsFunctionDefinition of the derived |RelationalExpression|.
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-ts-static-semantics-isidentifierref">
+      <h1>Static Semantics: IsIdentifierRef</h1>
+      <p>This section extends <emu-xref href="#sec-static-semantics-isidentifierref">IsIdentifierRef</emu-xref> from ECMAScript.</p>
+      <emu-grammar>
+        PrimaryExpression :
+          JSXElement
+          JSXFragment
+      </emu-grammar>
+      <emu-alg>
+        1. Return *false*.
+      </emu-alg>
+
+      <emu-grammar>
+        MemberExpression :
+          MemberExpression `!`
+          MemberExpression ExpressionTypeArguments
+      </emu-grammar>
+      <emu-alg>
+        1. Return IsIdentifierRef of the derived |MemberExpression|.
+      </emu-alg>
+
+      <emu-grammar>
+        CallExpression :
+          CallExpression `!`
+          CallExpression ExpressionTypeArguments
+      </emu-grammar>
+      <emu-alg>
+        1. Return IsIdentifierRef of the derived |CallExpression|.
+      </emu-alg>
+
+      <emu-grammar>
+        UnaryExpression :
+          `<` Type `>` UnaryExpression
+      </emu-grammar>
+      <emu-alg>
+        1. Return IsIdentifierRef of the derived |UnaryExpression|.
+      </emu-alg>
+
+      <emu-grammar>
+        RelationalExpression :
+          RelationalExpression `as` Type
+          RelationalExpression `satisfies` Type
+      </emu-grammar>
+      <emu-alg>
+        1. Return IsIdentifierRef of the derived |RelationalExpression|.
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-ts-runtime-semantics-namedevaluation">
+      <h1>Runtime Semantics: NamedEvaluation</h1>
+      <p>This section extends <emu-xref href="#sec-runtime-semantics-namedevaluation">NamedEvaluation</emu-xref> from ECMAScript.</p>
+
+      <emu-grammar>
+        MemberExpression :
+          MemberExpression `!`
+          MemberExpression ExpressionTypeArguments
+      </emu-grammar>
+      <emu-alg>
+        1. Return ? NamedEvaluation of the derived |MemberExpression| with argument _name_.
+      </emu-alg>
+
+      <emu-grammar>
+        UnaryExpression :
+          `<` Type `>` UnaryExpression
+      </emu-grammar>
+      <emu-alg>
+        1. Return ? NamedEvaluation of the derived |UnaryExpression| with argument _name_.
+      </emu-alg>
+
+      <emu-grammar>
+        RelationalExpression :
+          RelationalExpression `as` Type
+          RelationalExpression `satisfies` Type
+      </emu-grammar>
+      <emu-alg>
+        1. Return ? NamedEvaluation of the derived |RelationalExpression| with argument _name_.
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-ts-syntax-directed-operations-contains">
+    <h1>Contains</h1>
+
+    <emu-clause id="sec-ts-static-semantics-contains">
+      <h1>Static Semantics: Contains</h1>
+      <p>This section extends <emu-xref href="#sec-static-semantics-contains">Contains</emu-xref> from ECMAScript.</p>
+      <emu-grammar>
+        TypeAnnotation :
+          `:` Type
+
+        VariableTypeAnnotation :
+          `:` Type
+          `:` `unique` `symbol`
+
+        ReturnTypeAnnotation :
+          `:` TypeOrTypePredicate
+
+        TypeParameters :
+          `&lt;` TypeParameterList `&gt;`
+          `&lt;` TypeParameterList `,` `&gt;`
+
+        ExpressionTypeArguments :
+          TypeArguments
+
+        Declaration :
+          TopLevelAmbientDeclaration
+          FunctionOverloadDeclaration
+      </emu-grammar>
+      <emu-alg>
+        1. Return *false*.
+      </emu-alg>
+
+      <emu-grammar>
+        UnaryExpression :
+          `<` Type `>` UnaryExpression
+      </emu-grammar>
+      <emu-alg>
+        1. Return Contains of the derived |UnaryExpression|.
+      </emu-alg>
+
+      <emu-grammar>
+        RelationalExpression :
+          RelationalExpression `as` Type
+          RelationalExpression `satisfies` Type
+      </emu-grammar>
+      <emu-alg>
+        1. Return Contains of the derived |RelationalExpression|.
+      </emu-alg>
+
+      <emu-note>
+        <p>Contains is used in the original specification to find disallowed uses of `await`, `yield`, and `super` expressions.</p>
+        <p>We have modified Contains to exclude type-only syntax from these rules.</p>
+        <p>Although arbitrary expressions typically do not appear in these syntaxes, they may be called recursively as |Expression|s in certain cases, such as through |ComputedPropertyName| in an |ObjectLiteralType| or default parameters in an |AmbientFunctionDeclaration|.</p>
+      </emu-note>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-ts-syntax-directed-operations-miscellaneous">
+    <h1>Miscellaneous</h1>
+
+    <emu-clause id="sec-ts-static-semantics-assignmenttargettype">
+      <h1>Static Semantics: AssignmentTargetType</h1>
+      <p>This section extends <emu-xref href="#sec-static-semantics-assignmenttargettype">AssignmentTargetType</emu-xref> from ECMAScript.</p>
+      <emu-grammar>
+        PrimaryExpression :
+          JSXElement
+          JSXFragment
+
+        MemberExpression :
+          MemberExpression ExpressionTypeArguments
+
+        CallExpression :
+          CallExpression ExpressionTypeArguments
+      </emu-grammar>
+      <emu-alg>
+        1. Return *invalid*.
+      </emu-alg>
+
+      <emu-grammar>
+        MemberExpression :
+          MemberExpression `!`
+      </emu-grammar>
+      <emu-alg>
+        1. Return AssignmentTargetType of the derived |MemberExpression|.
+      </emu-alg>
+
+      <emu-grammar>
+        CallExpression :
+          CallExpression `!`
+      </emu-grammar>
+      <emu-alg>
+        1. Return AssignmentTargetType of the derived |CallExpression|.
+      </emu-alg>
+
+      <emu-grammar>
+        UnaryExpression :
+          `<` Type `>` UnaryExpression
+      </emu-grammar>
+      <emu-alg>
+        1. Return AssignmentTargetType of the derived |UnaryExpression|.
+      </emu-alg>
+
+      <emu-grammar>
+        RelationalExpression :
+          RelationalExpression `as` Type
+          RelationalExpression `satisfies` Type
+      </emu-grammar>
+      <emu-alg>
+        1. Return AssignmentTargetType of the derived |RelationalExpression|.
+      </emu-alg>
+
+      <emu-note>
+        <p>`x! = e`, `(&lt;T&gt;x) = e`, `(x as T) = e`, `(x satisfies T) = e` are valid according to these rules.</p>
+      </emu-note>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <ul>
+          <li>SWC also allows `x&lt;T&gt; = e`.</li>
+          <!-- TODO: SWC disallows `(x as const) = e`.-->
+        </ul>
+      </emu-note>
+    </emu-clause>
+  </emu-clause>
+</emu-clause>
+
 <emu-clause id="sec-typescript-language-lexical-grammar">
   <h1>TypeScript Language: Lexical Grammar</h1>
   <p>TypeScript's lexical grammar is largely identical to <emu-xref href="#sec-ecmascript-language-lexical-grammar">ECMAScript's lexical grammar</emu-xref>, with the following extensions:</p>
@@ -1763,6 +2052,7 @@
         RelationalExpression[?In, ?Yield, ?Await] [no LineTerminator here] `as` Type[?Yield, ?Await]
         RelationalExpression[?In, ?Yield, ?Await] [no LineTerminator here] `satisfies` Type[?Yield, ?Await]
     </emu-grammar>
+    <!-- TODO: as const -->
     <emu-note>
       <p>The production for `&lt;` is modified from the original ECMA-262 grammar to include a lookahead restriction that prevents ambiguity with |ExpressionTypeArguments|.</p>
       <p>Its semantics is the same, as the derivation tree is unchanged.</p>
