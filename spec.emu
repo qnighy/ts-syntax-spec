@@ -284,7 +284,7 @@
       UnaryExpression :
         `&lt;` Type `&gt;` UnaryExpression
     </emu-grammar>
-    <p>Additionally, the following grammar is used for lookahead to detect type parameters or type arguments:</p>
+    <p>Additionally, the following grammar is used for lookahead to detect type arguments:</p>
     <emu-grammar>
       DoesNotFollowTypeArgumentsNLT :
         `import` `&lt;`
@@ -294,11 +294,6 @@
       DoesNotFollowTypeArgumentsLT :
         `&lt;`
         `&gt;`
-
-      TypeParametersLookahead:
-        `&lt;` `const`? BindingIdentifier[+Yield, +Await] `extends` [lookahead &notin; { `=`, `&gt;`, `/` }]
-        `&lt;` `const`? BindingIdentifier[+Yield, +Await] `=`
-        `&lt;` `const`? BindingIdentifier[+Yield, +Await] `,`
     </emu-grammar>
     <p>When `&lt;` or `&gt;` in such productions is expected, the parser needs to rescan the following tokens to correctly interpret them as angle brackets:</p>
     <ul>
@@ -1394,6 +1389,43 @@
       <!-- TODO: uniqueness of bindings -->
     </emu-clause>
   </emu-clause>
+  <emu-clause id="sec-ts-type-parameters-lookahead">
+    <h1>Type Parameters Lookahead Restrictions</h1>
+    <emu-grammar type="definition">
+      TypeParametersLookahead[Yield, Await]:
+        [> (no production)]
+    </emu-grammar>
+    <emu-note>
+      <p>Not all occurrences of |TypeParameters| are subject to these lookahead restrictions.</p>
+      <p>The restriction only apply to generic arrow functions, and additionally to generic async arrow functions in some parser.</p>
+    </emu-note>
+    <emu-clause id="sec-ts-type-parameters-lookahead-syntax-alterations">
+      <h1>Syntax Alterations</h1>
+      <p>By default, |TypeParametersLookahead| does not match anything.</p>
+      <p>However, when [[TypeScript]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and [[JSX]] of the same syntax context is *true*, we add the following productions to |TypeParametersLookahead|:</p>
+      <emu-grammar>
+        TypeParametersLookahead[Yield, Await]:
+          `&lt;` `const`? IdentifierReference[?Yield, ?Await] `extends` [lookahead &notin; { `=`, `&gt;`, `/` }]
+          `&lt;` `const`? IdentifierReference[?Yield, ?Await] `=`
+          `&lt;` `const`? IdentifierReference[?Yield, ?Await] `,`
+      </emu-grammar>
+      <emu-note>
+        <p>You can use trailing comma to disambiguate generic arrow functions of one type parameter from JSX elements, such as `&lt;T,&gt;(x: T) =&gt; x`.</p>
+      </emu-note>
+      <emu-note>
+        <p>Using |IdentifierReference| instead of |BindingIdentifier| because |BindingIdentifier| unconditionally parses `yield` and `await`.</p>
+      </emu-note>
+      <emu-note>
+        <p>Actual parsers implement these rules in various ways.</p>
+        <p>See notes in <emu-xref href="#sec-jsx-lookahead"></emu-xref>.</p>
+      </emu-note>
+      <p>And when [[TypeScript]] of the current syntax context is *true* but [[JSX]] of the same syntax context is *false*, we add the following productions to |TypeParametersLookahead|:</p>
+      <emu-grammar>
+        TypeParametersLookahead[Yield, Await]:
+          `&lt;`
+      </emu-grammar>
+    </emu-clause>
+  </emu-clause>
   <emu-clause id="sec-ts-type-arguments">
     <h1>Type Arguments</h1>
     <emu-grammar type="definition">
@@ -2263,20 +2295,12 @@
         BindingIdentifier[?Yield, ?Await]
 
       ArrowHead[Yield, Await] :
-        TypeParameters[?Yield, ?Await]? ArrowFormalParameters[?Yield, ?Await] ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
+        ArrowFormalParameters[?Yield, ?Await] ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
+        [lookahead == TypeParametersLookahead[?Yield, ?Await]] TypeParameters[?Yield, ?Await] ArrowFormalParameters[?Yield, ?Await] ReturnTypeAnnotation[?Yield, ?Await, +Predicate]?
     </emu-grammar>
     <emu-note>
       <p>|ArrowHead| originally referenced |CoverParenthesizedExpressionAndArrowParameterList|. See <emu-xref href="#sec-ts-backtracking">Backtracking over cover grammars</emu-xref> for the rationale.</p>
       <p>Disambiguation between |ArrowHead| and parenthesized expressions in |PrimaryExpression| is still necessary. Most parsers implement it using backtracking, optionally with bounded lookahead for optimization.</p>
-    </emu-note>
-    <emu-note>
-      <p>If JSX is enabled, the |TypeParameters| in |ArrowHead| must match the following production to avoid ambiguity with JSX syntax.</p>
-      <emu-grammar type="definition">
-        TypeParametersLookahead:
-          `&lt;` `const`? BindingIdentifier[+Yield, +Await] `extends` [lookahead &notin; { `=`, `&gt;`, `/` }]
-          `&lt;` `const`? BindingIdentifier[+Yield, +Await] `=`
-          `&lt;` `const`? BindingIdentifier[+Yield, +Await] `,`
-      </emu-grammar>
     </emu-note>
     <emu-clause id="sec-ts-arrow-function-definitions-static-semantics-early-errors">
       <h1>Static Semantics: Early Errors</h1>
