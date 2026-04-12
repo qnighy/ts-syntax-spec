@@ -109,10 +109,40 @@
   <p>This specification defines the syntax and runtime semantics of TypeScript as an extension to ECMAScript, as defined by ECMA-262. It covers type annotation syntax, type declaration syntax, and additional expression and statement forms introduced by TypeScript.</p>
 </emu-clause>
 
-<emu-clause id="sec-conformance">
+<emu-clause id="sec-ts-conformance">
   <h1>Conformance</h1>
-  <p>A conforming implementation of this specification is a TypeScript parser or compiler that accepts source code conforming to the grammar defined in this specification and implements the runtime semantics described herein.</p>
-  <p>A conforming implementation must support all syntax and semantics described in ECMA-262, as extended by this specification.</p>
+  <p>The features described in this specifications are classified into the following categories:</p>
+  <ul>
+    <li>The TypeScript syntax extends ECMAScript with type annotations, type declarations, and additional expression and statement forms.</li>
+    <li>JSX extends ECMAScript with XML-like syntax for defining UI components.</li>
+    <li>TSX is a combination of TypeScript and JSX with additional syntactic rules to disambiguate between TypeScript and JSX constructs.</li>
+  </ul>
+  <p>An implementation supporting both TypeScript and JSX doesn't automatically support TSX.</p>
+  <p>An implementation must first conform to ECMA-262 as described in the original spec's <emu-xref href="#sec-conformance">conformance requirements</emu-xref>. As an exception, <emu-xref href="#sec-forbidden-extensions">Forbidden Extensions</emu-xref> is modified in subclause <emu-xref href="#sec-ts-forbidden-extensions"></emu-xref> to allow type annotations without interfering with the original spec's forward compatibility intent.</p>
+  <p>To conform to this specification, an implementation must support some or all of the categories as well as ECMA-262's conformance requirements, and clearly document which categories are supported.</p>
+
+  <emu-note>
+    <p>This "conformance" is what the conformance requirements would be if this specification were an authoritative standard.</p>
+    <p>In reality, there is no authority for this specification to enforce conformance.</p>
+  </emu-note>
+
+  <emu-clause id="sec-ts-conformance-typescript">
+    <h1>TypeScript Syntax Conformance</h1>
+    <p>If an implementation supports TypeScript syntax, it must be able to parse a source using a syntax context whose [[TypeScript]] is *true* and its [[JSX]] is *false*.</p>
+    <!-- TODO: TypeScript syntax subfeatures -->
+  </emu-clause>
+
+  <emu-clause id="sec-ts-conformance-jsx">
+    <h1>JSX Syntax Conformance</h1>
+    <p>If an implementation supports JSX syntax, it must be able to parse a source using a syntax context whose [[TypeScript]] is *false* and its [[JSX]] is *true*.</p>
+    <!-- TODO: JSX syntax subfeatures -->
+  </emu-clause>
+
+  <emu-clause id="sec-ts-conformance-tsx">
+    <h1>TSX Syntax Conformance</h1>
+    <p>If an implementation supports TSX syntax, it must be able to parse a source using a syntax context whose [[TypeScript]] is *true* and its [[JSX]] is *true*, in addition to supporting both TypeScript and JSX syntax individually.</p>
+    <p>TSX does not have its own subfeatures; an implementation supporting TSX must consistently support subfeatures for TypeScript and JSX in TSX mode as well.</p>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="sec-references">
@@ -3177,6 +3207,19 @@
         <li>Babel and SWC allow |Expression|s (comma operators) in `{` `}` or `{` `...` `}`.</li>
         <!-- TODO: Babel is also different in that it does not transpile `{...child}` for React. -->
       </ul>
+    </emu-note>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-ts-error-handling-and-language-extensions">
+  <h1>Error Handling and Language Extensions</h1>
+  <p>This section extends <emu-xref href="#sec-error-handling-and-language-extensions">Error Handling and Language Extensions</emu-xref>.</p>
+  <emu-clause id="sec-ts-forbidden-extensions">
+    <h1>Forbidden Extensions</h1>
+    <p>This subclause extends <emu-xref href="#sec-forbidden-extensions">Forbidden Extensions</emu-xref>.</p>
+    <p>ECMAScript forbids extension of the Syntactic Grammar in a way that allows the token `:` is allowed to immediately follow |BindingIdentifier|. This restriction is only applied when [[TypeScript]] of the <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.</p>
+    <emu-note>
+      <p>This relaxation will not invalidate the original specification's intent, as TypeScript code is not intended to be directly executed in the standard Web environment.</p>
     </emu-note>
   </emu-clause>
 </emu-clause>
