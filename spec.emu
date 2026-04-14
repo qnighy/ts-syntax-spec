@@ -138,6 +138,17 @@
     <!-- TODO: JSX syntax subfeatures -->
   </emu-clause>
 
+  <emu-clause id="sec-ts-conformance-jsx-semantics">
+    <h1>JSX Semantics Conformance</h1>
+    <p>JSX semantics is highly dependent on user configuration, such as Babel config. Hence, we assume that additional custom static analysis is performed to fully fulfill UI frameworks' needs.</p>
+    <p>As such, this specification only describes a base semantics that a custom transpiler plugin works on.</p>
+    <p>A conforming implementation supporting JSX must document the values of syntax context properties it uses for interpreting JSX syntax, and additional transformation applied to JSX constructs.</p>
+    <emu-note>
+      <p>For example, in React Automatic JSX Runtime, if an attribute named `key` precedes any spread attributes in the element, the `key` attribute is evaluated after all the other attributes.</p>
+      <p>This is a React-specific transformation not documented normatively in this specification.</p>
+    </emu-note>
+  </emu-clause>
+
   <emu-clause id="sec-ts-conformance-tsx">
     <h1>TSX Syntax Conformance</h1>
     <p>If an implementation supports TSX syntax, it must be able to parse a source using a syntax context whose [[TypeScript]] is *true* and its [[JSX]] is *true*, in addition to supporting both TypeScript and JSX syntax individually.</p>
