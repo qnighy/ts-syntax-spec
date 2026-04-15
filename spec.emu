@@ -257,8 +257,16 @@
             <td>a Boolean</td>
             <td>Indicates whether the parser is currently parsing JSX syntax.</td>
           </tr>
+          <tr>
+            <td>[[JSXLazy]]</td>
+            <td>a Boolean</td>
+            <td>Indicates whether evaluation of expressions in JSX elements should be deferred until necessary.</td>
+          </tr>
         </table>
       </emu-table>
+      <emu-note>
+        <p>[[JSXLazy]] is intended to represent the "DOM Expressions" semantics, which is primarily used by Solid.</p>
+      </emu-note>
     </emu-clause>
     <p>The <dfn id="default-syntax-context-record">default Syntax Context Record</dfn> is the Syntax Context Record { [[TypeScript]]: *false*, [[JSX]]: *false* }.</p>
   </emu-clause>
@@ -3196,7 +3204,24 @@
         <li>TypeScript allows |Expression|s (comma operators) to appear without parentheses in |JSXSpreadAttribute|.</li>
       </ul>
     </emu-note>
+
+    <emu-clause id="sec-jsx-attributes-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>
+        JSXSpreadAttribute[Yield, Await] :
+          `{` `...` AssignmentExpression[?Yield, ?Await] `}`
+
+        JSXAttributeValue[Yield, Await] :
+          `{` AssignmentExpression[?Yield, ?Await] `}`
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if [[JSXLazy]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and the |AssignmentExpression| Contains |YieldExpression| or |AwaitExpression|.
+        </li>
+      </ul>
+    </emu-clause>
   </emu-clause>
+
   <emu-clause id="sec-jsx-children">
     <h1>JSX Children</h1>
     <emu-grammar type="definition">
@@ -3219,6 +3244,19 @@
         <!-- TODO: Babel is also different in that it does not transpile `{...child}` for React. -->
       </ul>
     </emu-note>
+
+    <emu-clause id="sec-jsx-children-static-semantics-early-errors">
+      <h1>Static Semantics: Early Errors</h1>
+      <emu-grammar>
+        JSXChild[Yield, Await] :
+          `{` AssignmentExpression[?Yield, ?Await] `}`
+          `{` `...` AssignmentExpression[?Yield, ?Await] `}`
+      </emu-grammar>
+      <ul>
+        <li>
+          It is a Syntax Error if [[JSXLazy]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and the |AssignmentExpression| Contains |YieldExpression| or |AwaitExpression|.
+        </li>
+      </ul>
   </emu-clause>
 </emu-clause>
 
