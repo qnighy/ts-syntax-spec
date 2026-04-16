@@ -3257,6 +3257,7 @@
           It is a Syntax Error if [[JSXLazy]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and the |AssignmentExpression| Contains |YieldExpression| or |AwaitExpression|.
         </li>
       </ul>
+    </emu-clause>
   </emu-clause>
 </emu-clause>
 
