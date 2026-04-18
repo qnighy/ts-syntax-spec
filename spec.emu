@@ -288,6 +288,24 @@
           <p>For example, React rejects |JSXNamespacedName|, as well as spread operators in |JSXChild|.</p>
         </emu-note>
       </emu-clause>
+
+      <emu-clause id="sec-jsx-evaluatejsxelement" type="abstract operation">
+        <h1>
+          EvaluateJSXElement (
+            _ctx_: a Syntax Context Record,
+            _jsx_: a JSX Element Record or a JSX Fragment Record
+          ): either a normal completion containing an ECMAScript language value or a throw completion
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. Assert: _ctx_.[[JSX]] is *true*.
+          1. Return a normal completion containing an ECMAScript language value or a throw completion based on _ctx_ and _jsx_ in an implementation-defined manner.
+        </emu-alg>
+        <emu-note>
+          <p>In React, the list of children of _jsx_ value goes through additional modifications before being passed to `React.createElement`, `jsx`, or `jsxs`.</p>
+        </emu-note>
+      </emu-clause>
     </emu-clause>
 
     <emu-clause id="sec-jsx-skeleton-records">
@@ -375,6 +393,223 @@
               <td>[[AttributeValue]]</td>
               <td>a String, *true*, a JSX Element Skeleton Record, a JSX Fragment Skeleton Record, or ~opaque~</td>
               <td>Represents the value of the JSX attribute. It is *true* if the attribute does not have an initializer.</td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+    </emu-clause>
+
+    <emu-clause id="sec-jsx-records">
+      <h1>JSX Records</h1>
+      <p>The <dfn id="jsx-record">JSX Record</dfn> types are used to represent the structure of JSX elements in a way that can be dynamically processed by Evaluation of JSX-related expressions.</p>
+      <p>A <dfn id="jsx-child-value">JSX Child Value</dfn> is a value that can appear as a child of a JSX element or fragment. It is one of the following:</p>
+      <ul>
+        <li>a String</li>
+        <li>a <emu-xref href="#jsx-child-expression-record">JSX Child Expression Record</emu-xref></li>
+        <li>a <emu-xref href="#jsx-children-spread-expression-record">JSX Children Spread Expression Record</emu-xref></li>
+        <li>a <emu-xref href="#jsx-element-record">JSX Element Record</emu-xref></li>
+        <li>a <emu-xref href="#jsx-fragment-record">JSX Fragment Record</emu-xref></li>
+      </ul>
+      <p>A <dfn id="jsx-attribute-value">JSX Attribute Value</dfn> is a JSX Spread Attribute Record or a JSX Attribute Record.</p>
+
+      <emu-clause id="sec-jsx-element-record">
+        <h1>JSX Element Record</h1>
+        <p>The <dfn id="jsx-element-record">JSX Element Record</dfn> type is a JSX Record type representing a JSX element. It is used as the return type of JSXPreEvaluation of |JSXElement| and |JSXSelfClosingElement|.</p>
+        <emu-table id="table-jsx-element-record-fields" caption="JSX Element Record Fields">
+          <table>
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Value</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tr>
+              <td>[[ElementName]]</td>
+              <td>a String or a JSX Element Name Expression Record</td>
+              <td>Represents the name of the JSX element.</td>
+            </tr>
+            <tr>
+              <td>[[Attributes]]</td>
+              <td>a list of <emu-xref href="#jsx-attribute-value">JSX Attribute Value</emu-xref>s</td>
+              <td>Represents the attributes of the JSX element.</td>
+            </tr>
+            <tr>
+              <td>[[Children]]</td>
+              <td>a list of <emu-xref href="#jsx-child-value">JSX Child Value</emu-xref>s</td>
+              <td>Represents the children of the JSX element.</td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+
+      <emu-clause id="sec-jsx-element-name-expression-record">
+        <h1>JSX Element Name Expression Record</h1>
+        <p>The <dfn id="jsx-element-name-expression-record">JSX Element Name Expression Record</dfn> type is a JSX Record type representing a JSX element name that is an expression. It is used as the value of [[ElementName]] in a JSX Element Record when the element name is an expression.</p>
+        <emu-table id="table-jsx-element-name-expression-record-fields" caption="JSX Element Name Expression Record Fields">
+          <table>
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Value</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tr>
+              <td>[[Value]]</td>
+              <td>an ECMAScript language value</td>
+              <td>Represents the result of evaluating the expression of the element name.</td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+
+      <emu-clause id="sec-jsx-fragment-record">
+        <h1>JSX Fragment Record</h1>
+        <p>The <dfn id="jsx-fragment-record">JSX Fragment Record</dfn> type is a JSX Record type representing a JSX fragment. It is used as the return type of JSXPreEvaluation of |JSXFragment|.</p>
+        <emu-table id="table-jsx-fragment-record-fields" caption="JSX Fragment Record Fields">
+          <table>
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Value</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tr>
+              <td>[[Children]]</td>
+              <td>a list of <emu-xref href="#jsx-child-value">JSX Child Value</emu-xref>s</td>
+              <td>Represents the children of the JSX fragment.</td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+
+      <emu-clause id="sec-jsx-attribute-record">
+        <h1>JSX Attribute Record</h1>
+        <p>The <dfn id="jsx-attribute-record">JSX Attribute Record</dfn> type is a JSX Record type representing a JSX attribute. It is used as the value type of attributes in the [[Attributes]] field of a JSX Element Record.</p>
+        <emu-table id="table-jsx-attribute-record-fields" caption="JSX Attribute Record Fields">
+          <table>
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Value</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tr>
+              <td>[[AttributeName]]</td>
+              <td>a String</td>
+              <td>Represents the name of the JSX attribute.</td>
+            </tr>
+            <tr>
+              <td>[[AttributeValue]]</td>
+              <td>a String, *true*, a JSX Element Record, a JSX Fragment Record, or a JSX Attribute Expression Record</td>
+              <td>Represents the value of the JSX attribute. It is *true* if the attribute does not have an initializer.</td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+
+      <emu-clause id="sec-jsx-attribute-expression-record">
+        <h1>JSX Attribute Expression Record</h1>
+        <p>The <dfn id="jsx-attribute-expression-record">JSX Attribute Expression Record</dfn> type is a JSX Record type representing a JSX attribute whose value is an expression. It is used as the value of [[AttributeValue]] in a JSX Attribute Record when the attribute value is an expression.</p>
+        <emu-table id="table-jsx-attribute-expression-record-fields" caption="JSX Attribute Expression Record Fields">
+          <table>
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Value</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tr>
+              <td>[[Value]]</td>
+              <td>an ECMAScript language value</td>
+              <td>Represents the result of evaluating the expression of the attribute value.</td>
+            </tr>
+            <tr>
+              <td>[[Lazy]]</td>
+              <td>a Boolean</td>
+              <td>If true, [[Value]] is a function object that actually evaluates the expression when called.</td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+
+      <emu-clause id="sec-jsx-spread-attribute-record">
+        <h1>JSX Spread Attribute Record</h1>
+        <p>The <dfn id="jsx-spread-attribute-record">JSX Spread Attribute Record</dfn> type is a JSX Record type representing a spread attribute in JSX. It is used as the value type of attributes in the [[Attributes]] field of a JSX Element Record when the attribute is a spread attribute.</p>
+        <emu-table id="table-jsx-spread-attribute-record-fields" caption="JSX Spread Attribute Record Fields">
+          <table>
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Value</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tr>
+              <td>[[Value]]</td>
+              <td>an ECMAScript language value</td>
+              <td>Represents the result of evaluating the expression of the spread attribute.</td>
+            </tr>
+            <tr>
+              <td>[[Lazy]]</td>
+              <td>a Boolean</td>
+              <td>If true, [[Value]] is a function object that actually evaluates the expression when called.</td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+
+      <emu-clause id="sec-jsx-child-expression-record">
+        <h1>JSX Child Expression Record</h1>
+        <p>The <dfn id="jsx-child-expression-record">JSX Child Expression Record</dfn> type is a JSX Record type representing a child of a JSX element or fragment that is an expression. It is used as the value of a child in the [[Children]] field of a JSX Element Record or a JSX Fragment Record when the child is an expression.</p>
+        <emu-table id="table-jsx-child-expression-record-fields" caption="JSX Child Expression Record Fields">
+          <table>
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Value</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tr>
+              <td>[[Value]]</td>
+              <td>an ECMAScript language value</td>
+              <td>Represents the result of evaluating the expression of the child.</td>
+            </tr>
+            <tr>
+              <td>[[Lazy]]</td>
+              <td>a Boolean</td>
+              <td>If true, [[Value]] is a function object that actually evaluates the expression when called.</td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+
+      <emu-clause id="sec-jsx-children-spread-expression-record">
+        <h1>JSX Children Spread Expression Record</h1>
+        <p>The <dfn id="jsx-children-spread-expression-record">JSX Children Spread Expression Record</dfn> type is a JSX Record type representing a spread child in JSX. It is used as the value of a child in the [[Children]] field of a JSX Element Record or a JSX Fragment Record when the child is a spread child.</p>
+        <emu-table id="table-jsx-children-spread-expression-record-fields" caption="JSX Children Spread Expression Record Fields">
+          <table>
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Value</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tr>
+              <td>[[Value]]</td>
+              <td>an ECMAScript language value</td>
+              <td>Represents the result of evaluating the expression of the spread child.</td>
+            </tr>
+            <tr>
+              <td>[[Lazy]]</td>
+              <td>a Boolean</td>
+              <td>If true, [[Value]] is a function object that actually evaluates the expression when called.</td>
             </tr>
           </table>
         </emu-table>
@@ -822,6 +1057,223 @@
       </emu-grammar>
       <emu-alg>
         1. Return ~spread~.
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-jsx-runtime-semantics-jsxpreevaluation" type="sdo">
+      <h1>
+        Runtime Semantics: JSXPreEvaluation (): a Completion Record
+      </h1>
+      <dl class="header">
+      </dl>
+
+      <emu-grammar>
+        JSXElement :
+          JSXOpeningElement JSXChildren? JSXClosingElement
+      </emu-grammar>
+      <emu-alg>
+        1. Let _elem_ be ? JSXPreEvaluation of |JSXOpeningElement|.
+        1. Assert: _elem_ is a JSX Element Record.
+        1. Let _children_ be an empty list.
+        1. If |JSXChildren| is present, then
+          1. Set _children_ to ? JSXPreEvaluation of |JSXChildren|.
+          1. Assert: _children_ is a list of <emu-xref href="#jsx-child-value">JSX Child Value</emu-xref>s.
+        1. Set _elem_ to a copy of _elem_ with its [[Children]] field set to _children_.
+        1. Return _elem_.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXFragment :
+          `&lt;` `&gt;` JSXChildren? `&lt;` `/` `&gt;`
+      </emu-grammar>
+      <emu-alg>
+        1. Let _children_ be an empty list.
+        1. If |JSXChildren| is present, then
+          1. Set _children_ to ? JSXPreEvaluation of |JSXChildren|.
+          1. Assert: _children_ is a list of <emu-xref href="#jsx-child-value">JSX Child Value</emu-xref>s.
+        1. Return a JSX Fragment Record { [[Children]]: _children_ }.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXSelfClosingElement :
+          `&lt;` JSXElementName TypeArguments? JSXAttributes? `/` `&gt;`
+
+        JSXOpeningElement :
+          `&lt;` JSXElementName TypeArguments? JSXAttributes? `&gt;`
+      </emu-grammar>
+      <emu-alg>
+        1. Let _name_ be ? JSXPreEvaluation of |JSXElementName|.
+        1. Assert: _name_ is a String.
+        1. Let _attributes_ be an empty list.
+        1. If |JSXAttributes| is present, then
+          1. Set _attributes_ to ? JSXPreEvaluation of |JSXAttributes|.
+          1. Assert: _attributes_ is a list of <emu-xref href="#jsx-attribute-value">JSX Attribute Value</emu-xref>s.
+        1. Return a JSX Element Record { [[Name]]: _name_, [[Attributes]]: _attributes_, [[Children]]: an empty list }.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXElementName :
+          JSXLiteralIdentifier
+          JSXNamespacedName
+      </emu-grammar>
+      <emu-alg>
+        1. Let _nameText_ be StringValue of |JSXElementName|.
+        1. Assert: _nameText_ is a String.
+        1. Return _nameText_.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXElementName :
+          JSXSimpleIdentifier
+          JSXThis
+          JSXMemberExpression
+      </emu-grammar>
+      <emu-alg>
+        1. Let _value_ be ? Evaluation of |JSXElementName|.
+        1. Return a JSX Element Name Expression Record { [[Value]]: _value_ }.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXAttributes :
+          JSXAttributes JSXAttributeListElement
+      </emu-grammar>
+      <emu-alg>
+        1. Let _attributes_ be ? JSXPreEvaluation of the derived |JSXAttributes|.
+        1. Assert: _attributes_ is a list of <emu-xref href="#jsx-attribute-value">JSX Attribute Value</emu-xref>s.
+        1. Let _attribute_ be ? JSXPreEvaluation of |JSXAttributeListElement|.
+        1. Assert: _attribute_ is a <emu-xref href="#jsx-attribute-value">JSX Attribute Value</emu-xref>.
+        1. Return the list-concatenation of _attributes_ and « _attribute_ ».
+      </emu-alg>
+
+      <emu-grammar>
+        JSXSpreadAttribute :
+          `{` `...` AssignmentExpression `}`
+      </emu-grammar>
+      <emu-alg>
+        1. Let _ctx_ be |JSXSpreadAttribute|'s syntax context.
+        1. If _ctx_.[[JSXLazy]] is *true*, then
+          1. Let _thunk_ be CreateThunk(|AssignmentExpression|).
+          1. Return a JSX Spread Attribute Record { [[Value]]: _thunk_, [[Lazy]]: *true* }.
+        1. Let _value_ be ? Evaluation of |AssignmentExpression|.
+        1. Return a JSX Spread Attribute Record { [[Value]]: _value_, [[Lazy]]: *false* }.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXAttribute :
+          JSXAttributeName JSXAttributeInitializer?
+      </emu-grammar>
+      <emu-alg>
+        1. Let _name_ be StringValue of |JSXAttributeName|.
+        1. Assert: _name_ is a String.
+        1. Let _value_ be *true*.
+        1. If |JSXAttributeInitializer| is present, then
+          1. Set _value_ to ? JSXPreEvaluation of |JSXAttributeInitializer|.
+          1. Assert: _value_ is a String, a JSX Element Record, a JSX Fragment Record, or a JSX Attribute Expression Record.
+        1. Return a JSX Attribute Record { [[Name]]: _name_, [[Value]]: _value_ }.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXAttributeValue :
+          JSXStringLiteral
+      </emu-grammar>
+      <emu-alg>
+        1. Let _valueText_ be StringValue of |JSXStringLiteral|.
+        1. Assert: _valueText_ is a String.
+        1. Return _valueText_.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXAttributeValue :
+          `{` AssignmentExpression `}`
+      </emu-grammar>
+      <emu-alg>
+        1. Let _ctx_ be |JSXAttributeValue|'s syntax context.
+        1. If _ctx_.[[JSXLazy]] is *true*, then
+          1. Let _thunk_ be CreateThunk(|AssignmentExpression|).
+          1. Return a JSX Attribute Expression Record { [[Value]]: _thunk_, [[Lazy]]: *true* }.
+        1. Let _value_ be ? Evaluation of |AssignmentExpression|.
+        1. Return a JSX Attribute Expression Record { [[Value]]: _value_, [[Lazy]]: *false* }.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXChildren :
+          JSXChildren JSXChild
+      </emu-grammar>
+      <emu-alg>
+        1. Let _children_ be an empty list.
+        1. If |JSXChildren| is present, then
+          1. Set _children_ to ? JSXPreEvaluation of the derived |JSXChildren|.
+          1. Assert: _children_ is a list of <emu-xref href="#jsx-child-value">JSX Child Value</emu-xref>s.
+        1. Let _child_ be ? JSXPreEvaluation of |JSXChild|.
+        1. If _child_ is ~empty~, then
+          1. Return _children_.
+        1. Assert: _child_ is a <emu-xref href="#jsx-child-value">JSX Child Value</emu-xref>.
+        1. Return the list-concatenation of _children_ and « _child_ ».
+      </emu-alg>
+
+      <emu-grammar>
+        JSXChild :
+          JSXText
+      </emu-grammar>
+      <emu-alg>
+        1. Let _text_ be StringValue of |JSXText|.
+        1. Assert: _text_ is a String.
+        1. Return _text_.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXChild :
+          `{` `}`
+      </emu-grammar>
+      <emu-alg>
+        1. Return ~empty~.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXChild :
+          `{` AssignmentExpression `}`
+      </emu-grammar>
+      <emu-alg>
+        1. Let _ctx_ be |JSXChild|'s syntax context.
+        1. If _ctx_.[[JSXLazy]] is *true*, then
+          1. Let _thunk_ be CreateThunk(|AssignmentExpression|).
+          1. Return a JSX Child Expression Record { [[Value]]: _thunk_, [[Lazy]]: *true* }.
+        1. Let _value_ be ? Evaluation of |AssignmentExpression|.
+        1. Return a JSX Child Expression Record { [[Value]]: _value_, [[Lazy]]: *false* }.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXChild :
+          `{` `...` AssignmentExpression `}`
+      </emu-grammar>
+      <emu-alg>
+        1. Let _ctx_ be |JSXChild|'s syntax context.
+        1. If _ctx_.[[JSXLazy]] is *true*, then
+          1. Let _thunk_ be CreateThunk(|AssignmentExpression|).
+          1. Return a JSX Child Spread Expression Record { [[Value]]: _thunk_, [[Lazy]]: *true* }.
+        1. Let _value_ be ? Evaluation of |AssignmentExpression|.
+        1. Return a JSX Child Spread Expression Record { [[Value]]: _value_, [[Lazy]]: *false* }.
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-jsx-createthunk" type="abstract operation">
+      <!-- TODO: maybe we create Abstract Operations section and move it there? -->
+      <h1>
+        CreateThunk (
+          _expr_: an |AssignmentExpression| node
+        ): an ECMAScript language value
+      </h1>
+      <dl class="header">
+      </dl>
+      <emu-alg>
+        1. Let _env_ be the LexicalEnvironment of the running execution context.
+        1. Let _privateEnv_ be the running execution context's PrivateEnvironment.
+        1. Let _parameters_ be a synthetic |ArrowParameters| node containing no parameters.
+        1. Let _body_ be a synthetic |ConciseBody| node containing _expr_ or _expr_ wrapped by `(` and `)` if _expr_ starts with `{`.
+        1. Let _sourceText_ be a synthetic implementation-defined source text string representing this function, concatenating `(`, `)`, `=>` and _body_'s source text.
+        1. Let _closure_ be OrdinaryFunctionCreate(%Function.prototype%, _sourceText_, _parameters_, _body_, ~lexical-this~, _env_, _privateEnv_).
+        1. Perform SetFunctionName(_closure_, *""*).
+        1. Return _closure_.
       </emu-alg>
     </emu-clause>
   </emu-clause>
@@ -3319,6 +3771,7 @@
         <li>TSC and SWC tokenizes `&lt;/` as a single token where it is expected, thus disallowing `&lt;div&gt;&lt;/**/img/&gt;&lt;/div&gt;`. However, they still accept `&lt;/**/img/&gt;` as a |PrimaryExpression|.</li>
       </ul>
     </emu-note>
+
     <emu-clause id="sec-jsx-elements-and-fragments-static-semantics-early-errors">
       <h1>Static Semantics: Early Errors</h1>
       <emu-grammar>
@@ -3330,6 +3783,20 @@
           It is a Syntax Error if the StringValue of |JSXElementName| of |JSXOpeningElement| does not match the StringValue of |JSXElementName| of |JSXClosingElement|.
         </li>
       </ul>
+    </emu-clause>
+
+    <emu-clause id="sec-jsx-elements-and-fragments-runtime-semantics-evaluation" type="sdo">
+      <h1>Runtime Semantics: Evaluation</h1>
+      <emu-grammar>
+        PrimaryExpression :
+          JSXElement
+          JSXFragment
+      </emu-grammar>
+      <emu-alg>
+        1. Let _ctx_ be |PrimaryExpression|'s syntax context.
+        1. Let _jsx_ be ? JSXPreEvaluation(|PrimaryExpression|).
+        2. Return ? EvaluateJSXElement(_ctx_, _jsx_).
+      </emu-alg>
     </emu-clause>
   </emu-clause>
 
