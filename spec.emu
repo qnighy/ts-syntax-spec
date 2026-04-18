@@ -264,11 +264,122 @@
           </tr>
         </table>
       </emu-table>
+      <p>A Syntax Context Record may have additional implementation-defined fields to be used in the implementation-defined parts of the following abstract operations.</p>
       <emu-note>
         <p>[[JSXLazy]] is intended to represent the "DOM Expressions" semantics, which is primarily used by Solid.</p>
       </emu-note>
+      <p>The <dfn id="default-syntax-context-record">default Syntax Context Record</dfn> is the Syntax Context Record { [[TypeScript]]: *false*, [[JSX]]: *false* }.</p>
+
+      <emu-clause id="sec-jsx-isvalidjsxelement" type="abstract operation">
+        <h1>
+          IsValidJSXElement (
+            _ctx_: a Syntax Context Record,
+            _skel_: a JSX Element Skeleton Record or a JSX Fragment Skeleton Record
+          ): a Boolean
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. If _ctx_.[[JSX]] is *false*, return *false*.
+          1. Return *true* or *false* based on _ctx_ and _skel_ in an implementation-defined manner.
+        </emu-alg>
+        <emu-note>
+          <p>This is a UI framework-specific hook to rule out specific JSX constructs.</p>
+          <p>For example, React rejects |JSXNamespacedName|, as well as spread operators in |JSXChild|.</p>
+        </emu-note>
+      </emu-clause>
     </emu-clause>
-    <p>The <dfn id="default-syntax-context-record">default Syntax Context Record</dfn> is the Syntax Context Record { [[TypeScript]]: *false*, [[JSX]]: *false* }.</p>
+
+    <emu-clause id="sec-jsx-skeleton-records">
+      <h1>JSX Skeleton Records</h1>
+      <p>The <dfn id="jsx-skeleton-record">JSX Skeleton Record</dfn> types are used to represent the structure of JSX elements in a way that can be statically processed by syntax-directed operations.</p>
+      <p>A <dfn id="jsx-child-skeleton-value">JSX Child Skeleton Value</dfn> is a value that can appear as a child of a JSX element or fragment. It is one of the following:</p>
+      <ul>
+        <li>a String</li>
+        <li>~opaque~ representing an expression</li>
+        <li>~spread~ representing a spread child</li>
+        <li>a JSX Element Skeleton Record</li>
+        <li>a JSX Fragment Skeleton Record</li>
+      </ul>
+      <p>A <dfn id="jsx-attribute-skeleton-value">JSX Attribute Skeleton Value</dfn> is ~spread~ or a JSX Attribute Skeleton Record.</p>
+      <emu-clause id="sec-jsx-element-skeleton-record">
+        <h1>JSX Element Skeleton Record</h1>
+        <p>The <dfn id="jsx-element-skeleton-record">JSX Element Skeleton Record</dfn> type is a JSX Skeleton Record type representing a JSX element. It is used as the return type of JSXSkeleton for |JSXElement| and |JSXSelfClosingElement|.</p>
+        <emu-table id="table-jsx-element-skeleton-record-fields" caption="JSX Element Skeleton Record Fields">
+          <table>
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Value</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tr>
+              <td>[[ElementName]]</td>
+              <td>a String or ~opaque~</td>
+              <td>Represents the name of the JSX element.</td>
+            </tr>
+            <tr>
+              <td>[[Attributes]]</td>
+              <td>a list of <emu-xref href="#jsx-attribute-skeleton-value">JSX Attribute Skeleton Value</emu-xref>s</td>
+              <td>Represents the attributes of the JSX element.</td>
+            </tr>
+            <tr>
+              <td>[[Children]]</td>
+              <td>a list of <emu-xref href="#jsx-child-skeleton-value">JSX Child Skeleton Value</emu-xref>s</td>
+              <td>Represents the children of the JSX element.</td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+
+      <emu-clause id="sec-jsx-fragment-skeleton-record">
+        <h1>JSX Fragment Skeleton Record</h1>
+        <p>The <dfn id="jsx-fragment-skeleton-record">JSX Fragment Skeleton Record</dfn> type is a JSX Skeleton Record type representing a JSX fragment. It is used as the return type of JSXSkeleton for |JSXFragment|.</p>
+        <emu-table id="table-jsx-fragment-skeleton-record-fields" caption="JSX Fragment Skeleton Record Fields">
+          <table>
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Value</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tr>
+              <td>[[Children]]</td>
+              <td>a list of <emu-xref href="#jsx-child-skeleton-value">JSX Child Skeleton Value</emu-xref>s</td>
+              <td>Represents the children of the JSX fragment.</td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+
+      <emu-clause id="sec-jsx-attribute-skeleton-record">
+        <h1>JSX Attribute Skeleton Record</h1>
+        <p>The <dfn id="jsx-attribute-skeleton-record">JSX Attribute Skeleton Record</dfn> type is a JSX Skeleton Record type representing a JSX attribute. It is used as the value type of attributes in the [[Attributes]] field of a JSX Element Skeleton Record.</p>
+        <emu-table id="table-jsx-attribute-skeleton-record-fields" caption="JSX Attribute Skeleton Record Fields">
+          <table>
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Value</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tr>
+              <td>[[AttributeName]]</td>
+              <td>a String</td>
+              <td>Represents the name of the JSX attribute.</td>
+            </tr>
+            <tr>
+              <td>[[AttributeValue]]</td>
+              <td>a String, *true*, a JSX Element Skeleton Record, a JSX Fragment Skeleton Record, or ~opaque~</td>
+              <td>Represents the value of the JSX attribute. It is *true* if the attribute does not have an initializer.</td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+    </emu-clause>
   </emu-clause>
 </emu-clause>
 
@@ -533,6 +644,185 @@
         <p>We have modified Contains to exclude type-only syntax from these rules.</p>
         <p>Although arbitrary expressions typically do not appear in these syntaxes, they may be called recursively as |Expression|s in certain cases, such as through |ComputedPropertyName| in an |ObjectLiteralType| or default parameters in an |AmbientFunctionDeclaration|.</p>
       </emu-note>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-jsx-syntax-directed-operations">
+    <h1>JSX Syntax-Directed Operations</h1>
+
+    <emu-clause id="sec-jsx-static-semantics-jsxskeleton" type="sdo">
+      <h1>
+        Static Semantics: JSXSkeleton (): a JSX Skeleton Record, a String, *true*, ~opaque~, ~spread~, ~empty~, or a list of these
+      </h1>
+      <dl class="header">
+      </dl>
+      <emu-note>
+        <p>The caller must not rely on object identity or modify the returned JSX Skeleton Record in an observable way.</p>
+      </emu-note>
+
+      <emu-grammar>
+        JSXElement :
+          JSXOpeningElement JSXChildren? JSXClosingElement
+      </emu-grammar>
+      <emu-alg>
+        1. Let _skel_ be JSXSkeleton of |JSXOpeningElement|.
+        1. Assert: _skel_ is a JSX Element Skeleton Record.
+        1. Let _children_ be an empty list.
+        1. If |JSXChildren| is present, then
+          1. Set _children_ to JSXSkeleton of |JSXChildren|.
+          1. Assert: _children_ is a list of <emu-xref href="#jsx-child-skeleton-value">JSX Child Skeleton Value</emu-xref>s.
+        1. Set _skel_ to a copy of _skel_ with its [[Children]] field set to _children_.
+        1. Return _skel_.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXFragment :
+          `&lt;` `&gt;` JSXChildren? `&lt;` `/` `&gt;`
+      </emu-grammar>
+      <emu-alg>
+        1. Let _children_ be an empty list.
+        1. If |JSXChildren| is present, then
+          1. Set _children_ to JSXSkeleton of |JSXChildren|.
+          1. Assert: _children_ is a list of <emu-xref href="#jsx-child-skeleton-value">JSX Child Skeleton Value</emu-xref>s.
+        1. Return a JSX Fragment Skeleton Record { [[Children]]: _children_ }.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXSelfClosingElement :
+          `&lt;` JSXElementName TypeArguments? JSXAttributes? `/` `&gt;`
+
+        JSXOpeningElement :
+          `&lt;` JSXElementName TypeArguments? JSXAttributes? `&gt;`
+      </emu-grammar>
+      <emu-alg>
+        1. Let _name_ be JSXSkeleton of |JSXElementName|.
+        1. Let _attributes_ be an empty list.
+        1. If |JSXAttributes| is present, then
+          1. Set _attributes_ to JSXSkeleton of |JSXAttributes|.
+          1. Assert: _attributes_ is a list of <emu-xref href="#jsx-attribute-skeleton-value">JSX Attribute Skeleton Value</emu-xref>s.
+        1. Return a JSX Element Skeleton Record { [[Name]]: _name_, [[Attributes]]: _attributes_, [[Children]]: an empty list }.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXElementName :
+          JSXLiteralIdentifier
+          JSXNamespacedName
+      </emu-grammar>
+      <emu-alg>
+        1. Let _nameText_ be StringValue of |JSXElementName|.
+        1. Assert: _nameText_ is a String.
+        1. Return _nameText_.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXElementName :
+          JSXSimpleIdentifier
+          JSXThis
+          JSXMemberExpression
+      </emu-grammar>
+      <emu-alg>
+        1. Return ~opaque~.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXAttributes :
+          JSXAttributes JSXAttributeListElement
+      </emu-grammar>
+      <emu-alg>
+        1. Let _attributes_ be JSXSkeleton of the derived |JSXAttributes|.
+        1. Assert: _attributes_ is a list of <emu-xref href="#jsx-attribute-skeleton-value">JSX Attribute Skeleton Value</emu-xref>s.
+        1. Let _attribute_ be JSXSkeleton of |JSXAttributeListElement|.
+        1. Assert: _attribute_ is a <emu-xref href="#jsx-attribute-skeleton-value">JSX Attribute Skeleton Value</emu-xref>.
+        1. Return the list-concatenation of _attributes_ and « _attribute_ ».
+      </emu-alg>
+
+      <emu-grammar>
+        JSXSpreadAttribute :
+          `{` `...` AssignmentExpression `}`
+      </emu-grammar>
+      <emu-alg>
+        1. Return ~spread~.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXAttribute :
+          JSXAttributeName JSXAttributeInitializer?
+      </emu-grammar>
+      <emu-alg>
+        1. Let _name_ be StringValue of |JSXAttributeName|.
+        1. Assert: _name_ is a String.
+        1. Let _value_ be *true*.
+        1. If |JSXAttributeInitializer| is present, then
+          1. Set _value_ to JSXSkeleton of |JSXAttributeInitializer|.
+          1. Assert: _value_ is a String, a JSX Element Skeleton Record, a JSX Fragment Skeleton Record, or ~opaque~.
+        1. Return a JSX Attribute Skeleton Record { [[AttributeName]]: _name_, [[AttributeValue]]: _value_ }.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXAttributeValue :
+          JSXStringLiteral
+      </emu-grammar>
+      <emu-alg>
+        1. Let _valueText_ be StringValue of |JSXStringLiteral|.
+        1. Assert: _valueText_ is a String.
+        1. Return _valueText_.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXAttributeValue :
+          `{` AssignmentExpression `}`
+      </emu-grammar>
+      <emu-alg>
+        1. Return ~opaque~.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXChildren :
+          JSXChildren JSXChild
+      </emu-grammar>
+      <emu-alg>
+        1. Let _children_ be JSXSkeleton of the derived |JSXChildren|.
+        1. Assert: _children_ is a list of <emu-xref href="#jsx-child-skeleton-value">JSX Child Skeleton Value</emu-xref>s.
+        1. Let _child_ be JSXSkeleton of |JSXChild|.
+        1. If _child_ is ~empty~, then
+          1. Return _children_.
+        1. Assert: _child_ is a <emu-xref href="#jsx-child-skeleton-value">JSX Child Skeleton Value</emu-xref>.
+        1. Return the list-concatenation of _children_ and « _child_ ».
+      </emu-alg>
+
+      <emu-grammar>
+        JSXChild :
+          JSXText
+      </emu-grammar>
+      <emu-alg>
+        1. Let _text_ be StringValue of |JSXText|.
+        1. Assert: _text_ is a String.
+        1. Return _text_.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXChild :
+          `{` `}`
+      </emu-grammar>
+      <emu-alg>
+        1. Return ~empty~.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXChild :
+          `{` AssignmentExpression `}`
+      </emu-grammar>
+      <emu-alg>
+        1. Return ~opaque~.
+      </emu-alg>
+
+      <emu-grammar>
+        JSXChild :
+          `{` `...` AssignmentExpression `}`
+      </emu-grammar>
+      <emu-alg>
+        1. Return ~spread~.
+      </emu-alg>
     </emu-clause>
   </emu-clause>
 
@@ -1893,6 +2183,9 @@
       <ul>
         <li>
           It is a Syntax Error if [[JSX]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+        </li>
+        <li>
+          It is a Syntax Error if IsValidJSXElement(this |PrimaryExpression|'s syntax context, JSXSkeleton of this |PrimaryExpression|) is *false*.
         </li>
       </ul>
     </emu-clause>
