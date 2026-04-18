@@ -3795,7 +3795,7 @@
       <emu-alg>
         1. Let _ctx_ be |PrimaryExpression|'s syntax context.
         1. Let _jsx_ be ? JSXPreEvaluation(|PrimaryExpression|).
-        2. Return ? EvaluateJSXElement(_ctx_, _jsx_).
+        1. Return ? EvaluateJSXElement(_ctx_, _jsx_).
       </emu-alg>
     </emu-clause>
   </emu-clause>
@@ -3902,8 +3902,8 @@
       </emu-grammar>
       <emu-alg>
         1. Let _namespace_ be the StringValue of the first |JSXIdentifierName|.
-        2. Let _name_ be the StringValue of the second |JSXIdentifierName|.
-        3. Return the concatenation of _namespace_, U+003A (COLON), and _name_.
+        1. Let _name_ be the StringValue of the second |JSXIdentifierName|.
+        1. Return the concatenation of _namespace_, U+003A (COLON), and _name_.
       </emu-alg>
       <emu-grammar>
         JSXIdentifierName ::
@@ -3920,8 +3920,8 @@
       </emu-grammar>
       <emu-alg>
         1. Let _object_ be the StringValue of |JSXMemberExpressionBase|.
-        2. Let _property_ be the StringValue of |JSXIdentifierName|.
-        3. Return the concatenation of _object_, U+002E (FULL STOP), and _property_.
+        1. Let _property_ be the StringValue of |JSXIdentifierName|.
+        1. Return the concatenation of _object_, U+002E (FULL STOP), and _property_.
       </emu-alg>
       <emu-grammar>
         JSXMemberExpressionBase :
@@ -3929,8 +3929,52 @@
       </emu-grammar>
       <emu-alg>
         1. Let _object_ be the StringValue of |JSXMemberExpression|.
-        2. Let _property_ be the StringValue of |JSXIdentifierName|.
-        3. Return the concatenation of _object_, U+002E (FULL STOP), and _property_.
+        1. Let _property_ be the StringValue of |JSXIdentifierName|.
+        1. Return the concatenation of _object_, U+002E (FULL STOP), and _property_.
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-jsx-element-names-runtime-semantics-evaluation" type="sdo">
+      <h1>Runtime Semantics: Evaluation</h1>
+      <emu-note>
+        <p>We resolve all expressions to values rather than references here and now, as all known transforms use them as values.</p>
+      </emu-note>
+      <emu-grammar>
+        JSXElementName :
+          JSXSimpleIdentifier
+      </emu-grammar>
+      <emu-alg>
+        1. Let ref be ? ResolveBinding(StringValue of |JSXSimpleIdentifier|).
+        1. Return ? GetValue(ref).
+      </emu-alg>
+
+      <emu-grammar>
+        JSXElementName :
+          JSXThis
+      </emu-grammar>
+      <emu-alg>
+        1. Return ? ResolveThisBinding().
+      </emu-alg>
+
+      <emu-grammar>
+        JSXMemberExpression :
+          JSXIdentifierReference `.` JSXIdentifierName
+      </emu-grammar>
+      <emu-alg>
+        1. Let _baseRef_ be ? ResolveBinding(StringValue of |JSXIdentifierReference|).
+        1. Let _baseValue_ be ? GetValue(_baseRef_).
+        1. Let _property_ be the StringValue of |JSXIdentifierName|.
+        1. Return ? GetV(_baseValue_, _property_).
+      </emu-alg>
+
+      <emu-grammar>
+        JSXMemberExpression :
+          JSXMemberExpression `.` JSXIdentifierName
+      </emu-grammar>
+      <emu-alg>
+        1. Let _base_ be ? Evaluation of the derived |JSXMemberExpression|.
+        1. Let _property_ be the StringValue of |JSXIdentifierName|.
+        1. Return ? GetV(_base_, _property_).
       </emu-alg>
     </emu-clause>
   </emu-clause>
