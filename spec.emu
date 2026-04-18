@@ -3301,6 +3301,7 @@
       <ul>
         <li>`&lt; div &gt;&lt;/ div &gt;`</li>
         <li>`&lt; div &gt;&lt; / div &gt;`, though TSC and SWC disallow it</li>
+        <li>`&lt; /**/div/**/title/**/=/**/"value"/**/&gt;&lt;/ /**/div/**/&gt;`</li>
         <li>`&lt; img / &gt;`</li>
         <li>`&lt;svg : path&gt;&lt;/svg : path&gt;`</li>
       </ul>
@@ -3309,6 +3310,13 @@
       <p>Actual parsers implement these rules in various ways.</p>
       <ul>
         <li>TSC and SWC disallow whitespace between `&lt;` and `/`.</li>
+        <li>TSC and SWC tokenizes `&lt;/` as a single token, thus allowing:
+          <pre><code class="typescript">
+            &lt;div&gt;&lt;///
+            div&gt;;
+          </code></pre>
+        </li>
+        <li>TSC and SWC tokenizes `&lt;/` as a single token where it is expected, thus disallowing `&lt;div&gt;&lt;/**/img/&gt;&lt;/div&gt;`. However, they still accept `&lt;/**/img/&gt;` as a |PrimaryExpression|.</li>
       </ul>
     </emu-note>
     <emu-clause id="sec-jsx-elements-and-fragments-static-semantics-early-errors">
@@ -3530,6 +3538,11 @@
         JSXElement[?Yield, ?Await]
         JSXFragment[?Yield, ?Await]
     </emu-grammar>
+    <emu-note>
+      <p>Ordinary JavaScript comments cannot appear as part of |JSXChildren|, as described in <emu-xref href="#sec-jsx-text"></emu-xref>.</p>
+      <p><emu-grammar>JSXChild : `{` `}`</emu-grammar> yields no children, thus can be used to embed comments in the children like `{/* comment */}`.</p>
+      <p>The production can also be used to split two text nodes, like `&lt;div&gt;foo{}bar&lt;/div&gt;`.</p>
+    </emu-note>
     <emu-note>
       <p>Actual parsers implement these rules in various ways.</p>
       <ul>
