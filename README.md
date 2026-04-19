@@ -9,19 +9,51 @@ You can read the specification at https://qnighy.github.io/ts-syntax-spec/.
 - This specification is **not** authoritative by any means. Do not report bugs to TypeScript parsers solely based on this specification. Instead, you are responsible for claiming what is the most appropriate behavior, by comparing the behavior of different parsers and giving architectural insights.
 - **Type system is out of scope** of this specification. You can only learn how TypeScript code is transpiled to JavaScript and how the syntax of TypeScript code is checked at a bare minimum level.
 
+## Scope
+
+In the scope (including those that are not yet covered):
+
+- TypeScript
+  - Syntax
+  - Runtime semantics
+- JSX
+  - Syntax
+  - Runtime semantics shared by UI frameworks
+- TSX Syntax (TypeScript + JSX)
+- CommonJS Modules
+  - Syntax
+    - "Unambiguous" transpiled CommonJS Modules syntax and runtime semantics
+    - CommonJS Modules-specific TypeScript syntax extensions and their runtime semantics
+
+Out of the scope:
+
+- Type system
+- UI framework-specific JSX semantics
+- CommonJS Modules module resolution
+
 ## Status
 
-- [ ] Notational Conventions
+- [x] Notational Conventions
   - [x] Backtracking
   - [x] Syntax Mapping
-  - [ ] Syntax Context
+  - [x] Syntax Context
 - [ ] Syntax Contexts
   - [x] TypeScript
   - [x] JSX
   - [ ] Legacy class field semantics
   - [ ] Non-verbatim syntaxes
   - [ ] Non-isolated-modules syntaxes
-- [ ] Extension of Syntax-Directed Operations
+- [x] Extension of Syntax-Directed Operations
+- [x] Modify `Function.prototype.toString`
+- [x] Modify Forbidden Extensions
+- [ ] Ambiguities
+  - [x] `async(` (classic ambiguity)
+  - [x] `(` at the start of an expression (classic ambiguity)
+  - [ ] `:` after parenthesized parameters
+  - [x] `<` after an expression
+  - [ ] `async<`
+  - [ ] `<` at the start of an expression (JSX off)
+  - [x] `<` at the start of an expression (JSX on)
 - [ ] Types
   - [x] Most types
   - [x] Infer type constraints
@@ -29,7 +61,7 @@ You can read the specification at https://qnighy.github.io/ts-syntax-spec/.
   - [ ] Uniqueness constraint of type parameters
   - [ ] Streamline tuple type structure
 - [x] Expressions
-  - [ ] JSX
+  - [x] JSX
   - [x] Non-nullish assertion
   - [x] Type arguments in calls and instantiation expression
   - [x] Legacy type assertion
@@ -72,9 +104,6 @@ You can read the specification at https://qnighy.github.io/ts-syntax-spec/.
   - [ ] Type-only imports and exports
   - [ ] CommonJS interpretations and special syntax
 - [ ] Permissive Grammars
-- [ ] Built-in Objects
-  - [ ] Interaction with `eval`, `Function`, and similar functionalities
-  - [ ] Interaction with `Function.prototype.toString`
 
 ## Contributing
 
