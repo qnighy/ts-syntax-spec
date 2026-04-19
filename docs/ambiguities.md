@@ -1,4 +1,4 @@
-## TypeScript Syntax Ambiguities
+# TypeScript Syntax Ambiguities
 
 This document lists syntax ambiguities in TypeScript syntax, and how they are resolved.
 
@@ -18,6 +18,8 @@ Symptom: `async(` can be one of the following:
 - `async (x, y) => x + y`, an async arrow function
 
 The content of the parentheses can be more complex: `async({ x: y = 1, z })` and still ambiguous.
+
+See [async-paren.md](./ambiguities/async-paren.md) for details.
 
 ## `(` at the start of an expression (classic ambiguity)
 
