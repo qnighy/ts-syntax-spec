@@ -128,13 +128,13 @@
 
   <emu-clause id="sec-ts-conformance-typescript">
     <h1>TypeScript Syntax Conformance</h1>
-    <p>If an implementation supports TypeScript syntax, it must be able to parse a source using a syntax context whose [[TypeScript]] is *true* and its [[JSX]] is *false*.</p>
+    <p>If an implementation supports TypeScript syntax, it must be able to parse a source using a Syntax Context Record whose [[TypeScript]] is *true* and its [[JSX]] is *false*.</p>
     <!-- TODO: TypeScript syntax subfeatures -->
   </emu-clause>
 
   <emu-clause id="sec-ts-conformance-jsx">
     <h1>JSX Syntax Conformance</h1>
-    <p>If an implementation supports JSX syntax, it must be able to parse a source using a syntax context whose [[TypeScript]] is *false* and its [[JSX]] is *true*.</p>
+    <p>If an implementation supports JSX syntax, it must be able to parse a source using a Syntax Context Record whose [[TypeScript]] is *false* and its [[JSX]] is *true*.</p>
     <!-- TODO: JSX syntax subfeatures -->
   </emu-clause>
 
@@ -151,7 +151,7 @@
 
   <emu-clause id="sec-ts-conformance-tsx">
     <h1>TSX Syntax Conformance</h1>
-    <p>If an implementation supports TSX syntax, it must be able to parse a source using a syntax context whose [[TypeScript]] is *true* and its [[JSX]] is *true*, in addition to supporting both TypeScript and JSX syntax individually.</p>
+    <p>If an implementation supports TSX syntax, it must be able to parse a source using a Syntax Context Record whose [[TypeScript]] is *true* and its [[JSX]] is *true*, in addition to supporting both TypeScript and JSX syntax individually.</p>
     <p>TSX does not have its own subfeatures; an implementation supporting TSX must consistently support subfeatures for TypeScript and JSX in TSX mode as well.</p>
   </emu-clause>
 </emu-clause>
@@ -202,10 +202,14 @@
 
   <emu-clause id="sec-ts-syntax-context">
     <h1>Syntax Context</h1>
-    <p>Behavior of TypeScript programs depends on how the implementation is configured. To reflect this, the specification introduces the concept of <dfn id="syntax-context">syntax context</dfn> attached to a source text being parsed.</p>
+    <p>Behavior of TypeScript programs depends on how the implementation is configured. To formalize its interface, this specification introduces the concept of <dfn id="syntax-context">syntax context</dfn> attached to a source text being parsed.</p>
     <p>When a TypeScript source text is being matched against a goal symbol, the specification requires the caller of the parsing algorithm to provide a syntax context, which is a <emu-xref href="#syntax-context-record">syntax context record</emu-xref>.</p>
-    <p>The syntax context can be referenced throughout the whole parsing process and Early Error checking.</p>
-    <p>Some nonterminals define <dfn id="syntax-alteration">syntax alterations</dfn>. They are like conditionals <sub>[+Await]</sub> / <sub>[~Await]</sub> but is matched against the syntax context.</p>
+    <p>The <dfn id="current-syntax-context">current syntax context</dfn> is defined as follows:</p>
+    <ul>
+      <li>When parsing a source text against a goal symbol (typically evaluating syntax alterations), the current syntax context is the syntax context associated with that parsing operation against the goal symbol.</li>
+      <li>When evaluating a syntax-directed operation, the current syntax context is the syntax context associated with the parsing operation that produced the Parse Node being evaluated.</li>
+    </ul>
+    <p>Some nonterminals define <dfn id="syntax-alteration">syntax alterations</dfn>. They are like conditionals <sub>[+Await]</sub> / <sub>[~Await]</sub> but is matched against the current syntax context.</p>
     <p>When a syntax context is not provided, the <emu-xref href="#default-syntax-context-record">default Syntax Context Record</emu-xref> is used.</p>
   </emu-clause>
 
@@ -238,9 +242,9 @@
 
       <p>The <dfn>source text matched by</dfn> a grammar production or Parse Node derived from it is extended as follows:</p>
       <ul>
-        <li>When the current syntax context is the default syntax context, the <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations">source text matched by</emu-xref> it according to the ECMAScript specification is used without modification.</li>
+        <li>When the current syntax context is the default Syntax Context Record, the <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations">source text matched by</emu-xref> it according to the ECMAScript specification is used without modification.</li>
         <li>When the Parse Node to be matched is not one of |FunctionDeclaration|, |GeneratorDeclaration|, |AsyncFunctionDeclaration|, |AsyncGeneratorDeclaration|, |FunctionExpression|, |GeneratorExpression|, |AsyncFunctionExpression|, |AsyncGeneratorExpression|, |ArrowFunction|, |AsyncArrowFunction|, |ClassDeclaration|, |ClassExpression|, |MethodDefinition|, |GeneratorMethod|, |AsyncMethod|, and |AsyncGeneratorMethod|, the <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations">source text matched by</emu-xref> it according to the ECMAScript specification is used without modification.</li>
-        <li>Otherwise, the source text matched by it must be a text that would produce a Parse Node for the default syntax context that would behave equivalently to the original production. The detail of the transformation is implementation-defined.</li>
+        <li>Otherwise, the source text matched by it must be a text that would produce a Parse Node for the default Syntax Context Record that would behave equivalently to the original production. The detail of the transformation is implementation-defined.</li>
       </ul>
       <emu-note>
         <p>For example, `((): number =&gt; 0).toString()` typically yields `"() =&gt; 0"`.</p>
@@ -1170,7 +1174,7 @@
           `{` `...` AssignmentExpression `}`
       </emu-grammar>
       <emu-alg>
-        1. Let _ctx_ be |JSXSpreadAttribute|'s syntax context.
+        1. Let _ctx_ be the current syntax context.
         1. If _ctx_.[[JSXLazy]] is *true*, then
           1. Let _thunk_ be CreateThunk(|AssignmentExpression|).
           1. Return a JSX Spread Attribute Record { [[Value]]: _thunk_, [[Lazy]]: *true* }.
@@ -1207,7 +1211,7 @@
           `{` AssignmentExpression `}`
       </emu-grammar>
       <emu-alg>
-        1. Let _ctx_ be |JSXAttributeValue|'s syntax context.
+        1. Let _ctx_ be the current syntax context.
         1. If _ctx_.[[JSXLazy]] is *true*, then
           1. Let _thunk_ be CreateThunk(|AssignmentExpression|).
           1. Return a JSX Attribute Expression Record { [[Value]]: _thunk_, [[Lazy]]: *true* }.
@@ -1254,7 +1258,7 @@
           `{` AssignmentExpression `}`
       </emu-grammar>
       <emu-alg>
-        1. Let _ctx_ be |JSXChild|'s syntax context.
+        1. Let _ctx_ be the current syntax context.
         1. If _ctx_.[[JSXLazy]] is *true*, then
           1. Let _thunk_ be CreateThunk(|AssignmentExpression|).
           1. Return a JSX Child Expression Record { [[Value]]: _thunk_, [[Lazy]]: *true* }.
@@ -1267,7 +1271,7 @@
           `{` `...` AssignmentExpression `}`
       </emu-grammar>
       <emu-alg>
-        1. Let _ctx_ be |JSXChild|'s syntax context.
+        1. Let _ctx_ be the current syntax context.
         1. If _ctx_.[[JSXLazy]] is *true*, then
           1. Let _thunk_ be CreateThunk(|AssignmentExpression|).
           1. Return a JSX Child Spread Expression Record { [[Value]]: _thunk_, [[Lazy]]: *true* }.
@@ -2426,7 +2430,7 @@
       </emu-grammar>
       <ul>
         <li>
-          It is a Syntax Error if [[TypeScript]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+          It is a Syntax Error if [[TypeScript]] of the current syntax context is *false*.
         </li>
       </ul>
     </emu-clause>
@@ -2476,7 +2480,7 @@
       </emu-grammar>
       <ul>
         <li>
-          It is a Syntax Error if [[TypeScript]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+          It is a Syntax Error if [[TypeScript]] of the current syntax context is *false*.
         </li>
       </ul>
       <emu-grammar>
@@ -2503,7 +2507,7 @@
     <emu-clause id="sec-ts-type-parameters-lookahead-syntax-alterations">
       <h1>Syntax Alterations</h1>
       <p>By default, |TypeParametersLookahead| does not match anything.</p>
-      <p>However, when [[TypeScript]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and [[JSX]] of the same syntax context is *true*, we add the following productions to |TypeParametersLookahead|:</p>
+      <p>However, when [[TypeScript]] of the current syntax context is *true* and [[JSX]] of the current syntax context is *true*, we add the following productions to |TypeParametersLookahead|:</p>
       <emu-grammar>
         TypeParametersLookahead[Yield, Await]:
           `&lt;` `const`? IdentifierReference[?Yield, ?Await] `extends` [lookahead &notin; { `=`, `&gt;`, `/` }]
@@ -2520,7 +2524,7 @@
         <p>Actual parsers implement these rules in various ways.</p>
         <p>See notes in <emu-xref href="#sec-jsx-lookahead"></emu-xref>.</p>
       </emu-note>
-      <p>And when [[TypeScript]] of the current syntax context is *true* but [[JSX]] of the same syntax context is *false*, we add the following productions to |TypeParametersLookahead|:</p>
+      <p>And when [[TypeScript]] of the current syntax context is *true* but [[JSX]] of the current syntax context is *false*, we add the following productions to |TypeParametersLookahead|:</p>
       <emu-grammar>
         TypeParametersLookahead[Yield, Await]:
           `&lt;`
@@ -2595,7 +2599,7 @@
     <emu-clause id="sec-ts-type-arguments-syntax-alterations">
       <h1>Syntax Alterations</h1>
       <p>By default, |TypeArgumentsLookahead| does not match anything.</p>
-      <p>However, when [[TypeScript]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true*, we add the following production to |TypeArgumentsLookahead|:</p>
+      <p>However, when [[TypeScript]] of the current syntax context is *true*, we add the following production to |TypeArgumentsLookahead|:</p>
       <emu-grammar>
         TypeArgumentsLookahead[Yield, Await]:
           TypeArguments[?Yield, ?Await] [no LineTerminator here] [lookahead != DoesNotFollowTypeArgumentsNLT]
@@ -2655,10 +2659,10 @@
       </emu-grammar>
       <ul>
         <li>
-          It is a Syntax Error if [[JSX]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+          It is a Syntax Error if [[JSX]] of the current syntax context is *false*.
         </li>
         <li>
-          It is a Syntax Error if IsValidJSXElement(this |PrimaryExpression|'s syntax context, JSXSkeleton of this |PrimaryExpression|) is *false*.
+          It is a Syntax Error if IsValidJSXElement(the current syntax context, JSXSkeleton of this |PrimaryExpression|) is *false*.
         </li>
       </ul>
     </emu-clause>
@@ -2766,7 +2770,7 @@
       </emu-grammar>
       <ul>
         <li>
-          It is a Syntax Error if [[TypeScript]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+          It is a Syntax Error if [[TypeScript]] of the current syntax context is *false*.
         </li>
       </ul>
     </emu-clause>
@@ -2834,7 +2838,7 @@
     </emu-note>
     <emu-clause id="sec-ts-unary-operators-syntax-alterations">
       <h1>Syntax Alterations</h1>
-      <p>When [[TypeScript]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and [[JSX]] of the same syntax context is *false*, we add the following production to the grammar of |UnaryExpression|:</p>
+      <p>When [[TypeScript]] of the current syntax context is *true* and [[JSX]] of the current syntax context is *false*, we add the following production to the grammar of |UnaryExpression|:</p>
       <emu-grammar>
         UnaryExpression[Yield, Await] :
           `&lt;` Type[?Yield, ?Await] `&gt;` UnaryExpression[?Yield, ?Await]
@@ -2914,7 +2918,7 @@
       </emu-grammar>
       <ul>
         <li>
-          It is a Syntax Error if [[TypeScript]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+          It is a Syntax Error if [[TypeScript]] of the current syntax context is *false*.
         </li>
       </ul>
     </emu-clause>
@@ -3024,7 +3028,7 @@
       </emu-grammar>
       <ul>
         <li>
-          It is a Syntax Error if [[TypeScript]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+          It is a Syntax Error if [[TypeScript]] of the current syntax context is *false*.
         </li>
       </ul>
       <emu-note>
@@ -3311,7 +3315,7 @@
       </emu-grammar>
       <ul>
         <li>
-          It is a Syntax Error if [[TypeScript]] of this production's <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.
+          It is a Syntax Error if [[TypeScript]] of the current syntax context is *false*.
         </li>
       </ul>
       <emu-note>
@@ -3814,7 +3818,7 @@
           JSXFragment
       </emu-grammar>
       <emu-alg>
-        1. Let _ctx_ be |PrimaryExpression|'s syntax context.
+        1. Let _ctx_ be the current syntax context.
         1. Let _jsx_ be ? JSXPreEvaluation(|PrimaryExpression|).
         1. Return ? EvaluateJSXElement(_ctx_, _jsx_).
       </emu-alg>
@@ -3832,7 +3836,7 @@
     </emu-note>
     <emu-clause id="sec-jsx-lookahead-syntax-alterations">
       <h1>Syntax Alterations</h1>
-      <p>When [[TypeScript]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and [[JSX]] of the same syntax context is *true*, we replace the production of |JSXElementLookahead|:</p>
+      <p>When [[TypeScript]] of the current syntax context is *true* and [[JSX]] of the current syntax context is *true*, we replace the production of |JSXElementLookahead|:</p>
       <emu-grammar>
         JSXElementLookahead[Yield, Await] :
           `&lt;`
@@ -3864,7 +3868,7 @@
         <p>However, there is a fundamental disagreement among parsers how to disambiguate `&lt;`: a bounded or unbounded lookahead.</p>
         <p>This spec is based on bounded lookahead, which is more conservative.</p>
       </emu-note>
-      <p>When [[TypeScript]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and [[JSX]] of the same syntax context is *false*, we remove the production of |JSXElementLookahead|:</p>
+      <p>When [[TypeScript]] of the current syntax context is *true* and [[JSX]] of the current syntax context is *false*, we remove the production of |JSXElementLookahead|:</p>
       <emu-grammar>
         JSXElementLookahead[Yield, Await] :
           `&lt;`
@@ -4049,7 +4053,7 @@
       </emu-grammar>
       <ul>
         <li>
-          It is a Syntax Error if [[JSXLazy]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and the |AssignmentExpression| Contains |YieldExpression| or |AwaitExpression|.
+          It is a Syntax Error if [[JSXLazy]] of the current syntax context is *true* and the |AssignmentExpression| Contains |YieldExpression| or |AwaitExpression|.
         </li>
       </ul>
     </emu-clause>
@@ -4092,7 +4096,7 @@
       </emu-grammar>
       <ul>
         <li>
-          It is a Syntax Error if [[JSXLazy]] of the current <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *true* and the |AssignmentExpression| Contains |YieldExpression| or |AwaitExpression|.
+          It is a Syntax Error if [[JSXLazy]] of the current syntax context is *true* and the |AssignmentExpression| Contains |YieldExpression| or |AwaitExpression|.
         </li>
       </ul>
     </emu-clause>
@@ -4105,7 +4109,7 @@
   <emu-clause id="sec-ts-forbidden-extensions">
     <h1>Forbidden Extensions</h1>
     <p>This subclause extends <emu-xref href="#sec-forbidden-extensions">Forbidden Extensions</emu-xref>.</p>
-    <p>ECMAScript forbids extension of the Syntactic Grammar in a way that allows the token `:` is allowed to immediately follow |BindingIdentifier|. This restriction is only applied when [[TypeScript]] of the <emu-xref href="#syntax-context">Syntax Context</emu-xref> is *false*.</p>
+    <p>ECMAScript forbids extension of the Syntactic Grammar in a way that allows the token `:` is allowed to immediately follow |BindingIdentifier|. This restriction is only applied when [[TypeScript]] of the current syntax context is *false*.</p>
     <emu-note>
       <p>This relaxation will not invalidate the original specification's intent, as TypeScript code is not intended to be directly executed in the standard Web environment.</p>
     </emu-note>
