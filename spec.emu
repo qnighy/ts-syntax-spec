@@ -4444,6 +4444,8 @@
   </emu-annex>
 </emu-annex>
 
+<!-- TODO: Annex for interaction with Stage 3 proposals -->
+
 <!-- TODO: Annex for JSX semantics per UI frameworks -->
 
 <!-- TODO: Annex for transpilation details for "the source text matched by" semantics -->
