@@ -30,6 +30,8 @@ Symptom: `(` can be one of the following:
 
 The content of the parentheses can be more complex: `({ x: y = 1, z })` and still ambiguous.
 
+See [paren.md](./ambiguities/paren.md) for details.
+
 ## `:` after parenthesized parameters
 
 Symptom: `):`  can be one of the following:
