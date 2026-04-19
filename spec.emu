@@ -227,6 +227,26 @@
     <p>Then the transformation is uniquely determined because the only way to reconstruct the original production is by removing the two optional annotations.</p>
     <p><emu-xref href="#sec-static-semantics-boundnames">BoundNames</emu-xref> of this production is then automatically derived from the |BindingElement| nonterminal because the original production is a <emu-xref href="#sec-context-free-grammars">chain production</emu-xref>.</p>
   </emu-clause>
+
+  <emu-clause id="sec-ts-algorithm-conventions">
+    <h1>Algorithm Conventions</h1>
+    <p>This section extends <emu-xref href="#sec-algorithm-conventions">ECMAScript Algorithm Conventions</emu-xref>.</p>
+
+    <emu-clause id="sec-ts-algorithm-conventions-syntax-directed-operations">
+      <h1>Syntax-Directed Operations</h1>
+      <p>This section extends <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations">ECMAScript Syntax-Directed Operations</emu-xref>.</p>
+
+      <p>The <dfn>source text matched by</dfn> a grammar production or Parse Node derived from it is extended as follows:</p>
+      <ul>
+        <li>When the current syntax context is the default syntax context, the <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations">source text matched by</emu-xref> it according to the ECMAScript specification is used without modification.</li>
+        <li>When the Parse Node to be matched is not one of |FunctionDeclaration|, |GeneratorDeclaration|, |AsyncFunctionDeclaration|, |AsyncGeneratorDeclaration|, |FunctionExpression|, |GeneratorExpression|, |AsyncFunctionExpression|, |AsyncGeneratorExpression|, |ArrowFunction|, |AsyncArrowFunction|, |ClassDeclaration|, |ClassExpression|, |MethodDefinition|, |GeneratorMethod|, |AsyncMethod|, and |AsyncGeneratorMethod|, the <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations">source text matched by</emu-xref> it according to the ECMAScript specification is used without modification.</li>
+        <li>Otherwise, the source text matched by it must be a text that would produce a Parse Node for the default syntax context that would behave equivalently to the original production. The detail of the transformation is implementation-defined.</li>
+      </ul>
+      <emu-note>
+        <p>For example, `((): number =&gt; 0).toString()` typically yields `"() =&gt; 0"`.</p>
+      </emu-note>
+    </emu-clause>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="sec-typescript-data-types-and-values">
@@ -1270,7 +1290,8 @@
         1. Let _privateEnv_ be the running execution context's PrivateEnvironment.
         1. Let _parameters_ be a synthetic |ArrowParameters| node containing no parameters.
         1. Let _body_ be a synthetic |ConciseBody| node containing _expr_ or _expr_ wrapped by `(` and `)` if _expr_ starts with `{`.
-        1. Let _sourceText_ be a synthetic implementation-defined source text string representing this function, concatenating `(`, `)`, `=>` and _body_'s source text.
+        1. Let _funcNode_ be a synthetic |ArrowFunction| node by concatenating _parameters_, `=>`, and _body_.
+        1. Let _sourceText_ be the source text matched by _funcNode_.
         1. Let _closure_ be OrdinaryFunctionCreate(%Function.prototype%, _sourceText_, _parameters_, _body_, ~lexical-this~, _env_, _privateEnv_).
         1. Perform SetFunctionName(_closure_, *""*).
         1. Return _closure_.
@@ -4418,6 +4439,12 @@
     </emu-table>
   </emu-annex>
 </emu-annex>
+
+<!-- TODO: Annex for JSX semantics per UI frameworks -->
+
+<!-- TODO: Annex for transpilation details for "the source text matched by" semantics -->
+
+<!-- TODO: Annex for rough type-level semantics -->
 
 <emu-annex id="sec-ts-permissive-grammars">
   <h1>TypeScript Permissive Grammars</h1>
