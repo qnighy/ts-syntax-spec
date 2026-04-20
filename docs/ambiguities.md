@@ -41,6 +41,8 @@ Symptom: `):`  can be one of the following:
 
 Note: this is not a real ambiguity because the disambiguation rule is purely based on the already consumed parts.
 
+See [rparen-colon.md](./ambiguities/rparen-colon.md) for details.
+
 ## `<` after an expression
 
 Symptom: `<` can be one of the following:
