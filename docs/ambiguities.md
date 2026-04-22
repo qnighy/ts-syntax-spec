@@ -54,6 +54,8 @@ Note: the example above is completely ambiguous, meaning that even after consumi
 
 Note: more complex example, such as `f(g<0, 0>(1 + 1))`, shows that the angle brackets can appear in a way that would be interpreted as operators more naturally.
 
+See [expr-lt.md](./ambiguities/expr-lt.md) for details.
+
 ## `async<`
 
 Symptom: in addition to the cases above, `async<` adds another ambiguity:
