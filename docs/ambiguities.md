@@ -62,6 +62,8 @@ Symptom: in addition to the cases above, `async<` adds another ambiguity:
 
 - `async<T>(x) => x`, an async arrow function with type parameters
 
+See [async-lt.md](./ambiguities/async-lt.md) for details.
+
 ## `<` at the start of an expression (JSX off)
 
 Symptom: `<` can be one of the following:

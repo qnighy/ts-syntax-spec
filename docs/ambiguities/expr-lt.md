@@ -13,6 +13,8 @@ Note: more complex example, such as `f(g<0, 0>(1 + 1))`, shows that the angle br
 
 Instead of a less-than operator, it might be a shift operator, as seen in `f<<T>(x) => T>(y)`.
 
+See also: [`async<`](./async-lt.md), which adds another ambiguity on top of this one.
+
 ## TSC
 
 TSC first tries to parse type arguments and then falls back to parsing a less-than operator or a shift operator.
