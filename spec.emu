@@ -277,6 +277,11 @@
             <td>Indicates whether the parser is currently parsing TypeScript syntax.</td>
           </tr>
           <tr>
+            <td>[[MCTS]]</td>
+            <td>a Boolean</td>
+            <td>Indicates whether the parser is currently parsing `*.mts` or `*.cts` files.</td>
+          </tr>
+          <tr>
             <td>[[JSX]]</td>
             <td>a Boolean</td>
             <td>Indicates whether the parser is currently parsing JSX syntax.</td>
@@ -292,7 +297,7 @@
       <emu-note>
         <p>[[JSXLazy]] is intended to represent the "DOM Expressions" semantics, which is primarily used by Solid.</p>
       </emu-note>
-      <p>The <dfn id="default-syntax-context-record">default Syntax Context Record</dfn> is the Syntax Context Record { [[TypeScript]]: *false*, [[JSX]]: *false* }.</p>
+      <p>The <dfn id="default-syntax-context-record">default Syntax Context Record</dfn> is the Syntax Context Record { [[TypeScript]]: *false*, [[MCTS]]: *false*, [[JSX]]: *false*, [[JSXLazy]]: *false* }.</p>
 
       <emu-clause id="sec-jsx-isvalidjsxelement" type="abstract operation">
         <h1>
@@ -2509,7 +2514,7 @@
     <emu-clause id="sec-ts-type-parameters-lookahead-syntax-alterations">
       <h1>Syntax Alterations</h1>
       <p>By default, |TypeParametersLookahead| does not match anything.</p>
-      <p>However, when [[TypeScript]] of the current syntax context is *true* and [[JSX]] of the current syntax context is *true*, we add the following productions to |TypeParametersLookahead|:</p>
+      <p>However, when [[TypeScript]] of the current syntax context is *true* and [[JSX]] or [[MCTS]] of the current syntax context is *true*, we add the following productions to |TypeParametersLookahead|:</p>
       <emu-grammar>
         TypeParametersLookahead[Yield, Await]:
           `&lt;` `const`? IdentifierReference[?Yield, ?Await] `extends` [lookahead &notin; { `=`, `&gt;`, `/` }]
@@ -2526,7 +2531,7 @@
         <p>Actual parsers implement these rules in various ways.</p>
         <p>See notes in <emu-xref href="#sec-jsx-lookahead"></emu-xref>.</p>
       </emu-note>
-      <p>And when [[TypeScript]] of the current syntax context is *true* but [[JSX]] of the current syntax context is *false*, we add the following productions to |TypeParametersLookahead|:</p>
+      <p>And when [[TypeScript]] of the current syntax context is *true* but [[JSX]] and [[MCTS]] of the current syntax context are *false*, we add the following productions to |TypeParametersLookahead|:</p>
       <emu-grammar>
         TypeParametersLookahead[Yield, Await]:
           `&lt;`
@@ -2840,7 +2845,7 @@
     </emu-note>
     <emu-clause id="sec-ts-unary-operators-syntax-alterations">
       <h1>Syntax Alterations</h1>
-      <p>When [[TypeScript]] of the current syntax context is *true* and [[JSX]] of the current syntax context is *false*, we add the following production to the grammar of |UnaryExpression|:</p>
+      <p>When [[TypeScript]] of the current syntax context is *true* and [[JSX]] and [[MCTS]] of the current syntax context are *false*, we add the following production to the grammar of |UnaryExpression|:</p>
       <emu-grammar>
         UnaryExpression[Yield, Await] :
           `&lt;` Type[?Yield, ?Await] `&gt;` UnaryExpression[?Yield, ?Await]
