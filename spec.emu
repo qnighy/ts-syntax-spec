@@ -2832,7 +2832,7 @@
     </emu-clause>
   </emu-clause>
 
-  <emu-clause id="sec-update-expressions">
+  <emu-clause id="sec-ts-update-expressions">
     <h1>Update Expressions</h1>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-UpdateExpression">UpdateExpression</a>:</p>
 
