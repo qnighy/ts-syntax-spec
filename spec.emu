@@ -2887,6 +2887,10 @@
         `~` UnaryExpression[?Yield, ?Await, ~RelHead]
         `!` UnaryExpression[?Yield, ?Await, ~RelHead]
         [+Await] AwaitExpression[?Yield]
+        [lookahead == LegacyTypeAssertionLookahead] `&lt;` Type[?Yield, ?Await] `&gt;` UnaryExpression[?Yield, ?Await, ~RelHead]
+
+      LegacyTypeAssertionLookahead :
+        [> (no production)]
     </emu-grammar>
 
     <emu-note>
@@ -2894,10 +2898,10 @@
     </emu-note>
     <emu-clause id="sec-ts-unary-operators-syntax-alterations">
       <h1>Syntax Alterations</h1>
-      <p>When [[TypeScript]] of the current syntax context is *true* and [[JSX]] and [[MCTS]] of the current syntax context are *false*, we add the following production to the grammar of |UnaryExpression|:</p>
+      <p>When [[TypeScript]] of the current syntax context is *true* and [[JSX]] and [[MCTS]] of the current syntax context are *false*, we add the following production to the grammar of |LegacyTypeAssertionLookahead|:</p>
       <emu-grammar>
-        UnaryExpression[Yield, Await] :
-          `&lt;` Type[?Yield, ?Await] `&gt;` UnaryExpression[?Yield, ?Await]
+        LegacyTypeAssertionLookahead :
+          `&lt;`
       </emu-grammar>
       <emu-note>
         <p>Only one of JSX tags and legacy type assertions can be enabled at a time. When neither of [[TypeScript]] nor [[JSX]] is enabled, the choice is arbitrary as we would rule it out with Early Errors anyway. We choose to enable JSX tags in this case to imitate TSC's behaviour.</p>
