@@ -71,9 +71,13 @@ Symptom: `<` can be one of the following:
 - `<T>(x) => x`, an arrow function with type parameters
 - `<T>(x)`, a legacy type assertion
 
+See [lt-without-jsx.md](./ambiguities/lt-without-jsx.md) for details.
+
 ## `<` at the start of an expression (JSX on)
 
 Symptom: `<` can be one of the following:
 
 - `<T>(x) => x`, an arrow function with type parameters
 - `<T>(x)</T>`, a JSX element
+
+See [lt-with-jsx.md](./ambiguities/lt-with-jsx.md) for details.

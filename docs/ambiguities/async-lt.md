@@ -37,6 +37,8 @@ If the operand is `async`, TSC tries to parse generic async arrow functions befo
 13. Final rescan opportunity for `:`: if it is a context where an else branch of a conditional expression is allowed, a return type annotation is found anyway, and the next token is not `:`, backtrack and try other options.
 14. Otherwise, it is definitely a generic async arrow function.
 
+The algorithm is shared with the `<` case, see [lt-without-jsx.md](./ambiguities/lt-without-jsx.md) and [lt-with-jsx.md](./ambiguities/lt-with-jsx.md) for details.
+
 ## Babel
 
 If the operand is `async`, Babel tries to parse generic async arrow functions before trying other options. See parseSubscript override.
