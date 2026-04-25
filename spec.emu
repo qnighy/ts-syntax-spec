@@ -118,7 +118,7 @@
     <li>TSX is a combination of TypeScript and JSX with additional syntactic rules to disambiguate between TypeScript and JSX constructs.</li>
   </ul>
   <p>An implementation supporting both TypeScript and JSX doesn't automatically support TSX.</p>
-  <p>An implementation must first conform to ECMA-262 as described in the original spec's <emu-xref href="#sec-conformance">conformance requirements</emu-xref>. As an exception, <emu-xref href="#sec-forbidden-extensions">Forbidden Extensions</emu-xref> is modified in subclause <emu-xref href="#sec-ts-forbidden-extensions"></emu-xref> to allow type annotations without interfering with the original spec's forward compatibility intent.</p>
+  <p>An implementation must first conform to ECMA-262 as described in the original spec's <emu-xref href="#sec-conformance">conformance requirements</emu-xref>. As an exception, <emu-xref href="#sec-forbidden-extensions">Forbidden Extensions</emu-xref> is modified in <emu-xref href="#sec-ts-forbidden-extensions">Forbidden Extensions</emu-xref> in this specification to allow type annotations without interfering with the original spec's forward compatibility intent.</p>
   <p>To conform to this specification, an implementation must support some or all of the categories as well as ECMA-262's conformance requirements, and clearly document which categories are supported.</p>
 
   <emu-note>
