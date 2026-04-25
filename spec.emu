@@ -1917,9 +1917,9 @@
       <h1>Type References</h1>
       <emu-grammar type="definition">
         TypeReference[Yield, Await] :
-          TypeIdentifierReference[?Yield, ?Await]
+          TypeIdentifierReference[?Yield, ?Await] [lookahead != ` ` [no LineTerminator here] `&lt;`]
           TypeIdentifierReference[?Yield, ?Await] [no LineTerminator here] TypeArguments[?Yield, ?Await]
-          QualifiedTypeName[?Yield, ?Await]
+          QualifiedTypeName[?Yield, ?Await] [lookahead != ` ` [no LineTerminator here] `&lt;`]
           QualifiedTypeName[?Yield, ?Await] [no LineTerminator here] TypeArguments[?Yield, ?Await]
 
         QualifiedTypeName[Yield, Await] :
@@ -1930,6 +1930,10 @@
 
       <emu-note>
         <p>Type identifiers following `.` is |IdentifierName|, therefore exempt from the restrictions on reserved words.</p>
+      </emu-note>
+      <emu-note>
+        <p>The negative lookahead restriction ensures that |Type| is parsed greedily, and is important for `as`/`satisfies` expressions.</p>
+        <p>This means that `0 as Extract&lt;0, 0&gt; + 0` is parsed as `(0 as (Extract&lt;0, 0&gt;)) + 0` and evaluated as `0 + 0`, while `0 as number&lt;0, 0&gt; + 0` is parsed as `((0 as number) &lt; 0), (0 &gt; +0)` and evaluated as `0 &lt; 0, 0 &gt; +0`.</p>
       </emu-note>
       <emu-note>
         <p>TSC parses |TypeReference| permissively as described in <emu-xref href="#sec-ts-permissive-primary-types"></emu-xref>. It implies that TSC doesn't parse the following valid expressions using `&lt;` operators:</p>
@@ -2626,6 +2630,7 @@
 <emu-clause id="sec-typescript-language-expressions">
   <h1>TypeScript Language: Expressions</h1>
   <p>This section extends <emu-xref href="#sec-ecmascript-language-expressions">ECMAScript Language: Expressions</emu-xref> to support TypeScript-specific expressions.</p>
+
   <emu-clause id="sec-ts-primary-expression">
     <h1>Primary Expressions</h1>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-PrimaryExpression">PrimaryExpression</a>:</p>
@@ -2674,6 +2679,7 @@
       </ul>
     </emu-clause>
   </emu-clause>
+
   <emu-clause id="sec-ts-left-hand-side-expressions">
     <h1>Left-Hand-Side Expressions</h1>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-MemberExpression">MemberExpression</a>:</p>
@@ -2825,21 +2831,64 @@
       </emu-alg>
     </emu-clause>
   </emu-clause>
+
+  <emu-clause id="sec-update-expressions">
+    <h1>Update Expressions</h1>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-UpdateExpression">UpdateExpression</a>:</p>
+
+    <emu-grammar type="definition">
+      UpdateExpression[Yield, Await, RelHead] :
+        LeftHandSideExpression[?Yield, ?Await]
+        LeftHandSideExpression[?Yield, ?Await] [no LineTerminator here] `++`
+        LeftHandSideExpression[?Yield, ?Await] [no LineTerminator here] `--`
+        `++` UnaryExpression[?Yield, ?Await, ~RelHead]
+        `--` UnaryExpression[?Yield, ?Await, ~RelHead]
+        [+RelHead] RelationalExpression[?In, ?Yield, ?Await] [no LineTerminator here] `as` Type[?Yield, ?Await] [lookahead &notin; { `&`, `|` }]
+        [+RelHead] RelationalExpression[?In, ?Yield, ?Await] [no LineTerminator here] `as` `const`
+        [+RelHead] RelationalExpression[?In, ?Yield, ?Await] [no LineTerminator here] `satisfies` Type[?Yield, ?Await] [lookahead &notin; { `&`, `|` }]
+    </emu-grammar>
+
+    <emu-note>
+      <p>The negative lookahead restriction ensures that |Type| is parsed greedily.</p>
+      <p>This means that `0 as 0 | 0` is parsed as `0 as (0 | 0)`, not `(0 as 0) | 0`.</p>
+      <p>One edge case is `assert as (x: boolean) => asserts x | false`: TSC parses the return type as `asserts x | false` and then reports an error for the invalid occurrence of `asserts`.</p>
+    </emu-note>
+    <emu-note>
+      <p>`as` and `satisfies` expressions appear here, not in |RelationalExpression|. The ambiguity is resolved by the new <sub>[RelHead]</sub> flag.</p>
+      <p>This means `1 + 1 as number / 2` is parsed as `((1 + 1) as number) / 2` and evaluated as `(1 + 1) / 2`.</p>
+    </emu-note>
+
+    <emu-clause id="sec-ts-relational-operators-runtime-semantics-evaluation" type="sdo">
+      <h1>Runtime Semantics: Evaluation</h1>
+      <emu-grammar>
+        UpdateExpression:
+          RelationalExpression `as` Type
+          RelationalExpression `as` `const`
+          RelationalExpression `satisfies` Type
+      </emu-grammar>
+      <emu-alg>
+        1. Return ? Evaluation of |RelationalExpression|. This may be of type Reference.
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
+
   <emu-clause id="sec-ts-unary-operators">
     <h1>Unary Operators</h1>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-UnaryExpression">UnaryExpression</a>:</p>
+
     <emu-grammar type="definition">
-      UnaryExpression[Yield, Await] :
-        UpdateExpression[?Yield, ?Await]
-        `delete` UnaryExpression[?Yield, ?Await]
-        `void` UnaryExpression[?Yield, ?Await]
-        `typeof` UnaryExpression[?Yield, ?Await]
-        `+` UnaryExpression[?Yield, ?Await]
-        `-` UnaryExpression[?Yield, ?Await]
-        `~` UnaryExpression[?Yield, ?Await]
-        `!` UnaryExpression[?Yield, ?Await]
+      UnaryExpression[Yield, Await, RelHead] :
+        UpdateExpression[?Yield, ?Await, ?RelHead]
+        `delete` UnaryExpression[?Yield, ?Await, ~RelHead]
+        `void` UnaryExpression[?Yield, ?Await, ~RelHead]
+        `typeof` UnaryExpression[?Yield, ?Await, ~RelHead]
+        `+` UnaryExpression[?Yield, ?Await, ~RelHead]
+        `-` UnaryExpression[?Yield, ?Await, ~RelHead]
+        `~` UnaryExpression[?Yield, ?Await, ~RelHead]
+        `!` UnaryExpression[?Yield, ?Await, ~RelHead]
         [+Await] AwaitExpression[?Yield]
     </emu-grammar>
+
     <emu-note>
       The productions above is the same as the original ECMA-262 grammar, but see the next clause.</p>
     </emu-note>
@@ -2862,39 +2911,93 @@
       </emu-alg>
     </emu-clause>
   </emu-clause>
+
+  <emu-clause id="sec-ts-exp-operator">
+    <h1>Exponentiation Operator</h1>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-UpdateExpression">UpdateExpression</a>:</p>
+
+    <emu-grammar type="definition">
+      ExponentiationExpression[Yield, Await, RelHead] :
+        UnaryExpression[?Yield, ?Await, ?RelHead]
+        UpdateExpression[?Yield, ?Await, ?RelHead] `**` ExponentiationExpression[?Yield, ?Await, ~RelHead]
+    </emu-grammar>
+
+    <emu-note>
+      <p>Nothing is extended except the new flag <sub>[RelHead]</sub>.</p>
+    </emu-note>
+  </emu-clause>
+
+  <emu-clause id="sec-ts-multiplicative-operators">
+    <h1>Multiplicative Operators</h1>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-MultiplicativeExpression">MultiplicativeExpression</a>:</p>
+
+    <emu-grammar type="definition">
+      MultiplicativeExpression[Yield, Await, RelHead] :
+        ExponentiationExpression[?Yield, ?Await, ?RelHead]
+        MultiplicativeExpression[?Yield, ?Await, ?RelHead] MultiplicativeOperator ExponentiationExpression[?Yield, ?Await, ~RelHead]
+    </emu-grammar>
+
+    <emu-note>
+      <p>Nothing is extended except the new flag <sub>[RelHead]</sub>.</p>
+    </emu-note>
+  </emu-clause>
+
+  <emu-clause id="sec-ts-additive-operators">
+    <h1>Additive Operators</h1>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-AdditiveExpression">AdditiveExpression</a>:</p>
+
+    <emu-grammar type="definition">
+      AdditiveExpression[Yield, Await, RelHead] :
+        MultiplicativeExpression[?Yield, ?Await, ?RelHead]
+        AdditiveExpression[?Yield, ?Await, ?RelHead] `+` MultiplicativeExpression[?Yield, ?Await, ~RelHead]
+        AdditiveExpression[?Yield, ?Await, ?RelHead] `-` MultiplicativeExpression[?Yield, ?Await, ~RelHead]
+    </emu-grammar>
+
+    <emu-note>
+      <p>Nothing is extended except the new flag <sub>[RelHead]</sub>.</p>
+    </emu-note>
+  </emu-clause>
+
+  <emu-clause id="sec-ts-bitwise-shift-operators">
+    <h1>Bitwise Shift Operators</h1>
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-ShiftExpression">ShiftExpression</a>:</p>
+
+    <emu-grammar type="definition">
+      ShiftExpression[Yield, Await, RelHead] :
+        AdditiveExpression[?Yield, ?Await, ?RelHead]
+        ShiftExpression[?Yield, ?Await, ?RelHead] `&lt;&lt;` AdditiveExpression[?Yield, ?Await, ~RelHead]
+        ShiftExpression[?Yield, ?Await, ?RelHead] `&gt;&gt;` AdditiveExpression[?Yield, ?Await, ~RelHead]
+        ShiftExpression[?Yield, ?Await, ?RelHead] `&gt;&gt;&gt;` AdditiveExpression[?Yield, ?Await, ~RelHead]
+    </emu-grammar>
+
+    <emu-note>
+      <p>Nothing is extended except the new flag <sub>[RelHead]</sub>.</p>
+    </emu-note>
+  </emu-clause>
+
   <emu-clause id="sec-ts-relational-operators">
     <h1>Relational Operators</h1>
     <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-RelationalExpression">RelationalExpression</a>:</p>
     <emu-grammar type="definition">
       RelationalExpression[In, Yield, Await] :
-        ShiftExpression[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] [lookahead != TypeArgumentsLookahead[?Yield, ?Await]] `&lt;` ShiftExpression[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] `&gt;` ShiftExpression[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] `&lt;=` ShiftExpression[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] `&gt;=` ShiftExpression[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] `instanceof` ShiftExpression[?Yield, ?Await]
-        [+In] RelationalExpression[+In, ?Yield, ?Await] `in` ShiftExpression[?Yield, ?Await]
-        [+In] PrivateIdentifier `in` ShiftExpression[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] [no LineTerminator here] `as` Type[?Yield, ?Await]
-        RelationalExpression[?In, ?Yield, ?Await] [no LineTerminator here] `satisfies` Type[?Yield, ?Await]
+        ShiftExpression[?Yield, ?Await, +RelHead]
+        RelationalExpression[?In, ?Yield, ?Await] [lookahead != TypeArgumentsLookahead[?Yield, ?Await]] `&lt;` ShiftExpression[?Yield, ?Await, ~RelHead]
+        RelationalExpression[?In, ?Yield, ?Await] `&gt;` ShiftExpression[?Yield, ?Await, ~RelHead]
+        RelationalExpression[?In, ?Yield, ?Await] `&lt;=` ShiftExpression[?Yield, ?Await, ~RelHead]
+        RelationalExpression[?In, ?Yield, ?Await] `&gt;=` ShiftExpression[?Yield, ?Await, ~RelHead]
+        RelationalExpression[?In, ?Yield, ?Await] `instanceof` ShiftExpression[?Yield, ?Await, ~RelHead]
+        [+In] RelationalExpression[+In, ?Yield, ?Await] `in` ShiftExpression[?Yield, ?Await, ~RelHead]
+        [+In] PrivateIdentifier `in` ShiftExpression[?Yield, ?Await, ~RelHead]
     </emu-grammar>
-    <!-- TODO: as const -->
+
     <emu-note>
       <p>The production for `&lt;` is modified from the original ECMA-262 grammar to include a lookahead restriction that prevents ambiguity with |ExpressionTypeArguments|.</p>
       <p>Its semantics is the same, as the derivation tree is unchanged.</p>
       <p>This modification takes effect only when [[TypeScript]] is *true*. See <emu-xref href="#sec-ts-type-arguments-syntax-alterations">Type Arguments Syntax Alterations</emu-xref>.</p>
     </emu-note>
-    <emu-clause id="sec-ts-relational-operators-runtime-semantics-evaluation" type="sdo">
-      <h1>Runtime Semantics: Evaluation</h1>
-      <emu-grammar>RelationalExpression: RelationalExpression `as` Type</emu-grammar>
-      <emu-alg>
-        1. Return ? Evaluation of |RelationalExpression|. This may be of type Reference.
-      </emu-alg>
-      <emu-grammar>RelationalExpression: RelationalExpression `satisfies` Type</emu-grammar>
-      <emu-alg>
-        1. Return ? Evaluation of |RelationalExpression|. This may be of type Reference.
-      </emu-alg>
-    </emu-clause>
+    <emu-note>
+      <p>`as` and `satisfies` expressions are defined as part of |UpdateExpression|. Their precedence is "relational" only to the left.</p>
+    </emu-note>
   </emu-clause>
 </emu-clause>
 
@@ -3625,8 +3728,19 @@
       AsyncMethod[Yield, Await] :
         `async` [no LineTerminator here] ClassElementName[?Yield, ?Await] TypeParameters[?Yield, ?Await]? `(` UniqueFormalParameters[~Yield, +Await] `)` ReturnTypeAnnotation[?Yield, ?Await, +Predicate]? `{` AsyncFunctionBody `}`
     </emu-grammar>
+
+    <p>The following grammar extends <a href="https://tc39.es/ecma262/#prod-AwaitExpression">AwaitExpression</a>:</p>
+
+    <emu-grammar type="definition">
+      AwaitExpression[Yield] :
+        `await` UnaryExpression[?Yield, +Await, ~RelHead]
+    </emu-grammar>
+
     <emu-note>
       <p>Async functions cannot have meaningful type predicates because their return types cannot be void or boolean. We allow them here nonetheless because the errors are more like type errors than syntax errors.</p>
+    </emu-note>
+    <emu-note>
+      <p>|AwaitExpression| is not extended except the new flag <sub>[RelHead]</sub>.</p>
     </emu-note>
     <emu-clause id="sec-ts-async-function-definitions-syntax-mapping">
       <h1>Syntax Mapping</h1>
