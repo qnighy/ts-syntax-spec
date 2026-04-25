@@ -2858,7 +2858,7 @@
       <p>This means `1 + 1 as number / 2` is parsed as `((1 + 1) as number) / 2` and evaluated as `(1 + 1) / 2`.</p>
     </emu-note>
 
-    <emu-clause id="sec-ts-relational-operators-runtime-semantics-evaluation" type="sdo">
+    <emu-clause id="sec-ts-update-expressions-runtime-semantics-evaluation" type="sdo">
       <h1>Runtime Semantics: Evaluation</h1>
       <emu-grammar>
         UpdateExpression:
