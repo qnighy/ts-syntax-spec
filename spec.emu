@@ -4062,15 +4062,15 @@
       </emu-alg>
       <emu-grammar>
         JSXMemberExpression :
-          JSXMemberExpressionBase `.` JSXIdentifierName
+          JSXIdentifierReference `.` JSXIdentifierName
       </emu-grammar>
       <emu-alg>
-        1. Let _object_ be the StringValue of |JSXMemberExpressionBase|.
+        1. Let _object_ be the StringValue of |JSXIdentifierReference|.
         1. Let _property_ be the StringValue of |JSXIdentifierName|.
         1. Return the concatenation of _object_, U+002E (FULL STOP), and _property_.
       </emu-alg>
       <emu-grammar>
-        JSXMemberExpressionBase :
+        JSXMemberExpression :
           JSXMemberExpression `.` JSXIdentifierName
       </emu-grammar>
       <emu-alg>
