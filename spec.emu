@@ -1403,10 +1403,11 @@
     <p>When `&lt;` or `&gt;` in such productions is expected, the parser needs to rescan the following tokens to correctly interpret them as angle brackets:</p>
     <ul>
       <li>`&lt;&lt;`</li>
-      <li>`&gt;&gt;`</li>
-      <li>`&gt;&gt;&gt;`</li>
-      <li>`&gt;&gt;=`</li>
       <li>`&gt;=`</li>
+      <li>`&gt;&gt;`</li>
+      <li>`&gt;&gt;=`</li>
+      <li>`&gt;&gt;&gt;`</li>
+      <li>`&gt;&gt;&gt;=`</li>
     </ul>
     <emu-note>
       <p>`&lt;=` and `&lt;&lt;=` do not involve rescanning, as they cannot be reinterpreted as part of valid TypeScript syntax.</p>
@@ -1414,11 +1415,12 @@
     <emu-note>
       <p>The following examples illustrate the need for rescanning:</p>
       <ul>
-        <li>In `type T = Readonly&lt;Partial&lt;U&gt;&gt;;`, the token `&gt;&gt;` is split into two tokens.</li>
-        <li>In `type T = Readonly&lt;Partial&lt;Omit&lt;U, keyof V&gt;&gt;&gt;;`, the token `&gt;&gt;&gt;` is split into three tokens.</li>
-        <li>In `type T&lt;U&gt;= V;`, the token `&gt;=` is split into two tokens.</li>
-        <li>In `type T&lt;K extends Exclude&lt;keyof U, keyof V&gt;&gt;= W;`, the token `&gt;&gt;=` is split into three tokens.</li>
         <li>In `f&lt;&lt;T&gt;() =&gt; void&gt;();`, the token `&lt;&lt;` is split into two tokens.</li>
+        <li>In `type T&lt;U&gt;= V;`, the token `&gt;=` is split into two tokens.</li>
+        <li>In `type T = Readonly&lt;Partial&lt;U&gt;&gt;;`, the token `&gt;&gt;` is split into two tokens.</li>
+        <li>In `type T&lt;K extends Exclude&lt;keyof U, keyof V&gt;&gt;= W;`, the token `&gt;&gt;=` is split into three tokens.</li>
+        <li>In `type T = Readonly&lt;Partial&lt;Omit&lt;U, keyof V&gt;&gt;&gt;;`, the token `&gt;&gt;&gt;` is split into three tokens.</li>
+        <li>In `type T&lt;K extends AddPrefix&lt;P, Exclude&lt;keyof U, keyof V&gt;&gt;&gt;= W;`, the token `&gt;&gt;&gt;=` is split into four tokens.</li>
       </ul>
     </emu-note>
     <emu-note>
