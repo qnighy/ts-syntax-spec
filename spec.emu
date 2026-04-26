@@ -2888,14 +2888,19 @@
         `!` UnaryExpression[?Yield, ?Await, ~RelHead]
         [+Await] AwaitExpression[?Yield]
         [lookahead == LegacyTypeAssertionLookahead] `&lt;` Type[?Yield, ?Await] `&gt;` UnaryExpression[?Yield, ?Await, ~RelHead]
+        [lookahead == LegacyTypeAssertionLookahead] `&lt;` `const` `&gt;` UnaryExpression[?Yield, ?Await, ~RelHead]
 
       LegacyTypeAssertionLookahead :
         [> (no production)]
     </emu-grammar>
 
     <emu-note>
-      The productions above is the same as the original ECMA-262 grammar, but see the next clause.</p>
+      <p>Actual parsers implement these rules in various ways.</p>
+      <ul>
+        <li>Babel and SWC allows legacy type assertions on the left hand side of exponentiation expressions.</li>
+      </ul>
     </emu-note>
+
     <emu-clause id="sec-ts-unary-operators-syntax-alterations">
       <h1>Syntax Alterations</h1>
       <p>When [[TypeScript]] of the current syntax context is *true* and [[JSX]] and [[MCTS]] of the current syntax context are *false*, we add the following production to the grammar of |LegacyTypeAssertionLookahead|:</p>
@@ -2907,9 +2912,14 @@
         <p>Only one of JSX tags and legacy type assertions can be enabled at a time. When neither of [[TypeScript]] nor [[JSX]] is enabled, the choice is arbitrary as we would rule it out with Early Errors anyway. We choose to enable JSX tags in this case to imitate TSC's behaviour.</p>
       </emu-note>
     </emu-clause>
+
     <emu-clause id="sec-ts-unary-operators-evaluation" type="sdo">
       <h1>Runtime Semantics: Evaluation</h1>
-      <emu-grammar>UnaryExpression: `&lt;` Type `&gt;` UnaryExpression</emu-grammar>
+      <emu-grammar>
+        UnaryExpression :
+          `&lt;` Type `&gt;` UnaryExpression
+          `&lt;` `const` `&gt;` UnaryExpression
+      </emu-grammar>
       <emu-alg>
         1. Return ? Evaluation of |UnaryExpression|. This may be of type Reference.
       </emu-alg>
