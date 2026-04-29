@@ -282,6 +282,16 @@
             <td>Indicates whether the parser is currently parsing `*.mts` or `*.cts` files.</td>
           </tr>
           <tr>
+            <td>[[FancySyntax]]</td>
+            <td>a Boolean</td>
+            <td>Indicates whether the parser allows syntax that needs transpilation beyond type stripping.</td>
+          </tr>
+          <tr>
+            <td>[[LegacyClassFields]]</td>
+            <td>a Boolean</td>
+            <td>Indicates whether the parser applies an alternative semantics for class fields.</td>
+          </tr>
+          <tr>
             <td>[[JSX]]</td>
             <td>a Boolean</td>
             <td>Indicates whether the parser is currently parsing JSX syntax.</td>
@@ -297,7 +307,29 @@
       <emu-note>
         <p>[[JSXLazy]] is intended to represent the "DOM Expressions" semantics, which is primarily used by Solid.</p>
       </emu-note>
-      <p>The <dfn id="default-syntax-context-record">default Syntax Context Record</dfn> is the Syntax Context Record { [[TypeScript]]: *false*, [[MCTS]]: *false*, [[JSX]]: *false*, [[JSXLazy]]: *false* }.</p>
+      <p>The <dfn id="default-syntax-context-record">default Syntax Context Record</dfn> is the Syntax Context Record { [[TypeScript]]: *false*, [[MCTS]]: *false*, [[FancySyntax]]: *false*, [[LegacyClassFields]]: *false*, [[JSX]]: *false*, [[JSXLazy]]: *false* }.</p>
+
+      <emu-note>
+        <p>Correspondence between Syntax Context Record and `tsconfig.json` compiler options is as follows:</p>
+        <ul>
+          <li>[[TypeScript]]: enabled for `*.ts`, `*.tsx`, `*.mts`, and `*.cts` files</li>
+          <li>[[MCTS]]: enabled for `*.mts` and `*.cts` files</li>
+          <li>[[FancySyntax]]: enabled when `erasableSyntaxOnly: false`</li>
+          <li>[[LegacyClassFields]]: enabled when `useDefineForClassFields: false`</li>
+          <li>[[JSX]]: enabled for `*.jsx` and `*.tsx` files</li>
+          <li>[[JSXLazy]]: irrelevant in TSC</li>
+        </ul>
+
+        <p>Correspondence between Syntax Context Record and `babel.config.js` options is as follows:</p>
+        <ul>
+          <li>[[TypeScript]]: enabled for `*.ts`, `*.tsx`, `*.mts`, and `*.cts` files</li>
+          <li>[[MCTS]]: enabled for `*.mts` and `*.cts` files</li>
+          <li>[[FancySyntax]]: irrelevant in Babel</li>
+          <li>[[LegacyClassFields]]: enabled when babel-plugin-transform-typescript is configured with `allowDeclareFields: false`</li>
+          <li>[[JSX]]: enabled for `*.jsx` and `*.tsx` files</li>
+          <li>[[JSXLazy]]: enabled when babel-plugin-jsx-dom-expressions is configured for JSX transformation</li>
+        </ul>
+      </emu-note>
 
       <emu-clause id="sec-jsx-isvalidjsxelement" type="abstract operation">
         <h1>
